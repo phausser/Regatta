@@ -17,9 +17,9 @@
 - [x] True Wind Pfeil (cyan)
 - [x] Apparent Wind Pfeil (orange)
 - [x] Wind-Änderungssystem (langsame Drift)
-- [ ] Detailliertes Segel-Trim Model
-- [ ] Reefing Mechanik
-- [ ] Visuelle Segelwölbung
+- [x] Detailliertes Segel-Trim Model
+- [x] Reefing Mechanik (R-Taste, −40% Fläche)
+- [x] Visuelle Segelwölbung (Bezier, Farb-Feedback)
 
 ## Phase 3: Rennstrecke
 - [ ] Bojen System + Kollisionserkennung
@@ -48,8 +48,8 @@
 - [ ] Kurs-Editor
 - [ ] Multiplayer
 
-**Aktueller Fokus**: Phase 2 – Wind & Segel (visuell)
+**Aktueller Fokus**: Phase 3 – Rennstrecke
 
 ---
 
-**Letztes Update**: 23. Mai 2026 – Phase 1 abgeschlossen
+**Letztes Update**: 23. Mai 2026 – Phase 2 abgeschlossen

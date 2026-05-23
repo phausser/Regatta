@@ -13,6 +13,8 @@ const Debug = {
     const awaDeg   = (Math.abs(Boat.awa) * 180 / Math.PI).toFixed(0);
     const awaDir   = Boat.awa >= 0 ? 'STBD' : 'PORT';
     const trimDeg  = (Boat.trimAngle * 180 / Math.PI).toFixed(0);
+    const stateStr = { good: 'OK ✓', luffing: 'LUFF ↓', overtrimmed: 'TIGHT ↑' }[Boat.sailState];
+    const reefStr  = Boat.reefed ? 'REEF' : 'full';
 
     const lines = [
       'DEBUG  (D = toggle)',
@@ -22,7 +24,9 @@ const Debug = {
       `Pos:   ${Boat.x.toFixed(0)}, ${Boat.y.toFixed(0)}`,
       `Hdg:   ${hdgDeg}°`,
       `Speed: ${Boat.speed.toFixed(1)} kn`,
-      `Trim:  ${trimDeg}°`,
+      '─────────────────',
+      `Trim:  ${trimDeg}°  ${stateStr}`,
+      `Eff:   ${(Boat.trimEff * 100).toFixed(0)}%  ${reefStr}`,
       `AWA:   ${awaDeg}° ${awaDir}`,
       `AWS:   ${Boat.awSpeed.toFixed(1)} kn`,
       '─────────────────',
@@ -46,14 +50,15 @@ const Debug = {
 
     // Controls hint (bottom-left)
     const hints = [
-      '← → : Ruder',
-      '↑ ↓ : Segel-Trim',
-      '+/− / Rad: Zoom',
-      'D   : Debug',
+      '← →  : Ruder',
+      '↑ ↓  : Segel-Trim',
+      'R    : Reef',
+      '+/−/Rad: Zoom',
+      'D    : Debug',
     ];
     const hintY = canvas.height - pad - hints.length * 18;
     ctx.fillStyle = 'rgba(0,0,0,0.5)';
-    ctx.fillRect(pad, hintY - 6, 140, hints.length * 18 + 12);
+    ctx.fillRect(pad, hintY - 6, 150, hints.length * 18 + 12);
     ctx.font = '12px monospace';
     hints.forEach((h, i) => {
       ctx.fillStyle = '#aaaaaa';
