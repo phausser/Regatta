@@ -28,12 +28,12 @@
 - [x] Renn-Zeitmessung (mm:ss.t)
 - [x] Distanz / Seemeilen Zähler (nM)
 
-## Phase 4: Visuelles
-- [ ] Geometrisches Wasser-Rendering
+## Phase 4: Visuelles ✓
+- [x] Geometrisches Wasser-Rendering (Kacheln + animierte Wellenlinien)
 - [x] Boot + Segel zeichnen
-- [ ] Bugwellen Partikel
-- [ ] HUD (Knoten, Timer, Windpfeile, etc.)
-- [x] Windpfeile True + Apparent
+- [x] Bugwellen Partikel (Schaum-Fächer am Bug)
+- [x] HUD (Rennen oben rechts, Windkompass unten rechts)
+- [x] Windpfeile True + Apparent (Kompass-HUD)
 
 ## Phase 5: Polish
 - [ ] Startmenü
@@ -48,8 +48,8 @@
 - [ ] Kurs-Editor
 - [ ] Multiplayer
 
-**Aktueller Fokus**: Phase 4 – Visuelles
+**Aktueller Fokus**: Phase 5 – Polish
 
 ---
 
-**Letztes Update**: 23. Mai 2026 – Phase 3 abgeschlossen
+**Letztes Update**: 23. Mai 2026 – Phase 4 abgeschlossen

@@ -13,6 +13,7 @@ resize();
 
 Input.init();
 Race.init();
+Renderer.init();
 
 // Mausrad-Zoom (zuverlässig auf allen Tastaturen)
 canvas.addEventListener('wheel', e => {
@@ -50,42 +51,21 @@ function update(dt) {
   Wind.update(dt);
   Boat.update(dt, Wind);
   Race.update(dt, Boat);
+  Renderer.update(dt, Boat);
   Camera.follow(Boat, dt);
 }
 
 // ── Draw ──────────────────────────────────────────────────────────────────────
 function draw() {
-  ctx.fillStyle = '#0a1a2e';
-  ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-  drawGrid();
+  Renderer.drawBackground(ctx, canvas);
   drawWorldBorder();
 
   Race.draw(ctx, canvas);
+  Renderer.drawParticles(ctx, canvas);
   Boat.draw(ctx, canvas);
+  Renderer.drawWindCompass(ctx, canvas);
 
   Debug.draw(ctx, canvas, state);
-}
-
-function drawGrid() {
-  const GRID = 500;
-  const tl   = Camera.toWorld(0, 0, canvas);
-  const br   = Camera.toWorld(canvas.width, canvas.height, canvas);
-
-  const x0 = Math.floor(tl.x / GRID) * GRID;
-  const y0 = Math.floor(tl.y / GRID) * GRID;
-
-  ctx.strokeStyle = 'rgba(255,255,255,0.04)';
-  ctx.lineWidth   = 1;
-
-  for (let wx = x0; wx <= br.x + GRID; wx += GRID) {
-    const s = Camera.toScreen(wx, 0, canvas);
-    ctx.beginPath(); ctx.moveTo(s.x, 0); ctx.lineTo(s.x, canvas.height); ctx.stroke();
-  }
-  for (let wy = y0; wy <= br.y + GRID; wy += GRID) {
-    const s = Camera.toScreen(0, wy, canvas);
-    ctx.beginPath(); ctx.moveTo(0, s.y); ctx.lineTo(canvas.width, s.y); ctx.stroke();
-  }
 }
 
 // Dashed world boundary (5000 × 5000)

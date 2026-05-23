@@ -184,8 +184,6 @@ const Boat = {
     }
 
     ctx.restore();
-
-    this._drawWindArrows(ctx, s, sc);
   },
 
   _drawWindArrows(ctx, s, sc) {
