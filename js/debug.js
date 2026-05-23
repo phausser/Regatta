@@ -48,7 +48,7 @@ const Debug = {
     const hints = [
       '← → : Ruder',
       '↑ ↓ : Segel-Trim',
-      '+ − : Zoom',
+      '+/− / Rad: Zoom',
       'D   : Debug',
     ];
     const hintY = canvas.height - pad - hints.length * 18;

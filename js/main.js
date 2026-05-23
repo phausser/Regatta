@@ -13,6 +13,13 @@ resize();
 
 Input.init();
 
+// Mausrad-Zoom (zuverlässig auf allen Tastaturen)
+canvas.addEventListener('wheel', e => {
+  e.preventDefault();
+  const factor = e.deltaY < 0 ? 1.12 : 1 / 1.12;
+  Camera.zoom = Math.max(0.1, Math.min(5, Camera.zoom * factor));
+}, { passive: false });
+
 // ── Game loop ─────────────────────────────────────────────────────────────────
 let lastTime = performance.now();
 
@@ -32,9 +39,12 @@ function loop(timestamp) {
 function update(dt) {
   Debug.update();
 
-  // Zoom: +/- (or =/- on US keyboard)
-  if (Input.isPressed('Equal')) Camera.zoom = Math.min(5,   Camera.zoom * 1.25);
-  if (Input.isPressed('Minus')) Camera.zoom = Math.max(0.1, Camera.zoom / 1.25);
+  // Zoom: kontinuierlich während Taste gehalten
+  // Equal=US+, BracketRight=DE+, NumpadAdd; Minus=US-/DE-, NumpadSubtract
+  const zoomIn  = Input.isDown('Equal') || Input.isDown('BracketRight') || Input.isDown('NumpadAdd');
+  const zoomOut = Input.isDown('Minus') || Input.isDown('NumpadSubtract');
+  if (zoomIn)  Camera.zoom = Math.min(5,   Camera.zoom * (1 + 1.2 * dt));
+  if (zoomOut) Camera.zoom = Math.max(0.1, Camera.zoom / (1 + 1.2 * dt));
 
   Wind.update(dt);
   Boat.update(dt, Wind);
