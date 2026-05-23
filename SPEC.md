@@ -10,70 +10,87 @@
 ## Kern-Features
 
 ### 1. Spielwelt
-- Große offene See (z.B. 5000 × 5000 Welt-Einheiten)
+- Große offene See (5000 × 5000 Welt-Einheiten)
 - Zentrale Kamera folgt dem Boot
 - **Geometrischer Wasser-Effekt**:
-  - Feines diagonales Wellengitter mit Sinus-Animation
-  - Leichte Farb- und Helligkeitsvariation je nach Wind
-  - Bugwellen / Schaum-Partikel
+  - Kacheln mit sinus-animierter Helligkeit, windabhängige Farbgebung
+  - Wellenlinien senkrecht zur Windrichtung, weltverankert scrollend
+  - Bugwellen / Schaum-Partikel (zwei Fächer am Bug)
 
 ### 2. Boot & Segel
 - Geometrisches Boot (Dreieck + Kiel + Ruder)
-- Großsegel als Dreieck, einstellbarer Winkel
-- Reefing (Segel verkleinern)
+- Großsegel als Bezier-Kurve mit Wölbung, einstellbarer Winkel
+- Visuelles Trim-Feedback: gelb (gut), orange (zu eng), rot-flatternd (luffing)
+- Reefing: Segelfläche −40 %, R-Taste
 
 ### 3. Physik
 - Echter **scheinbarer Wind** (Apparent Wind)
-- Schub abhängig von:
-  - Winkel zwischen Apparent Wind und Segel
-  - Segelfläche
-  - Bootsrichtung
-- Trägheit, Rudereffekt, seitliche Drift
+- Schub abhängig von AWA (Polarkurve), Trimm-Effizienz, Segelfläche
+- Trägheit, Rudereffekt, seitliche Drift (Leeway)
+- No-Go-Zone: |AWA| < ~34°
 
 ### 4. Wind-System
-- True Wind: Basisrichtung + Stärke
-- Langsame Änderungen (±8–15° alle 15–40 Sekunden)
-- Apparent Wind: Berechnet aus True Wind + Bootsgeschwindigkeit/Vektor
+- True Wind: Basisrichtung + Stärke (Standard: 8 kn aus Ost)
+- Langsame Änderungen (±15° alle 15–40 Sekunden)
+- Apparent Wind: True Wind − Bootsgeschwindigkeitsvektor
 
-### 5. Wind-Darstellung (aktualisiert)
-- **True Wind Pfeil** (hellblau/cyan) – zeigt echte Windrichtung
-- **Apparent Wind Pfeil** (orange/gelb) – zeigt relevanten Wind für Segeltrimm
-- Beide Pfeile im HUD oben rechts
-- Zusätzliche numerische Anzeigen (Knoten + Grad)
+### 5. Wind-Darstellung
+- **True Wind Pfeil** (cyan) + **Apparent Wind Pfeil** (orange) im Kompass-HUD (unten rechts)
+- Numerische Anzeigen: TWD/TWS und AWA/AWS in Knoten + Grad
 
 ### 6. Regatta-Elemente
-- Starttor (zwei Bojen + Linie)
-- 3–5 Rundungsbojen (in Reihenfolge)
-- Zieltor
-- Zeitmessung, Knoten, zurückgelegte Seemeilen
-- Nächste Boje + Distanz
+- Starttor: zwei Bojen (rot/grün) + Linie; Kreuzung süd→nord startet Rennen
+- 3 Rundungsbojen in Reihenfolge (Approach-Guard: erst ab 2,5× Radius aktiv)
+- Zieltor (dasselbe Gate, erneute Kreuzung)
+- HUD oben rechts: Phase, Zeit (mm:ss.t), Geschwindigkeit, Seemeilen, nächste Boje + Distanz
+- Bestzeiten: Top 5 in localStorage gespeichert
 
-### 7. Steuerung
-- Pfeiltasten: Ruder + Segeltrim
-- R = Reef togglen
-- Optional: Maus zum Trimmen
+### 7. Menü & UI
+- Animiertes Startmenü (Tastatur + Maus)
+- Interaktives Tutorial: 4 in-game Schritte mit Bottom-Panel-Overlay und Fortschrittsbalken
+- Finish-Overlay: Zeit, Rang, Bestzeiten-Liste, Buttons (Nochmal / Hauptmenü)
+- Escape → zurück zum Menü; T → Neustart
 
-### 8. Ästhetik
+### 8. Sound
+- Web Audio API, keine Audiodateien
+- Wind-Rauschen: Lautstärke + Filterfrequenz skalieren mit Windstärke
+- Fahrtgeräusch (Bugwellen): skaliert mit Bootsgeschwindigkeit
+- Segel-Flattern: Bandpass-Rauschen mit LFO, aktiv bei sailState = luffing
+- Bojen-Ping beim Runden jeder Tonne
+- C-Dur-Fanfare beim Zieleinlauf
+- M-Taste: Stummschalten
+
+### 9. Steuerung
+- Pfeiltasten: Ruder + Segeltrimm
+- R = Reef, T = Neustart, Esc = Menü, M = Mute
+- Zoom: +/−/Mausrad
+- Maus: Menü-Navigation + Buttons
+
+### 10. Ästhetik
 - Minimalistisch, geometrisch, clean
 - Farbpalette: Tiefblau, Türkis, Weiß, Orange-Akzente
 - Klare HUD-Elemente
 
 ## Technische Anforderungen
-- Delta-Time basierter Game-Loop
+- Delta-Time basierter Game-Loop (dt gekappt auf 0,1 s)
 - Vektor-Mathematik für Physik
-- Saubere Trennung: `Boat.js`, `Wind.js`, `Race.js`, `Renderer.js`
+- Saubere Trennung der Module (siehe AGENTS.md)
 - Responsive Canvas (window resize)
 - Kein Build-Step – reines HTML5 + Vanilla JS, direkt im Browser öffnen
+- AudioContext lazy initialisiert (Autoplay-Policy-konform)
 
-## MVP-Ziele
-1. Boot + Physik + Segeltrim
-2. True + Apparent Wind System
-3. Windpfeile (True + Apparent)
-4. 3 Bojen + Start/Ziel
-5. Schönes Wasser + HUD
-6. Timer + Geschwindigkeit
+## Status
+
+| Phase | Inhalt | Status |
+|-------|--------|--------|
+| 0 | Canvas, Game Loop, Kamera, Debug | ✓ |
+| 1 | Boot, Ruder, Segel, True/Apparent Wind, Kraft | ✓ |
+| 2 | Wind-Visualisierung, Trim-Modell, Reefing | ✓ |
+| 3 | Rennstrecke, Bojen, Start/Ziel, Zeitmessung | ✓ |
+| 4 | Wasser-Rendering, HUD, Bugwellen | ✓ |
+| 5 | Menü, Tutorial, Highscores, Sound | ✓ |
 
 ---
 
-**Letztes Update**: 23. Mai 2026 – Phase 0 abgeschlossen
+**Letztes Update**: 24. Mai 2026 – Phase 5 abgeschlossen  
 **Autor**: Grok + Patrick
