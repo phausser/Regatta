@@ -35,12 +35,12 @@
 - [x] HUD (Rennen oben rechts, Windkompass unten rechts)
 - [x] Windpfeile True + Apparent (Kompass-HUD)
 
-## Phase 5: Polish
-- [ ] Startmenü
-- [ ] Rennende Screen
-- [ ] Highscores (localStorage)
-- [ ] Tutorial
-- [ ] Sound (optional)
+## Phase 5: Polish ✓
+- [x] Startmenü (animierter Hintergrund, Tastatur + Maus)
+- [x] Rennende Screen (Overlay mit Zeit + Bestzeiten-Platzierung)
+- [x] Highscores (localStorage, Top 5)
+- [x] Tutorial (interaktiv, 4 Schritte, Fortschrittsanzeige)
+- [ ] Sound (bewusst weggelassen)
 
 ## Nice-to-have
 - [ ] Verschiedene Windstärken / Böen
@@ -48,8 +48,8 @@
 - [ ] Kurs-Editor
 - [ ] Multiplayer
 
-**Aktueller Fokus**: Phase 5 – Polish
+**Aktueller Fokus**: Fertig! Nice-to-have / Erweiterungen
 
 ---
 
-**Letztes Update**: 23. Mai 2026 – Phase 4 abgeschlossen
+**Letztes Update**: 24. Mai 2026 – Phase 5 abgeschlossen

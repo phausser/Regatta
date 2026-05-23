@@ -53,6 +53,8 @@ const Debug = {
       '← →  : Ruder',
       '↑ ↓  : Segel-Trim',
       'R    : Reef',
+      'T    : Neustart',
+      'Esc  : Menü',
       '+/−/Rad: Zoom',
       'D    : Debug',
     ];

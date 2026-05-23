@@ -50,8 +50,6 @@ const Race = {
 
   // ── Update ─────────────────────────────────────────────────────────────────
   update(dt, boat) {
-    if (Input.isPressed('KeyT')) { this.reset(); return; }
-
     // Gesamtstrecke
     const dx = boat.x - this._lastBX;
     const dy = boat.y - this._lastBY;
@@ -290,12 +288,6 @@ const Race = {
     if (this.phase === 'pre_start') {
       lines.push({ text: '──────────────────', color: G });
       lines.push({ text: 'Startlinie kreuzen', color: '#666677' });
-      lines.push({ text: 'T = Neustart',       color: '#666677' });
-    }
-
-    if (this.phase === 'finished') {
-      lines.push({ text: '──────────────────', color: G });
-      lines.push({ text: 'T = Neustart', color: '#888888' });
     }
 
     return lines;
