@@ -2,7 +2,7 @@
 const WORLD_SCALE = 20; // hull length in world units
 
 const Boat = {
-  x: 2500, y: 2500,
+  x: 2500, y: 2800,
   heading:   0,
   speed:     0,
   vx: 0, vy: 0,

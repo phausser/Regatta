@@ -21,12 +21,12 @@
 - [x] Reefing Mechanik (R-Taste, −40% Fläche)
 - [x] Visuelle Segelwölbung (Bezier, Farb-Feedback)
 
-## Phase 3: Rennstrecke
-- [ ] Bojen System + Kollisionserkennung
-- [ ] Start- und Zieltor Logik
-- [ ] Wegpunkt-Reihenfolge
-- [ ] Renn-Zeitmessung
-- [ ] Distanz / Seemeilen Zähler
+## Phase 3: Rennstrecke ✓
+- [x] Bojen System + Kollisionserkennung (Proximity + Approach-Check)
+- [x] Start- und Zieltor Logik (Linienkreuzung süd→nord)
+- [x] Wegpunkt-Reihenfolge (3 Tonnen + Start/Ziel-Gate)
+- [x] Renn-Zeitmessung (mm:ss.t)
+- [x] Distanz / Seemeilen Zähler (nM)
 
 ## Phase 4: Visuelles
 - [ ] Geometrisches Wasser-Rendering
@@ -48,8 +48,8 @@
 - [ ] Kurs-Editor
 - [ ] Multiplayer
 
-**Aktueller Fokus**: Phase 3 – Rennstrecke
+**Aktueller Fokus**: Phase 4 – Visuelles
 
 ---
 
-**Letztes Update**: 23. Mai 2026 – Phase 2 abgeschlossen
+**Letztes Update**: 23. Mai 2026 – Phase 3 abgeschlossen

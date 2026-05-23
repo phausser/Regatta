@@ -12,6 +12,7 @@ window.addEventListener('resize', resize);
 resize();
 
 Input.init();
+Race.init();
 
 // Mausrad-Zoom (zuverlässig auf allen Tastaturen)
 canvas.addEventListener('wheel', e => {
@@ -48,6 +49,7 @@ function update(dt) {
 
   Wind.update(dt);
   Boat.update(dt, Wind);
+  Race.update(dt, Boat);
   Camera.follow(Boat, dt);
 }
 
@@ -59,6 +61,7 @@ function draw() {
   drawGrid();
   drawWorldBorder();
 
+  Race.draw(ctx, canvas);
   Boat.draw(ctx, canvas);
 
   Debug.draw(ctx, canvas, state);
