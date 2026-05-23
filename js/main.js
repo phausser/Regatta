@@ -6,6 +6,10 @@ const ctx    = canvas.getContext('2d');
 let gameScreen  = 'menu';
 let _scoreSaved = false;
 
+// Race transition tracking for one-shot sounds
+let _prevWp    = 0;
+let _prevPhase = 'pre_start';
+
 function resize() {
   canvas.width  = window.innerWidth;
   canvas.height = window.innerHeight;
@@ -29,6 +33,8 @@ canvas.addEventListener('wheel', e => {
 function startGame() {
   Race.reset();
   _scoreSaved = false;
+  _prevWp     = 0;
+  _prevPhase  = 'pre_start';
   UI._newRank = -1;
   gameScreen  = 'game';
 }
@@ -37,6 +43,8 @@ function startTutorial() {
   Race.reset();
   Tutorial.begin();
   _scoreSaved = false;
+  _prevWp     = 0;
+  _prevPhase  = 'pre_start';
   gameScreen  = 'tutorial';
 }
 
@@ -65,6 +73,8 @@ function update(dt) {
   Debug.update();
   Wind.update(dt);
 
+  if (Input.isPressed('KeyM')) Sfx.toggleMute();
+
   if (gameScreen === 'menu') {
     const action = UI.updateMenu(dt);
     if (action === 'game')     startGame();
@@ -85,11 +95,17 @@ function update(dt) {
   Race.update(dt, Boat);
   Renderer.update(dt, Boat);
   Camera.follow(Boat, dt);
+  Sfx.update(Boat, Wind);
+
+  // One-shot sounds on race transitions
+  if (Race.wp > _prevWp)                                        Sfx.playBuoyPing();
+  if (Race.phase === 'finished' && _prevPhase !== 'finished')   Sfx.playFinish();
+  _prevWp    = Race.wp;
+  _prevPhase = Race.phase;
 
   if (gameScreen === 'tutorial') {
     Tutorial.update(dt);
     if (Tutorial.isDone()) {
-      // Seamlessly continue playing; tutorial panel disappears
       gameScreen = 'game';
     }
   }
@@ -104,6 +120,8 @@ function update(dt) {
   if (Input.isPressed('KeyT')) {
     Race.reset();
     _scoreSaved = false;
+    _prevWp     = 0;
+    _prevPhase  = 'pre_start';
     UI._newRank = -1;
   }
 }
@@ -134,6 +152,17 @@ function draw() {
     const action = UI.drawFinishOverlay(ctx, canvas);
     if (action === 'restart') startGame();
     if (action === 'menu')    goToMenu();
+  }
+
+  // Mute-Indikator (oben links, nur wenn stummgeschaltet)
+  if (Sfx.muted) {
+    ctx.save();
+    ctx.font         = '12px monospace';
+    ctx.fillStyle    = 'rgba(255,255,255,0.40)';
+    ctx.textAlign    = 'left';
+    ctx.textBaseline = 'top';
+    ctx.fillText('🔇 M', 10, canvas.height - 38);
+    ctx.restore();
   }
 }
 

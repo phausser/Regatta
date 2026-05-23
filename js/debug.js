@@ -55,6 +55,7 @@ const Debug = {
       'R    : Reef',
       'T    : Neustart',
       'Esc  : Menü',
+      'M    : Stummschalten',
       '+/−/Rad: Zoom',
       'D    : Debug',
     ];

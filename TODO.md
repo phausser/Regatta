@@ -40,7 +40,7 @@
 - [x] Rennende Screen (Overlay mit Zeit + Bestzeiten-Platzierung)
 - [x] Highscores (localStorage, Top 5)
 - [x] Tutorial (interaktiv, 4 Schritte, Fortschrittsanzeige)
-- [ ] Sound (bewusst weggelassen)
+- [x] Sound (Web Audio API: Wind, Wasser, Flattern, Bojen-Ping, Ziel-Fanfare)
 
 ## Nice-to-have
 - [ ] Verschiedene Windstärken / Böen
