@@ -145,7 +145,7 @@ const Race = {
       canvas
     );
     ctx.save();
-    ctx.font      = `bold ${Math.max(11, 13 * Camera.zoom)}px sans-serif`;
+    ctx.font      = `bold ${Math.max(11, 13 * Camera.zoom)}px Roboto, sans-serif`;
     ctx.textAlign = 'center';
     if (this.phase === 'finished') {
       ctx.fillStyle = '#44ee88';
@@ -190,7 +190,7 @@ const Race = {
     this._buoy(ctx, s, pr, mark.rounded ? '#445566' : (isNext ? '#ffffff' : mark.color));
 
     // Nummer in abgedunkelter Bojenfarbe
-    ctx.font         = `bold ${Math.max(9, 11 * Camera.zoom)}px sans-serif`;
+    ctx.font         = `bold ${Math.max(9, 11 * Camera.zoom)}px Roboto, sans-serif`;
     ctx.fillStyle    = mark.rounded ? '#aaaaaa' : this._darken(mark.color);
     ctx.textAlign    = 'center';
     ctx.textBaseline = 'middle';
@@ -198,7 +198,7 @@ const Race = {
 
     // Haken wenn gerundet
     if (mark.rounded) {
-      ctx.font      = `${Math.max(8, 10 * Camera.zoom)}px sans-serif`;
+      ctx.font      = `${Math.max(8, 10 * Camera.zoom)}px Roboto, sans-serif`;
       ctx.fillStyle = '#44ee88';
       ctx.fillText('✓', s.x + pr * 1.4, s.y - pr * 1.0);
     }
@@ -257,22 +257,23 @@ const Race = {
     const X    = canvas.width - W - PAD;
     const Y    = PAD;
 
-    ctx.fillStyle = 'rgba(0,0,0,0.65)';
+    ctx.fillStyle = 'rgba(255,255,255,0.96)';
     ctx.fillRect(X, Y, W, H);
 
-    ctx.font = '12px monospace';
+    ctx.font = '12px "Roboto Mono", monospace';
     lines.forEach((l, i) => {
-      ctx.fillStyle = l.color || '#00ff88';
+      ctx.fillStyle = l.color || '#083478';
       ctx.fillText(l.text, X + 8, Y + 14 + i * LINE);
     });
   },
 
   _hudLines() {
-    const G  = '#334455';
+    const G  = 'rgba(8,52,120,0.20)';
+    const SEA = '#083478';
     const lines = [];
 
     const phaseLabel = { pre_start: 'PRE-START', racing: '● RENNEN', finished: '✓ ZIEL!' }[this.phase];
-    const phaseColor = { pre_start: '#888888',   racing: '#ffcc00',  finished: '#44ee88' }[this.phase];
+    const phaseColor = { pre_start: 'rgba(8,52,120,0.45)', racing: SEA, finished: SEA }[this.phase];
     lines.push({ text: phaseLabel, color: phaseColor });
     lines.push({ text: '──────────────────', color: G });
 
@@ -285,13 +286,13 @@ const Race = {
 
     if (this.phase === 'racing') {
       lines.push({ text: '──────────────────', color: G });
-      lines.push({ text: `Nächste: ${this._nextLabel()}`, color: '#ffcc00' });
+      lines.push({ text: `Nächste: ${this._nextLabel()}` });
       lines.push({ text: `Dist:    ${this._nextDist().toFixed(0)} m` });
     }
 
     if (this.phase === 'pre_start') {
       lines.push({ text: '──────────────────', color: G });
-      lines.push({ text: 'Startlinie kreuzen', color: '#666677' });
+      lines.push({ text: 'Startlinie kreuzen', color: 'rgba(8,52,120,0.50)' });
     }
 
     return lines;

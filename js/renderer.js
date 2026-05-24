@@ -175,32 +175,33 @@ const Renderer = {
     ctx.restore();
   },
 
-  // ── Wind-Kompass HUD (unten rechts) ───────────────────────────────────────
+  // ── Wind-Kompass HUD (oben links) ────────────────────────────────────────
   drawWindCompass(ctx, canvas) {
-    const R = 46;
+    const R   = 46;
     const PAD = 14;
-    const cx = canvas.width - R - PAD;
-    const cy = canvas.height - R - PAD - 28;  // 28px Platz für Text darunter
+    const cx  = R + PAD;
+    const cy  = R + PAD + 10;
 
-    // Hintergrund
     ctx.save();
+
+    // Weißer Hintergrund
     ctx.beginPath();
     ctx.arc(cx, cy, R + 5, 0, Math.PI * 2);
-    ctx.fillStyle = 'rgba(0,0,0,0.65)';
+    ctx.fillStyle = 'rgba(255,255,255,0.96)';
     ctx.fill();
 
     // Ring
     ctx.beginPath();
     ctx.arc(cx, cy, R, 0, Math.PI * 2);
-    ctx.strokeStyle = 'rgba(255,255,255,0.18)';
+    ctx.strokeStyle = 'rgba(8,52,120,0.18)';
     ctx.lineWidth = 1;
     ctx.stroke();
 
     // Himmelsrichtungen
-    ctx.font = '9px monospace';
+    ctx.font = '9px "Roboto Mono", monospace';
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
-    ctx.fillStyle = 'rgba(255,255,255,0.30)';
+    ctx.fillStyle = 'rgba(8,52,120,0.40)';
     [['N', 0, -1], ['O', 1, 0], ['S', 0, 1], ['W', -1, 0]].forEach(([l, dx, dy]) => {
       ctx.fillText(l, cx + dx * (R - 9), cy + dy * (R - 9));
     });
@@ -209,21 +210,20 @@ const Renderer = {
     this._compassArrow(ctx, cx, cy, R * 0.82, Wind.dir, '#00e5ff', 2.5);
 
     // Apparent-Wind Pfeil (orange, kürzer)
-    const awDir = Math.atan2(Boat.awvx, -Boat.awvy);  // Kompesskurs der AW-Vektors
+    const awDir = Math.atan2(Boat.awvx, -Boat.awvy);
     this._compassArrow(ctx, cx, cy, R * 0.62, awDir, '#ff9800', 2.0);
 
     // Beschriftung
     ctx.textAlign = 'left';
     ctx.textBaseline = 'alphabetic';
-    ctx.font = '10px monospace';
+    ctx.font = '10px "Roboto Mono", monospace';
+    ctx.fillStyle = '#083478';
 
     const twFrom = Wind.fromDeg().toFixed(0).padStart(3);
-    ctx.fillStyle = '#00e5ff';
     ctx.fillText(`TW ${twFrom}°  ${Wind.speed.toFixed(0)} kn`, cx - R, cy + R + 14);
 
     const awaDeg = (Math.abs(Boat.awa) * 180 / Math.PI).toFixed(0).padStart(3);
-    const awaDir = Boat.awa >= 0 ? 'S' : 'B';  // S=Steuerbord, B=Backbord
-    ctx.fillStyle = '#ff9800';
+    const awaDir = Boat.awa >= 0 ? 'S' : 'B';
     ctx.fillText(`AW ${awaDeg}°${awaDir} ${Boat.awSpeed.toFixed(0)} kn`, cx - R, cy + R + 26);
 
     ctx.restore();

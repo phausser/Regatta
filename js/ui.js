@@ -89,10 +89,10 @@ const UI = {
     ctx.save();
     ctx.textAlign    = 'center';
     ctx.textBaseline = 'middle';
-    ctx.font         = 'bold 36px sans-serif';
+    ctx.font         = 'bold 36px Roboto, sans-serif';
     ctx.fillStyle    = this._SEA;
     ctx.fillText('GeoSail', W / 2, panY + 52);
-    ctx.font      = '13px monospace';
+    ctx.font      = '13px "Roboto Mono", monospace';
     ctx.fillStyle = this._SEA_MID;
     ctx.fillText('Regatta', W / 2, panY + 80);
     ctx.restore();
@@ -115,7 +115,7 @@ const UI = {
       this._roundRect(ctx, btnX, by, btnW, btnH, 8);
       ctx.fill();
 
-      ctx.font         = active ? 'bold 15px sans-serif' : '15px sans-serif';
+      ctx.font         = active ? 'bold 15px Roboto, sans-serif' : '15px Roboto, sans-serif';
       ctx.fillStyle    = this._SEA;
       ctx.textAlign    = 'center';
       ctx.textBaseline = 'middle';
@@ -131,12 +131,12 @@ const UI = {
       ctx.save();
       ctx.textAlign    = 'center';
       ctx.textBaseline = 'top';
-      ctx.font         = '11px monospace';
+      ctx.font         = '11px "Roboto Mono", monospace';
       ctx.fillStyle    = this._SEA_FAINT;
       ctx.fillText('Bestzeiten', W / 2, panY + panH - 72);
       for (let i = 0; i < sc.length; i++) {
         ctx.fillStyle = i === 0 ? this._SEA : this._SEA_MID;
-        ctx.font      = i === 0 ? 'bold 11px monospace' : '11px monospace';
+        ctx.font      = i === 0 ? 'bold 11px "Roboto Mono", monospace' : '11px "Roboto Mono", monospace';
         ctx.fillText(`${i + 1}. ${this._fmtTime(sc[i])}`, W / 2, panY + panH - 57 + i * 14);
       }
       ctx.restore();
@@ -146,7 +146,7 @@ const UI = {
     ctx.save();
     ctx.textAlign    = 'center';
     ctx.textBaseline = 'alphabetic';
-    ctx.font         = '10px monospace';
+    ctx.font         = '10px "Roboto Mono", monospace';
     ctx.fillStyle    = 'rgba(255,255,255,0.30)';
     ctx.fillText('↑↓ navigieren  ·  Enter bestätigen', W / 2, H - 14);
     ctx.restore();
@@ -170,33 +170,33 @@ const UI = {
     ctx.textAlign    = 'center';
     ctx.textBaseline = 'middle';
 
-    ctx.font      = 'bold 26px sans-serif';
+    ctx.font      = 'bold 26px Roboto, sans-serif';
     ctx.fillStyle = this._SEA;
     ctx.fillText('Ziel erreicht!', W / 2, panY + 44);
 
-    ctx.font      = '22px monospace';
+    ctx.font      = '22px "Roboto Mono", monospace';
     ctx.fillStyle = this._SEA;
     ctx.fillText(Race._fmtTime(Race.raceTime), W / 2, panY + 84);
 
     const rank = this._newRank;
     if (rank === 0) {
-      ctx.font      = '13px sans-serif';
+      ctx.font      = '13px Roboto, sans-serif';
       ctx.fillStyle = this._GOLD;
       ctx.fillText('Neue Bestzeit!', W / 2, panY + 114);
     } else if (rank > 0) {
-      ctx.font      = '13px sans-serif';
+      ctx.font      = '13px Roboto, sans-serif';
       ctx.fillStyle = this._SEA_MID;
       ctx.fillText(`Platz ${rank + 1} in den Bestzeiten`, W / 2, panY + 114);
     }
 
     // Bestzeiten-Liste
     const sc = this.scores();
-    ctx.font      = '11px monospace';
+    ctx.font      = '11px "Roboto Mono", monospace';
     ctx.fillStyle = this._SEA_FAINT;
     ctx.fillText('Bestzeiten', W / 2, panY + 146);
     for (let i = 0; i < sc.length; i++) {
       const hi = i === rank;
-      ctx.font      = hi ? 'bold 12px monospace' : '11px monospace';
+      ctx.font      = hi ? 'bold 12px "Roboto Mono", monospace' : '11px "Roboto Mono", monospace';
       ctx.fillStyle = hi ? this._SEA : this._SEA_MID;
       ctx.fillText(`${i + 1}. ${this._fmtTime(sc[i])}`, W / 2, panY + 164 + i * 18);
     }
@@ -217,7 +217,7 @@ const UI = {
       ctx.fillStyle = hover ? this._BTN_HOV : this._BTN;
       this._roundRect(ctx, bx, btnsY, btnW, btnH, 8);
       ctx.fill();
-      ctx.font      = hover ? 'bold 14px sans-serif' : '14px sans-serif';
+      ctx.font      = hover ? 'bold 14px Roboto, sans-serif' : '14px Roboto, sans-serif';
       ctx.fillStyle = this._SEA;
       ctx.fillText(labels[i], bx + btnW / 2, btnsY + btnH / 2);
       if (hover && Input.isClick()) clicked = i === 0 ? 'restart' : 'menu';

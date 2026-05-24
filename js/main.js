@@ -157,7 +157,7 @@ function draw() {
   // Mute-Indikator (oben links, nur wenn stummgeschaltet)
   if (Sfx.muted) {
     ctx.save();
-    ctx.font         = '12px monospace';
+    ctx.font         = '12px "Roboto Mono", monospace';
     ctx.fillStyle    = 'rgba(255,255,255,0.40)';
     ctx.textAlign    = 'left';
     ctx.textBaseline = 'top';

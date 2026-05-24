@@ -9,6 +9,10 @@ const Debug = {
   draw(ctx, canvas, state) {
     if (!this.enabled) return;
 
+    const SEA      = '#083478';
+    const SEA_MID  = 'rgba(8,52,120,0.55)';
+    const SEA_LINE = 'rgba(8,52,120,0.18)';
+
     const hdgDeg   = (Boat.heading * 180 / Math.PI).toFixed(0).padStart(3);
     const awaDeg   = (Math.abs(Boat.awa) * 180 / Math.PI).toFixed(0);
     const awaDir   = Boat.awa >= 0 ? 'STBD' : 'PORT';
@@ -39,16 +43,19 @@ const Debug = {
     const boxW  = 210;
     const boxH  = pad * 2 + lines.length * lineH;
 
-    ctx.fillStyle = 'rgba(0,0,0,0.65)';
-    ctx.fillRect(pad, pad, boxW, boxH);
+    const boxX = canvas.width - boxW - pad;
+    const boxY = canvas.height - boxH - pad;
 
-    ctx.font = '12px monospace';
+    ctx.fillStyle = 'rgba(255,255,255,0.96)';
+    ctx.fillRect(boxX, boxY, boxW, boxH);
+
+    ctx.font = '12px "Roboto Mono", monospace';
     lines.forEach((line, i) => {
-      ctx.fillStyle = i === 0 ? '#ffcc00' : line.startsWith('─') ? '#334455' : '#00ff88';
-      ctx.fillText(line, pad + 8, pad + 14 + i * lineH);
+      ctx.fillStyle = line.startsWith('─') ? SEA_LINE : i === 0 ? SEA : SEA_MID;
+      ctx.fillText(line, boxX + 8, boxY + 14 + i * lineH);
     });
 
-    // Controls hint (bottom-left)
+    // Steuerung (unten links)
     const hints = [
       '← →  : Ruder',
       '↑ ↓  : Segel-Trim',
@@ -60,11 +67,11 @@ const Debug = {
       'D    : Debug',
     ];
     const hintY = canvas.height - pad - hints.length * 18;
-    ctx.fillStyle = 'rgba(0,0,0,0.5)';
-    ctx.fillRect(pad, hintY - 6, 150, hints.length * 18 + 12);
-    ctx.font = '12px monospace';
+    ctx.fillStyle = 'rgba(255,255,255,0.96)';
+    ctx.fillRect(pad, hintY - 6, 160, hints.length * 18 + 12);
+    ctx.font = '12px "Roboto Mono", monospace';
     hints.forEach((h, i) => {
-      ctx.fillStyle = '#aaaaaa';
+      ctx.fillStyle = SEA_MID;
       ctx.fillText(h, pad + 8, hintY + 8 + i * 18);
     });
   }
