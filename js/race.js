@@ -3,8 +3,8 @@ const Race = {
 
   // ── Kursdefinition ─────────────────────────────────────────────────────────
   gate: {
-    port: { x: 2100, y: 2600, color: '#ff4455' },   // rotes Kommitee-Schiff
-    stbd: { x: 2900, y: 2600, color: '#44ee88' },   // grüne Pin-Boje
+    port: { x: 2100, y: 2600, color: '#ff4455' },   // Backbord: rot
+    stbd: { x: 2900, y: 2600, color: '#44ee88' },   // Steuerbord: grün
   },
 
   // Tonnen in Reihenfolge; boot muss auf < radius kommen (mit Approach-Check)
@@ -23,9 +23,9 @@ const Race = {
   // ── Init / Reset ───────────────────────────────────────────────────────────
   init() {
     this.marks = [
-      { x: 1600, y: 1100, radius: 90, color: '#ff8800', label: '1', approached: false, rounded: false },
+      { x: 1600, y: 1100, radius: 90, color: '#ffcc00', label: '1', approached: false, rounded: false },
       { x: 3800, y: 1300, radius: 90, color: '#ffcc00', label: '2', approached: false, rounded: false },
-      { x: 2500, y: 3200, radius: 90, color: '#ff8800', label: '3', approached: false, rounded: false },
+      { x: 2500, y: 3200, radius: 90, color: '#ffcc00', label: '3', approached: false, rounded: false },
     ];
     this.phase          = 'pre_start';
     this.wp             = 0;
@@ -189,9 +189,9 @@ const Race = {
     // Boje
     this._buoy(ctx, s, pr, mark.rounded ? '#445566' : (isNext ? '#ffffff' : mark.color));
 
-    // Nummer
+    // Nummer in abgedunkelter Bojenfarbe
     ctx.font         = `bold ${Math.max(9, 11 * Camera.zoom)}px sans-serif`;
-    ctx.fillStyle    = mark.rounded ? '#aaaaaa' : '#000000';
+    ctx.fillStyle    = mark.rounded ? '#aaaaaa' : this._darken(mark.color);
     ctx.textAlign    = 'center';
     ctx.textBaseline = 'middle';
     ctx.fillText(mark.label, s.x, s.y);
@@ -210,12 +210,16 @@ const Race = {
     ctx.save();
     ctx.beginPath();
     ctx.arc(screenPos.x, screenPos.y, r, 0, Math.PI * 2);
-    ctx.fillStyle   = color;
+    ctx.fillStyle = color;
     ctx.fill();
-    ctx.strokeStyle = 'rgba(255,255,255,0.55)';
-    ctx.lineWidth   = 1.5;
-    ctx.stroke();
     ctx.restore();
+  },
+
+  _darken(hex) {
+    const r = parseInt(hex.slice(1, 3), 16);
+    const g = parseInt(hex.slice(3, 5), 16);
+    const b = parseInt(hex.slice(5, 7), 16);
+    return `rgb(${Math.floor(r * 0.42)},${Math.floor(g * 0.42)},${Math.floor(b * 0.42)})`;
   },
 
   _drawNextLine(ctx, canvas) {

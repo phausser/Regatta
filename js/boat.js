@@ -147,11 +147,8 @@ const Boat = {
     ctx.lineTo(-hw, hl * 0.75);
     ctx.lineTo( hw, hl * 0.75);
     ctx.closePath();
-    ctx.fillStyle   = '#dde8f0';
+    ctx.fillStyle = '#dde8f0';
     ctx.fill();
-    ctx.strokeStyle = '#88aacc';
-    ctx.lineWidth   = 1;
-    ctx.stroke();
 
     // Keel
     ctx.fillStyle = '#445566';

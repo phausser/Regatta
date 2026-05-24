@@ -1,15 +1,15 @@
 // Renderer – Wasser, Partikel, Wind-Kompass
 const Renderer = {
 
-  _waveT:      0,   // kontinuierliche Wellen-Zeit
-  _particles:  [],
+  _waveT: 0,   // kontinuierliche Wellen-Zeit
+  _particles: [],
   _spawnAccum: 0,
 
   // ── Init ───────────────────────────────────────────────────────────────────
   init() {
-    this._particles  = [];
+    this._particles = [];
     this._spawnAccum = 0;
-    this._waveT      = 0;
+    this._waveT = 0;
   },
 
   // ── Update ─────────────────────────────────────────────────────────────────
@@ -22,10 +22,10 @@ const Renderer = {
   // ── Hintergrund: Wasser-Kacheln + Wellenlinien ────────────────────────────
   drawBackground(ctx, canvas) {
     // Basisfarbe (leicht windabhängig)
-    const wf  = Math.min(1, Wind.speed / 18);
-    const r   = Math.round(8  + wf * 6);
-    const g   = Math.round(20 + wf * 12);
-    const b   = Math.round(42 + wf * 18);
+    const wf = Math.min(1, Wind.speed / 18);
+    const r = Math.round(8  + wf * 5);
+    const g = Math.round(52 + wf * 14);
+    const b = Math.round(120 + wf * 20);
     ctx.fillStyle = `rgb(${r},${g},${b})`;
     ctx.fillRect(0, 0, canvas.width, canvas.height);
 
@@ -36,20 +36,20 @@ const Renderer = {
 
   // Welt-Kacheln mit sinus-animierter Helligkeit
   _drawWaterTiles(ctx, canvas) {
-    const TILE  = 160;  // Welt-Einheiten pro Kachel
-    const t     = this._waveT;
-    const wf    = Math.min(1, Wind.speed / 18);
-    const tl    = Camera.toWorld(0, 0, canvas);
-    const br    = Camera.toWorld(canvas.width, canvas.height, canvas);
+    const TILE = 160;  // Welt-Einheiten pro Kachel
+    const t = this._waveT;
+    const wf = Math.min(1, Wind.speed / 18);
+    const tl = Camera.toWorld(0, 0, canvas);
+    const br = Camera.toWorld(canvas.width, canvas.height, canvas);
     const tileS = TILE * Camera.zoom + 1;
 
     for (let wx = Math.floor(tl.x / TILE) * TILE; wx < br.x + TILE; wx += TILE) {
       for (let wy = Math.floor(tl.y / TILE) * TILE; wy < br.y + TILE; wy += TILE) {
-        const v  = Math.sin(wx * 0.006 + wy * 0.004 + t * 0.35) * 0.5 + 0.5;
-        const rv = Math.round(8  + v * 7  + wf * 5);
-        const gv = Math.round(20 + v * 12 + wf * 10);
-        const bv = Math.round(42 + v * 18 + wf * 15);
-        const s  = Camera.toScreen(wx, wy, canvas);
+        const v = Math.sin(wx * 0.006 + wy * 0.004 + t * 0.35) * 0.5 + 0.5;
+        const rv = Math.round(8  + v * 6  + wf * 5);
+        const gv = Math.round(52 + v * 14 + wf * 12);
+        const bv = Math.round(120 + v * 22 + wf * 18);
+        const s = Camera.toScreen(wx, wy, canvas);
         ctx.fillStyle = `rgb(${rv},${gv},${bv})`;
         ctx.fillRect(s.x, s.y, tileS, tileS);
       }
@@ -59,39 +59,39 @@ const Renderer = {
   // Wellenlinien senkrecht zur Windrichtung, scrollend
   _drawWaveLines(ctx, canvas) {
     const SPACING = 70;   // Welt-Einheiten zwischen Linien
-    const AMP     = 4;    // Wellen-Amplitude in Welt-Einheiten
-    const DRIFT   = 22;   // Driftgeschwindigkeit WE/s
+    const AMP = 4;    // Wellen-Amplitude in Welt-Einheiten
+    const DRIFT = 22;   // Driftgeschwindigkeit WE/s
 
     // Windvektor im Screen-Raum (y nach unten)
     const wx = Math.sin(Wind.dir);
     const wy = -Math.cos(Wind.dir);
     // Senkrecht dazu (Wellenfront-Richtung)
     const px = -wy;
-    const py =  wx;
+    const py = wx;
 
-    const sc      = Camera.zoom;
+    const sc = Camera.zoom;
     const spacing = SPACING * sc;
-    const cx      = canvas.width  / 2;
-    const cy      = canvas.height / 2;
-    const diag    = Math.hypot(canvas.width, canvas.height);
+    const cx = canvas.width / 2;
+    const cy = canvas.height / 2;
+    const diag = Math.hypot(canvas.width, canvas.height);
 
     // Phase: Zeit-Drift minus Kamera-Projektion → Linien bleiben in der Welt verankert
     const camProj = (Camera.x * wx + Camera.y * wy) * sc;
-    const phase   = ((this._waveT * DRIFT * sc - camProj) % spacing + spacing) % spacing;
+    const phase = ((this._waveT * DRIFT * sc - camProj) % spacing + spacing) % spacing;
 
     ctx.save();
-    ctx.strokeStyle = 'rgba(120,180,230,0.06)';
-    ctx.lineWidth   = 1;
+    ctx.strokeStyle = 'rgba(140,200,255,0.16)';
+    ctx.lineWidth = 1.2;
 
     for (let d = -diag + phase; d < diag + spacing; d += spacing) {
       ctx.beginPath();
       let first = true;
       for (let s = -diag; s <= diag; s += 12) {
         const wave = AMP * sc * Math.sin(s * 0.018 + this._waveT * 1.6 + d * 0.01);
-        const sx   = cx + px * s + wx * (d + wave);
-        const sy   = cy + py * s + wy * (d + wave);
+        const sx = cx + px * s + wx * (d + wave);
+        const sy = cy + py * s + wy * (d + wave);
         if (first) { ctx.moveTo(sx, sy); first = false; }
-        else        ctx.lineTo(sx, sy);
+        else ctx.lineTo(sx, sy);
       }
       ctx.stroke();
     }
@@ -101,13 +101,13 @@ const Renderer = {
   // 500-WE-Gitter (aus main.js übernommen)
   _drawGrid(ctx, canvas) {
     const GRID = 500;
-    const tl   = Camera.toWorld(0, 0, canvas);
-    const br   = Camera.toWorld(canvas.width, canvas.height, canvas);
-    const x0   = Math.floor(tl.x / GRID) * GRID;
-    const y0   = Math.floor(tl.y / GRID) * GRID;
+    const tl = Camera.toWorld(0, 0, canvas);
+    const br = Camera.toWorld(canvas.width, canvas.height, canvas);
+    const x0 = Math.floor(tl.x / GRID) * GRID;
+    const y0 = Math.floor(tl.y / GRID) * GRID;
 
     ctx.strokeStyle = 'rgba(255,255,255,0.04)';
-    ctx.lineWidth   = 1;
+    ctx.lineWidth = 1;
     for (let gx = x0; gx <= br.x + GRID; gx += GRID) {
       const s = Camera.toScreen(gx, 0, canvas);
       ctx.beginPath(); ctx.moveTo(s.x, 0); ctx.lineTo(s.x, canvas.height); ctx.stroke();
@@ -133,14 +133,14 @@ const Renderer = {
       this._spawnAccum -= 1;
       // Port- und Steuerbord-Fächer
       for (const side of [-1, 1]) {
-        const spread  = boat.heading + side * (0.6 + Math.random() * 0.4);
-        const spd     = boat.speed * (0.25 + Math.random() * 0.2);
+        const spread = boat.heading + side * (0.6 + Math.random() * 0.4);
+        const spd = boat.speed * (0.25 + Math.random() * 0.2);
         this._particles.push({
-          x:       bx + (Math.random() - 0.5) * 3,
-          y:       by + (Math.random() - 0.5) * 3,
-          vx:      Math.sin(spread) * spd,
-          vy:     -Math.cos(spread) * spd,
-          life:    1.0,
+          x: bx + (Math.random() - 0.5) * 3,
+          y: by + (Math.random() - 0.5) * 3,
+          vx: Math.sin(spread) * spd,
+          vy: -Math.cos(spread) * spd,
+          life: 1.0,
           maxLife: 0.7 + Math.random() * 0.8,
         });
       }
@@ -152,10 +152,10 @@ const Renderer = {
   _tickParticles(dt) {
     const FRICTION = 2.5;
     for (const p of this._particles) {
-      p.x    += p.vx * dt;
-      p.y    += p.vy * dt;
-      p.vx   *= Math.max(0, 1 - FRICTION * dt);
-      p.vy   *= Math.max(0, 1 - FRICTION * dt);
+      p.x += p.vx * dt;
+      p.y += p.vy * dt;
+      p.vx *= Math.max(0, 1 - FRICTION * dt);
+      p.vy *= Math.max(0, 1 - FRICTION * dt);
       p.life -= dt / p.maxLife;
     }
     this._particles = this._particles.filter(p => p.life > 0);
@@ -177,10 +177,10 @@ const Renderer = {
 
   // ── Wind-Kompass HUD (unten rechts) ───────────────────────────────────────
   drawWindCompass(ctx, canvas) {
-    const R   = 46;
+    const R = 46;
     const PAD = 14;
-    const cx  = canvas.width  - R - PAD;
-    const cy  = canvas.height - R - PAD - 28;  // 28px Platz für Text darunter
+    const cx = canvas.width - R - PAD;
+    const cy = canvas.height - R - PAD - 28;  // 28px Platz für Text darunter
 
     // Hintergrund
     ctx.save();
@@ -193,16 +193,16 @@ const Renderer = {
     ctx.beginPath();
     ctx.arc(cx, cy, R, 0, Math.PI * 2);
     ctx.strokeStyle = 'rgba(255,255,255,0.18)';
-    ctx.lineWidth   = 1;
+    ctx.lineWidth = 1;
     ctx.stroke();
 
     // Himmelsrichtungen
-    ctx.font         = '9px monospace';
-    ctx.textAlign    = 'center';
+    ctx.font = '9px monospace';
+    ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
-    ctx.fillStyle    = 'rgba(255,255,255,0.30)';
-    [['N',0,-1],['O',1,0],['S',0,1],['W',-1,0]].forEach(([l,dx,dy]) => {
-      ctx.fillText(l, cx + dx*(R-9), cy + dy*(R-9));
+    ctx.fillStyle = 'rgba(255,255,255,0.30)';
+    [['N', 0, -1], ['O', 1, 0], ['S', 0, 1], ['W', -1, 0]].forEach(([l, dx, dy]) => {
+      ctx.fillText(l, cx + dx * (R - 9), cy + dy * (R - 9));
     });
 
     // True-Wind Pfeil (cyan, länger)
@@ -213,9 +213,9 @@ const Renderer = {
     this._compassArrow(ctx, cx, cy, R * 0.62, awDir, '#ff9800', 2.0);
 
     // Beschriftung
-    ctx.textAlign    = 'left';
+    ctx.textAlign = 'left';
     ctx.textBaseline = 'alphabetic';
-    ctx.font         = '10px monospace';
+    ctx.font = '10px monospace';
 
     const twFrom = Wind.fromDeg().toFixed(0).padStart(3);
     ctx.fillStyle = '#00e5ff';
@@ -238,8 +238,8 @@ const Renderer = {
 
     ctx.save();
     ctx.strokeStyle = color;
-    ctx.fillStyle   = color;
-    ctx.lineWidth   = lw;
+    ctx.fillStyle = color;
+    ctx.lineWidth = lw;
     ctx.globalAlpha = 0.88;
 
     ctx.beginPath();
@@ -248,7 +248,7 @@ const Renderer = {
     ctx.stroke();
 
     const hl = len * 0.24;
-    const a  = Math.atan2(ey - ty, ex - tx);
+    const a = Math.atan2(ey - ty, ex - tx);
     ctx.beginPath();
     ctx.moveTo(ex, ey);
     ctx.lineTo(ex - hl * Math.cos(a - 0.42), ey - hl * Math.sin(a - 0.42));
