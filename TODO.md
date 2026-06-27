@@ -45,13 +45,13 @@ Basis-Implementierung (Canvas 2D): Physik, Rennstrecke, Sound, Menü, Tutorial, 
 - [x] Kurs kompakter: Gate (2200/2800, 2600), Mark1 (2000,2100), Mark2 (3000,2100), Mark3 (2500,3000)
 - [x] Ziel verifizieren: Rundenzeit 5–8 Minuten
 
-## Phase 11: Licht, Schatten & Polish ☐
-- [ ] `DirectionalLight` (Sonne, schräg oben)
-- [ ] `AmbientLight` für Fill
-- [ ] `PCFSoftShadowMap`: Boot + Bojen werfen Schatten auf Wasser
-- [ ] Wind-Kompass: sauberes HTML-Overlay (mini 2D-Canvas)
-- [ ] HUD: finales Design (minimalistisch, semitransparent dunkel, heller Text)
-- [ ] Startmenü: auf neuen visuellen Stil abstimmen
+## Phase 11: Licht, Schatten & Polish ✓
+- [x] `DirectionalLight` (Sonne, schräg oben)
+- [x] `AmbientLight` für Fill
+- [x] `PCFSoftShadowMap`: Boot + Bojen werfen Schatten auf Wasser
+- [x] Wind-Kompass: sauberes HTML-Overlay (mini 2D-Canvas)
+- [x] HUD: finales Design (minimalistisch, semitransparent dunkel, heller Text)
+- [x] Startmenü: auf neuen visuellen Stil abstimmen
 
 ---
 
@@ -62,6 +62,6 @@ Basis-Implementierung (Canvas 2D): Physik, Rennstrecke, Sound, Menü, Tutorial, 
 
 ---
 
-**Aktueller Fokus**: Phase 11 – Licht, Schatten & Polish
+**Aktueller Fokus**: Phasen 6–11 abgeschlossen
 **Branch**: `feature/threejs-visual-overhaul`
 **Letztes Update**: 27. Juni 2026

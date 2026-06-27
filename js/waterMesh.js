@@ -88,8 +88,8 @@ const WaterMesh = {
 
       vec3 color = mix(deep, mid, ripple * 0.55);
 
-      float foamAmt = smoothstep(0.70, 0.92, crest) * smoothstep(4.0, 12.0, uWindSpeed);
-      color = mix(color, foam, foamAmt * 0.45);
+      float foamAmt = smoothstep(0.84, 1.08, crest) * smoothstep(8.0, 18.0, uWindSpeed);
+      color = mix(color, foam, foamAmt * 0.18);
 
       gl_FragColor = vec4(color, 1.0);
     }

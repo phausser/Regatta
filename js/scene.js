@@ -7,6 +7,7 @@ const Scene = {
   _scene:      null,
   _camera:     null,
   _renderer:   null,
+  _sun:        null,
 
   init() {
     this.x = Boat.x;
@@ -17,6 +18,8 @@ const Scene = {
     this._renderer = new THREE.WebGLRenderer({ antialias: true });
     this._renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
     this._renderer.setSize(window.innerWidth, window.innerHeight);
+    this._renderer.shadowMap.enabled = true;
+    this._renderer.shadowMap.type = THREE.PCFSoftShadowMap;
 
     const el = this._renderer.domElement;
     el.style.position = 'fixed';
@@ -71,6 +74,8 @@ const Scene = {
   _buildScene() {
     // Animated water (shader)
     WaterMesh.init(this._scene);
+    this._buildLights();
+    this._buildShadowReceiver();
 
     // Grid 500 WU
     const gPts = [];
@@ -99,6 +104,36 @@ const Scene = {
 
     // Boat (hull + mast + sail + bow wave)
     BoatMesh.init(this._scene);
+  },
+
+  _buildLights() {
+    this._scene.add(new THREE.AmbientLight(0x8fb0d0, 0.55));
+
+    this._sun = new THREE.DirectionalLight(0xffffff, 1.45);
+    this._sun.position.set(1400, 1800, 800);
+    this._sun.target.position.set(2500, 0, 2500);
+    this._sun.castShadow = true;
+    this._sun.shadow.mapSize.set(2048, 2048);
+    this._sun.shadow.camera.left = -2200;
+    this._sun.shadow.camera.right = 2200;
+    this._sun.shadow.camera.top = 2200;
+    this._sun.shadow.camera.bottom = -2200;
+    this._sun.shadow.camera.near = 100;
+    this._sun.shadow.camera.far = 4000;
+    this._sun.shadow.bias = -0.0004;
+    this._scene.add(this._sun);
+    this._scene.add(this._sun.target);
+  },
+
+  _buildShadowReceiver() {
+    const shadowPlane = new THREE.Mesh(
+      new THREE.PlaneGeometry(12000, 12000),
+      new THREE.ShadowMaterial({ color: 0x001020, opacity: 0.20, transparent: true }),
+    );
+    shadowPlane.rotation.x = -Math.PI / 2;
+    shadowPlane.position.set(2500, 0.08, 2500);
+    shadowPlane.receiveShadow = true;
+    this._scene.add(shadowPlane);
   },
 
   updateMeshes() {

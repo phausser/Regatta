@@ -24,6 +24,11 @@ const BoatMesh = {
     this._buildMast();
     this._buildSail();
     this._buildBowWave();
+    this._group.traverse(obj => {
+      if (!obj.isMesh) return;
+      obj.castShadow = true;
+      obj.receiveShadow = true;
+    });
     scene.add(this._group);
   },
 
@@ -67,7 +72,7 @@ const BoatMesh = {
 
     const hull = new THREE.Mesh(
       new THREE.ExtrudeGeometry(shape, { depth: 2, bevelEnabled: false }),
-      new THREE.MeshBasicMaterial({ color: 0xd8e8f2 }),
+      new THREE.MeshStandardMaterial({ color: 0xe8f0f5, roughness: 0.62, metalness: 0.02 }),
     );
     hull.rotation.x = -Math.PI / 2;
     this._group.add(hull);
@@ -75,7 +80,7 @@ const BoatMesh = {
     // Cabin coach-roof: narrow box along centerline
     const roof = new THREE.Mesh(
       new THREE.BoxGeometry(HW * 0.65, 0.8, HL * 0.85),
-      new THREE.MeshBasicMaterial({ color: 0xeef4f8 }),
+      new THREE.MeshStandardMaterial({ color: 0xf6fbff, roughness: 0.55 }),
     );
     roof.position.set(0, 2.8, _B.MZ + HL * 0.18);
     this._group.add(roof);
@@ -84,7 +89,7 @@ const BoatMesh = {
     // Keel centerline stripe
     const keel = new THREE.Mesh(
       new THREE.BoxGeometry(HW * 0.22, 0.1, HL * 0.80 + HS * 0.50),
-      new THREE.MeshBasicMaterial({ color: 0x3a4a5a }),
+      new THREE.MeshStandardMaterial({ color: 0x3a4a5a, roughness: 0.80 }),
     );
     keel.position.set(0, 2.05, (HL * 0.80 - HS * 0.50) * -0.5 + HS * 0.05);
     this._group.add(keel);
@@ -94,7 +99,7 @@ const BoatMesh = {
   _buildMast() {
     const mast = new THREE.Mesh(
       new THREE.CylinderGeometry(0.55, 0.55, 10, 6),
-      new THREE.MeshBasicMaterial({ color: 0xffffff }),
+      new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: 0.35 }),
     );
     mast.position.set(0, 7, _B.MZ);
     this._group.add(mast);
@@ -106,8 +111,8 @@ const BoatMesh = {
     geo.setAttribute('position', new THREE.BufferAttribute(new Float32Array(9), 3));
     geo.setIndex([0, 1, 2]);
     this._sailAttr = geo.attributes.position;
-    this._sailMat  = new THREE.MeshBasicMaterial({
-      color: 0xfffcb9, side: THREE.DoubleSide, transparent: true, opacity: 0.88,
+    this._sailMat  = new THREE.MeshStandardMaterial({
+      color: 0xfffcb9, side: THREE.DoubleSide, transparent: true, opacity: 0.88, roughness: 0.42,
     });
     this._group.add(new THREE.Mesh(geo, this._sailMat));
   },
