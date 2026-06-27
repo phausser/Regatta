@@ -48,14 +48,14 @@ const WaterMesh = {
       float wy = cos(uWindDir);
       float ws = uWindSpeed / 8.0;
 
-      float w1 = sin(p.x * 0.010 * wx + p.y * 0.010 * wy + uTime * 0.70       ) * 3.5;
-      float w2 = sin(p.x * 0.016 * wy - p.y * 0.016 * wx + uTime * 1.10 + 1.30) * 2.0;
-      float w3 = sin(p.x * 0.006       + p.y * 0.022       + uTime * 0.45 + 2.80) * 1.5;
+      float w1 = sin(p.x * 0.010 * wx + p.y * 0.010 * wy + uTime * 0.70       ) * 0.28;
+      float w2 = sin(p.x * 0.016 * wy - p.y * 0.016 * wx + uTime * 1.10 + 1.30) * 0.16;
+      float w3 = sin(p.x * 0.006       + p.y * 0.022       + uTime * 0.45 + 2.80) * 0.10;
 
       float wh = (w1 + w2 + w3) * ws;
       p.z += wh;
 
-      vWaveHeight = wh / 7.0;
+      vWaveHeight = wh / 0.54;
       vPos = p.xy;
 
       gl_Position = projectionMatrix * modelViewMatrix * vec4(p, 1.0);
