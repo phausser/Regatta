@@ -112,7 +112,7 @@ Wind-Kompass: kleines `<canvas>`-Element im HUD für die Pfeil-Animation (2D Can
 - Phasen 6–11 werden einzeln abgeschlossen; nach jeder Phase prüft Patrick den Stand
 - Nach jeder Phase: TODO.md, SPEC.md Status-Tabelle, AGENTS.md aktualisieren
 - Keine Phase überspringen oder parallel implementieren
-- Aktueller Stand: Phase 9 abgeschlossen; nächster Fokus ist Phase 10 (Arcade-Tuning)
+- Aktueller Stand: Phase 10 abgeschlossen; nächster Fokus ist Phase 11 (Licht, Schatten & Polish)
 
 ## Steuerung
 

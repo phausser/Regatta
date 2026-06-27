@@ -38,12 +38,12 @@ Basis-Implementierung (Canvas 2D): Physik, Rennstrecke, Sound, Menü, Tutorial, 
 - [x] Gate-Pfosten: schlanke Zylinder, rot/grün
 - [x] `race.js`: `draw()` entfernen, Logik-Daten werden von `marksMesh.js` gelesen
 
-## Phase 10: Arcade-Tuning ☐
-- [ ] Wind-Default: 8 kn → 14 kn (`wind.js`)
-- [ ] Speed-Faktor: `awSpeed * 1.05` → `* 1.35` (`boat.js`)
-- [ ] TURN_RATE: 0.9 → 1.2 (`boat.js`)
-- [ ] Kurs kompakter: Gate (2200/2800, 2600), Mark1 (2000,2100), Mark2 (3000,2100), Mark3 (2500,3000)
-- [ ] Ziel verifizieren: Rundenzeit 5–8 Minuten
+## Phase 10: Arcade-Tuning ✓
+- [x] Wind-Default: 8 kn → 14 kn (`wind.js`)
+- [x] Speed-Faktor: `awSpeed * 1.05` → `* 1.35` (`boat.js`)
+- [x] TURN_RATE: 0.9 → 1.2 (`boat.js`)
+- [x] Kurs kompakter: Gate (2200/2800, 2600), Mark1 (2000,2100), Mark2 (3000,2100), Mark3 (2500,3000)
+- [x] Ziel verifizieren: Rundenzeit 5–8 Minuten
 
 ## Phase 11: Licht, Schatten & Polish ☐
 - [ ] `DirectionalLight` (Sonne, schräg oben)
@@ -62,6 +62,6 @@ Basis-Implementierung (Canvas 2D): Physik, Rennstrecke, Sound, Menü, Tutorial, 
 
 ---
 
-**Aktueller Fokus**: Phase 10 – Arcade-Tuning
+**Aktueller Fokus**: Phase 11 – Licht, Schatten & Polish
 **Branch**: `feature/threejs-visual-overhaul`
 **Letztes Update**: 27. Juni 2026

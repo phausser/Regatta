@@ -127,10 +127,10 @@
 | 7 | 3D Wasser: ShaderMaterial, GLSL-Wellen | ✓ |
 | 8 | 3D Boot & Segel: Rumpf, Mast, Segel-Mesh, Bugwellen-Partikel | ✓ |
 | 9 | 3D Bojen & Gate: Cylinder-Meshes, Bob-Animation | ✓ |
-| 10 | Arcade-Tuning: Kurs kompakt, Boot schneller, Wind 14 kn | ☐ |
+| 10 | Arcade-Tuning: Kurs kompakt, Boot schneller, Wind 14 kn | ✓ |
 | 11 | Licht, Schatten, Polish | ☐ |
 
 ---
 
-**Letztes Update**: 27. Juni 2026 – Phase 9 abgeschlossen, Phase 10 als nächster Fokus
+**Letztes Update**: 27. Juni 2026 – Phase 10 abgeschlossen, Phase 11 als nächster Fokus
 **Autor**: Patrick + Claude
