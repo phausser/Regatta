@@ -71,14 +71,8 @@ const Scene = {
   },
 
   _buildScene() {
-    // Water
-    const water = new THREE.Mesh(
-      new THREE.PlaneGeometry(12000, 12000),
-      new THREE.MeshBasicMaterial({ color: 0x083478 })
-    );
-    water.rotation.x = -Math.PI / 2;
-    water.position.set(2500, -0.5, 2500);
-    this._scene.add(water);
+    // Animated water (shader)
+    WaterMesh.init(this._scene);
 
     // Grid 500 WU
     const gPts = [];

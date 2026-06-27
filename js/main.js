@@ -57,6 +57,7 @@ function loop(timestamp) {
 function update(dt) {
   Debug.update();
   Wind.update(dt);
+  WaterMesh.update(dt);
 
   if (Input.isPressed('KeyM')) Sfx.toggleMute();
 
