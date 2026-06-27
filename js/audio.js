@@ -118,8 +118,8 @@ const Sfx = {
     this._waveGain.gain.setTargetAtTime(waveVol, now, 0.25);
     this._waveFilter.frequency.setTargetAtTime(70 + boat.speed * 9, now, 0.3);
 
-    // Segel-Flattern: nur wenn luffing
-    const luffVol = boat.sailState === 'luffing' ? 0.22 : 0;
+    // Segel-Flattern: schlechter Trimm (rot)
+    const luffVol = boat.sailState === 'good' ? 0 : 0.18;
     this._luffGain.gain.setTargetAtTime(luffVol, now, 0.08);
   },
 

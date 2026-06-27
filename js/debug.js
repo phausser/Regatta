@@ -14,7 +14,7 @@ const Debug = {
     const awaDeg  = (Math.abs(Boat.awa) * 180 / Math.PI).toFixed(0);
     const awaDir  = Boat.awa >= 0 ? 'STBD' : 'PORT';
     const trimDeg = (Boat.trimAngle * 180 / Math.PI).toFixed(0);
-    const stateStr = { good: 'OK ✓', luffing: 'LUFF ↓', overtrimmed: 'TIGHT ↑' }[Boat.sailState];
+    const stateStr = { good: 'OK ✓', luffing: 'LUFF ↑', overtrimmed: 'TIGHT ↓' }[Boat.sailState];
     const reefStr  = Boat.reefed ? 'REEF' : 'full';
 
     const lines = [

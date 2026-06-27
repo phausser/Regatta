@@ -15,6 +15,7 @@ const BoatMesh = {
   _group:    null,
   _sailMat:  null,
   _sailAttr: null,
+  _sailMesh: null,
   _partMat:  null,
   _partAttr: null,
 
@@ -29,6 +30,7 @@ const BoatMesh = {
       obj.castShadow = true;
       obj.receiveShadow = true;
     });
+    if (this._sailMesh) this._sailMesh.receiveShadow = false;
     scene.add(this._group);
   },
 
@@ -105,16 +107,22 @@ const BoatMesh = {
     this._group.add(mast);
   },
 
-  // ── Sail (3-vertex dynamic triangle, updated each frame) ───────────────────
+  // ── Sail (quad planform, updated each frame) ─────────────────────────────
   _buildSail() {
     const geo = new THREE.BufferGeometry();
-    geo.setAttribute('position', new THREE.BufferAttribute(new Float32Array(9), 3));
-    geo.setIndex([0, 1, 2]);
+    geo.setAttribute('position', new THREE.BufferAttribute(new Float32Array(12), 3));
+    geo.setIndex([0, 1, 2, 0, 2, 3]);
     this._sailAttr = geo.attributes.position;
     this._sailMat  = new THREE.MeshStandardMaterial({
-      color: 0xfffcb9, side: THREE.DoubleSide, transparent: true, opacity: 0.88, roughness: 0.42,
+      color: 0x44ff88, side: THREE.DoubleSide,
+      roughness: 0.32, metalness: 0.0,
+      emissive: 0x1a8844, emissiveIntensity: 1.0,
     });
-    this._group.add(new THREE.Mesh(geo, this._sailMat));
+    this._sailMesh = new THREE.Mesh(geo, this._sailMat);
+    this._sailMesh.renderOrder = 2;
+    this._sailMesh.castShadow    = true;
+    this._sailMesh.receiveShadow = false;
+    this._group.add(this._sailMesh);
   },
 
   // ── Bow-wave particles ─────────────────────────────────────────────────────
@@ -141,24 +149,41 @@ const BoatMesh = {
 
   _updateSail() {
     const { MZ, HS } = _B;
-    const SAIL_H  = 8;                                       // sail sits at y=8 (mast height)
-    const sailLen = HS * 1.10 * (Boat.reefed ? 0.62 : 1.0); // boom length ≈ distance mast→stern
-    const side    = Boat.awa >= 0 ? -1 : 1;                  // leeward side
+    const SAIL_H  = 8.6;
+    const sailLen = HS * 1.10 * (Boat.reefed ? 0.62 : 1.0);
+    const side    = Boat.awa >= 0 ? -1 : 1;
     const angle   = side * Boat.trimAngle;
     const boomX   = Math.sin(angle) * sailLen;
-    const boomDZ  = Math.cos(angle) * sailLen;               // aft from mast (+Z)
-    const bellyD  = sailLen * 0.26 * Math.max(0.05, Boat.trimEff);
+    const boomDZ  = Math.cos(angle) * sailLen;
+    const bMag    = Math.hypot(boomX, boomDZ) || 1e-6;
+    const nX      = boomX / bMag;
+    const nZ      = boomDZ / bMag;
+    const pX      = -nZ;
+    const pZ      = nX;
+    const halfW   = Math.max(3.4, sailLen * 0.30);
+    const bellyD  = sailLen * 0.32 * Math.max(0.12, Boat.trimEff);
     const luffAmt = Boat.sailState === 'luffing'
-      ? Math.max(0, Math.sin(performance.now() * 0.0055)) * 0.8 : 1.0;
+      ? 0.35 + Math.max(0, Math.sin(performance.now() * 0.0065)) * 0.65 : 1.0;
+
+    const luffX = -side * pX * halfW * 0.35;
+    const luffZ = -side * pZ * halfW * 0.35;
+    const leeX  = boomX + side * pX * halfW + side * bellyD * luffAmt * 0.5;
+    const leeZ  = MZ + boomDZ + side * pZ * halfW + side * bellyD * luffAmt * 0.15;
+    const leeMidX = boomX * 0.52 + side * pX * halfW * 0.65 + side * bellyD * luffAmt;
+    const leeMidZ = MZ + boomDZ * 0.52 + side * pZ * halfW * 0.65;
 
     const a = this._sailAttr;
-    a.setXYZ(0,  0,                          SAIL_H, MZ);             // mast (tack)
-    a.setXYZ(1,  boomX * 0.5 + side * bellyD * luffAmt, SAIL_H, MZ + boomDZ * 0.5); // belly
-    a.setXYZ(2,  boomX,                      SAIL_H, MZ + boomDZ);    // clew
+    a.setXYZ(0, luffX,                    SAIL_H, MZ + luffZ);          // luff foot
+    a.setXYZ(1, 0,                        SAIL_H, MZ);                  // mast / tack
+    a.setXYZ(2, leeMidX,                  SAIL_H, leeMidZ);             // belly
+    a.setXYZ(3, leeX,                     SAIL_H, leeZ);                // clew / leech
     a.needsUpdate = true;
+    this._sailMesh.geometry.computeVertexNormals();
 
-    const colors = { good: 0xfffcb9, luffing: 0xff6e46, overtrimmed: 0xffd250 };
-    this._sailMat.color.setHex(colors[Boat.sailState] ?? 0xfffcb9);
+    const good = Boat.sailState === 'good';
+    this._sailMat.color.setHex(good ? 0x44ff88 : 0xff3d4a);
+    this._sailMat.emissive.setHex(good ? 0x1a8844 : 0x881820);
+    this._sailMat.emissiveIntensity = good ? 1.0 : (Boat.sailState === 'luffing' ? 1.35 : 1.15);
   },
 
   _updateBowWave() {

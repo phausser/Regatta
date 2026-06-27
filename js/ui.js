@@ -218,6 +218,7 @@ const UI = {
     h += div('──────────────────', faint);
     if (Race.phase !== 'pre_start') h += div(`Zeit:   ${Race._fmtTime(Race.raceTime)}`);
     h += div(`Speed:  ${Boat.speed.toFixed(1)} kn`);
+    h += this._sailHudHTML();
     h += div(`Gesamt: ${(Race.distance / 1852).toFixed(2)} nM`);
 
     if (Race.phase === 'racing') {
@@ -230,6 +231,13 @@ const UI = {
       h += div('Startlinie kreuzen', 'color:rgba(224,238,255,0.58)');
     }
     return h;
+  },
+
+  _sailHudHTML() {
+    const good  = Boat.sailState === 'good';
+    const text  = { good: 'OK', luffing: 'Luff ↑', overtrimmed: 'Eng ↓' }[Boat.sailState];
+    const color = good ? '#44ff88' : '#ff3d4a';
+    return `<div style="color:${color}">Segel:  ${text}</div>`;
   },
 
   _nextLabel() {
