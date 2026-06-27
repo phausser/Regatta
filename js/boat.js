@@ -223,10 +223,11 @@ const Boat = {
     ctx.restore();
   },
 
+  /*
   _drawWindArrows(ctx, s, sc) {
     const len = WORLD_SCALE * sc * 1.2;
-    this._drawArrow(ctx, s, Wind.vx,     Wind.vy,     len, '#00e5ff'); // true wind (cyan)
-    this._drawArrow(ctx, s, this.awvx,   this.awvy,   len, '#ff9800'); // apparent wind (orange)
+    //this._drawArrow(ctx, s, -Wind.vx,     -Wind.vy,     len, '#00e5ff'); // true wind (cyan)
+    //this._drawArrow(ctx, s, -this.awvx,   -this.awvy,   len, '#ff9800'); // apparent wind (orange)
   },
 
   _drawArrow(ctx, origin, vx, vy, len, color) {
@@ -256,5 +257,5 @@ const Boat = {
     ctx.fill();
 
     ctx.restore();
-  }
+  }*/
 };
