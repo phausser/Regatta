@@ -128,9 +128,9 @@
 | 8 | 3D Boot & Segel: Rumpf, Mast, Segel-Mesh, Bugwellen-Partikel | ✓ |
 | 9 | 3D Bojen & Gate: Cylinder-Meshes, Bob-Animation | ✓ |
 | 10 | Arcade-Tuning: Kurs kompakt, Boot schneller, Wind 14 kn | ✓ |
-| 11 | Licht, Schatten, Polish | ☐ |
+| 11 | Licht, Schatten, Polish | ✓ |
 
 ---
 
-**Letztes Update**: 27. Juni 2026 – Phase 10 abgeschlossen, Phase 11 als nächster Fokus
+**Letztes Update**: 27. Juni 2026 – Phasen 6–11 abgeschlossen
 **Autor**: Patrick + Claude

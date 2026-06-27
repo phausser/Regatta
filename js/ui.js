@@ -5,8 +5,8 @@ const UI = {
   _pending:      null,
   _finishPending: null,
 
-  _SEA:  '#083478',
-  _GOLD: '#7a5800',
+  _SEA:  '#e0eeff',
+  _GOLD: '#ffdc50',
   _KEY:  'geosail-scores',
 
   // ── Highscores ─────────────────────────────────────────────────────────────
@@ -145,19 +145,19 @@ const UI = {
 
     ctx.beginPath();
     ctx.arc(cx, cy, R + 5, 0, Math.PI * 2);
-    ctx.fillStyle = 'rgba(255,255,255,0.96)';
+    ctx.fillStyle = 'rgba(5,18,36,0.76)';
     ctx.fill();
 
     ctx.beginPath();
     ctx.arc(cx, cy, R, 0, Math.PI * 2);
-    ctx.strokeStyle = 'rgba(8,52,120,0.18)';
+    ctx.strokeStyle = 'rgba(224,238,255,0.18)';
     ctx.lineWidth   = 1;
     ctx.stroke();
 
     ctx.font         = '9px "Roboto Mono", monospace';
     ctx.textAlign    = 'center';
     ctx.textBaseline = 'middle';
-    ctx.fillStyle    = 'rgba(8,52,120,0.40)';
+    ctx.fillStyle    = 'rgba(224,238,255,0.48)';
     [['N', 0, -1], ['O', 1, 0], ['S', 0, 1], ['W', -1, 0]].forEach(([l, dx, dy]) => {
       ctx.fillText(l, cx + dx * (R - 9), cy + dy * (R - 9));
     });
@@ -211,7 +211,7 @@ const UI = {
       racing:    '● RENNEN',
       finished:  '✓ ZIEL!',
     }[Race.phase];
-    const faint = 'color:rgba(8,52,120,0.20)';
+    const faint = 'color:rgba(224,238,255,0.24)';
     const div   = (txt, style = '') => `<div${style ? ` style="${style}"` : ''}>${txt}</div>`;
 
     let h = div(phaseLabel);
@@ -227,7 +227,7 @@ const UI = {
     }
     if (Race.phase === 'pre_start') {
       h += div('──────────────────', faint);
-      h += div('Startlinie kreuzen', 'color:rgba(8,52,120,0.50)');
+      h += div('Startlinie kreuzen', 'color:rgba(224,238,255,0.58)');
     }
     return h;
   },

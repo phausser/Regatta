@@ -90,12 +90,12 @@ const Race = {
   },
 
   _hudLines() {
-    const G  = 'rgba(8,52,120,0.20)';
-    const SEA = '#083478';
+    const G  = 'rgba(224,238,255,0.24)';
+    const SEA = '#e0eeff';
     const lines = [];
 
     const phaseLabel = { pre_start: 'PRE-START', racing: '● RENNEN', finished: '✓ ZIEL!' }[this.phase];
-    const phaseColor = { pre_start: 'rgba(8,52,120,0.45)', racing: SEA, finished: SEA }[this.phase];
+    const phaseColor = { pre_start: 'rgba(224,238,255,0.58)', racing: SEA, finished: SEA }[this.phase];
     lines.push({ text: phaseLabel, color: phaseColor });
     lines.push({ text: '──────────────────', color: G });
 
@@ -114,7 +114,7 @@ const Race = {
 
     if (this.phase === 'pre_start') {
       lines.push({ text: '──────────────────', color: G });
-      lines.push({ text: 'Startlinie kreuzen', color: 'rgba(8,52,120,0.50)' });
+      lines.push({ text: 'Startlinie kreuzen', color: 'rgba(224,238,255,0.58)' });
     }
 
     return lines;

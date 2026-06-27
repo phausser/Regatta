@@ -8,7 +8,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&family=Roboto+Mono:wght@400;700&display=swap" rel="stylesheet">
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
-    body { background: #000; overflow: hidden; }
+    body { background: #06172d; overflow: hidden; }
 
     /* ── HUD container ─────────────────────────────────────────────────────── */
     #hud {
@@ -17,7 +17,7 @@
       z-index: 1;
       pointer-events: none;
       font-family: 'Roboto', sans-serif;
-      color: #083478;
+      color: #e0eeff;
     }
 
     .hidden { display: none !important; }
@@ -34,16 +34,17 @@
     }
 
     .panel {
-      background: rgba(255,255,255,0.96);
-      border-radius: 14px;
+      background: rgba(5,18,36,0.82);
+      border: 1px solid rgba(224,238,255,0.12);
+      border-radius: 8px;
       padding: 36px 44px;
       text-align: center;
       min-width: 320px;
     }
 
     /* ── Menu ─────────────────────────────────────────────────────────────── */
-    #menu-title    { font: bold 36px Roboto, sans-serif; color: #083478; margin-bottom: 4px; }
-    #menu-subtitle { font: 13px 'Roboto Mono', monospace; color: rgba(8,52,120,0.55); margin-bottom: 28px; }
+    #menu-title    { font: bold 36px Roboto, sans-serif; color: #e0eeff; margin-bottom: 4px; }
+    #menu-subtitle { font: 13px 'Roboto Mono', monospace; color: rgba(224,238,255,0.58); margin-bottom: 28px; }
 
     #menu-buttons { display: flex; flex-direction: column; align-items: center; gap: 14px; }
 
@@ -51,20 +52,20 @@
       display: block;
       width: 200px;
       padding: 12px 0;
-      border: none;
+      border: 1px solid rgba(224,238,255,0.10);
       border-radius: 8px;
-      background: rgba(8,52,120,0.07);
-      color: #083478;
+      background: rgba(224,238,255,0.08);
+      color: #e0eeff;
       font: 15px Roboto, sans-serif;
       cursor: pointer;
     }
     .menu-btn:hover, .menu-btn.active {
-      background: rgba(8,52,120,0.15);
+      background: rgba(224,238,255,0.16);
       font-weight: 700;
     }
 
-    #menu-scores      { margin-top: 20px; font: 11px 'Roboto Mono', monospace; color: rgba(8,52,120,0.35); }
-    #menu-scores .gold { color: #083478; font-weight: 700; }
+    #menu-scores      { margin-top: 20px; font: 11px 'Roboto Mono', monospace; color: rgba(224,238,255,0.46); }
+    #menu-scores .gold { color: #e0eeff; font-weight: 700; }
 
     #menu-hint {
       position: absolute;
@@ -76,14 +77,14 @@
     }
 
     /* ── Finish overlay ───────────────────────────────────────────────────── */
-    #finish-heading { font: bold 26px Roboto, sans-serif; color: #083478; margin-bottom: 12px; }
-    #finish-time    { font: 22px 'Roboto Mono', monospace; color: #083478; margin-bottom: 8px; }
+    #finish-heading { font: bold 26px Roboto, sans-serif; color: #e0eeff; margin-bottom: 12px; }
+    #finish-time    { font: 22px 'Roboto Mono', monospace; color: #e0eeff; margin-bottom: 8px; }
     #finish-rank    { font: 13px Roboto, sans-serif; min-height: 20px; margin-bottom: 8px; }
-    .finish-gold    { color: #7a5800; }
+    .finish-gold    { color: #ffdc50; }
 
-    #finish-scores            { font: 11px 'Roboto Mono', monospace; color: rgba(8,52,120,0.55); margin-bottom: 24px; }
-    #finish-scores .hi        { font-weight: 700; color: #083478; font-size: 12px; }
-    #finish-scores .scores-label { color: rgba(8,52,120,0.35); margin-bottom: 4px; }
+    #finish-scores            { font: 11px 'Roboto Mono', monospace; color: rgba(224,238,255,0.58); margin-bottom: 24px; }
+    #finish-scores .hi        { font-weight: 700; color: #e0eeff; font-size: 12px; }
+    #finish-scores .scores-label { color: rgba(224,238,255,0.40); margin-bottom: 4px; }
 
     .panel-buttons { display: flex; gap: 16px; justify-content: center; }
     .panel-buttons .menu-btn { width: 130px; }
@@ -104,11 +105,13 @@
       position: absolute;
       top: 10px;
       right: 10px;
-      background: rgba(255,255,255,0.96);
+      background: rgba(5,18,36,0.76);
+      border: 1px solid rgba(224,238,255,0.12);
+      border-radius: 8px;
       padding: 8px 10px;
       min-width: 200px;
       font: 12px 'Roboto Mono', monospace;
-      color: #083478;
+      color: #e0eeff;
       line-height: 18px;
     }
 
@@ -118,7 +121,7 @@
       bottom: 10px;
       left: 10px;
       font: 12px 'Roboto Mono', monospace;
-      color: rgba(255,255,255,0.40);
+      color: rgba(224,238,255,0.50);
     }
 
     /* ── Tutorial panel (bottom) ──────────────────────────────────────────── */
@@ -126,42 +129,45 @@
       position: absolute;
       bottom: 0; left: 0; right: 0;
       height: 110px;
-      background: rgba(255,255,255,0.96);
+      background: rgba(5,18,36,0.82);
+      border-top: 1px solid rgba(224,238,255,0.12);
       display: flex;
       flex-direction: column;
       align-items: center;
       justify-content: center;
       gap: 4px;
     }
-    #tutorial-step   { font: 11px 'Roboto Mono', monospace; color: rgba(8,52,120,0.55); }
+    #tutorial-step   { font: 11px 'Roboto Mono', monospace; color: rgba(224,238,255,0.58); }
     #tutorial-dots   { display: flex; gap: 10px; }
-    .tdot            { display: inline-block; width: 12px; height: 12px; border-radius: 50%; background: rgba(8,52,120,0.22); }
-    .tdot.done       { background: #083478; }
-    #tutorial-title  { font: bold 16px Roboto, sans-serif; color: #083478; }
-    #tutorial-hint   { font: 12px 'Roboto Mono', monospace; color: rgba(8,52,120,0.55); }
-    #tutorial-metric { font: 11px 'Roboto Mono', monospace; color: #083478; }
+    .tdot            { display: inline-block; width: 12px; height: 12px; border-radius: 50%; background: rgba(224,238,255,0.22); }
+    .tdot.done       { background: #e0eeff; }
+    #tutorial-title  { font: bold 16px Roboto, sans-serif; color: #e0eeff; }
+    #tutorial-hint   { font: 12px 'Roboto Mono', monospace; color: rgba(224,238,255,0.58); }
+    #tutorial-metric { font: 11px 'Roboto Mono', monospace; color: #e0eeff; }
     #tutorial-progress-wrap {
       width: min(320px, 40vw);
       height: 6px;
-      background: rgba(8,52,120,0.22);
+      background: rgba(224,238,255,0.20);
       border-radius: 3px;
       overflow: hidden;
     }
-    #tutorial-progress { height: 100%; background: #083478; width: 0%; }
+    #tutorial-progress { height: 100%; background: #e0eeff; width: 0%; }
 
     /* ── Debug overlay (bottom-right) ────────────────────────────────────── */
     #debug-panel {
       position: absolute;
       bottom: 10px;
       right: 10px;
-      background: rgba(255,255,255,0.96);
+      background: rgba(5,18,36,0.76);
+      border: 1px solid rgba(224,238,255,0.12);
+      border-radius: 8px;
       padding: 8px 10px;
       font: 12px 'Roboto Mono', monospace;
-      color: rgba(8,52,120,0.55);
+      color: rgba(224,238,255,0.62);
       line-height: 18px;
     }
 
-    .scores-label { color: rgba(8,52,120,0.35); margin-bottom: 4px; }
+    .scores-label { color: rgba(224,238,255,0.40); margin-bottom: 4px; }
   </style>
 </head>
 <body>
@@ -201,7 +207,7 @@
         <canvas id="compass-canvas" width="120" height="140"></canvas>
       </div>
       <div id="race-hud"></div>
-      <div id="mute-indicator" class="hidden">🔇 M</div>
+      <div id="mute-indicator" class="hidden">MUTE M</div>
     </div>
 
     <!-- ── Tutorial panel ──────────────────────────────────────────────────── -->

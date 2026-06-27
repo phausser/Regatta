@@ -72,13 +72,13 @@ const Tutorial = {
     const step    = Math.min(this._step, total - 1);
     const s       = this._steps[step];
 
-    const SEA       = '#083478';
-    const SEA_MID   = 'rgba(8,52,120,0.55)';
-    const SEA_FAINT = 'rgba(8,52,120,0.28)';
+    const SEA       = '#e0eeff';
+    const SEA_MID   = 'rgba(224,238,255,0.58)';
+    const SEA_FAINT = 'rgba(224,238,255,0.28)';
 
-    // Panel background – weiß
+    // Panel background
     ctx.save();
-    ctx.fillStyle = 'rgba(255,255,255,0.96)';
+    ctx.fillStyle = 'rgba(5,18,36,0.82)';
     ctx.fillRect(0, py, W, PANEL_H);
 
     // Step label

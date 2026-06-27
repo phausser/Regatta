@@ -12,6 +12,11 @@ const MarksMesh = {
     this._buildMarks();
     this._buildCoursePath();
     scene.add(this._group);
+    this._group.traverse(obj => {
+      if (!obj.isMesh) return;
+      obj.castShadow = true;
+      obj.receiveShadow = true;
+    });
   },
 
   _buildGate() {
@@ -31,7 +36,7 @@ const MarksMesh = {
   _gatePost(x, z, color) {
     const post = new THREE.Mesh(
       new THREE.CylinderGeometry(7, 7, 26, 12),
-      new THREE.MeshBasicMaterial({ color }),
+      new THREE.MeshStandardMaterial({ color, roughness: 0.48 }),
     );
     post.position.set(x, 13, z);
     this._group.add(post);
@@ -44,14 +49,14 @@ const MarksMesh = {
 
       const body = new THREE.Mesh(
         new THREE.CylinderGeometry(11, 15, 18, 16),
-        new THREE.MeshBasicMaterial({ color: 0xffcc00 }),
+        new THREE.MeshStandardMaterial({ color: 0xffcc00, roughness: 0.55 }),
       );
       body.position.y = 9;
       buoy.add(body);
 
       const cap = new THREE.Mesh(
         new THREE.CylinderGeometry(6, 10, 7, 16),
-        new THREE.MeshBasicMaterial({ color: 0xffe080 }),
+        new THREE.MeshStandardMaterial({ color: 0xffe080, roughness: 0.50 }),
       );
       cap.position.y = 21.5;
       buoy.add(cap);

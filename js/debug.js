@@ -37,7 +37,7 @@ const Debug = {
 
     document.getElementById('debug-panel').innerHTML =
       lines.map(l => `<div>${l}</div>`).join('') +
-      '<div style="margin-top:8px;color:rgba(8,52,120,0.40)">' +
+      '<div style="margin-top:8px;color:rgba(224,238,255,0.46)">' +
       '← →  Ruder · ↑ ↓  Trim · R Reef · T Neustart · Esc Menü · M Ton · +/−/Rad Zoom · D Debug' +
       '</div>';
   },
