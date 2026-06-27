@@ -3,8 +3,8 @@ const Race = {
 
   // ── Kursdefinition ─────────────────────────────────────────────────────────
   gate: {
-    port: { x: 2100, y: 2600, color: '#ff4455' },   // Backbord: rot
-    stbd: { x: 2900, y: 2600, color: '#44ee88' },   // Steuerbord: grün
+    port: { x: 2200, y: 2600, color: '#ff4455' },   // Backbord: rot
+    stbd: { x: 2800, y: 2600, color: '#44ee88' },   // Steuerbord: grün
   },
 
   // Tonnen in Reihenfolge; boot muss auf < radius kommen (mit Approach-Check)
@@ -23,9 +23,9 @@ const Race = {
   // ── Init / Reset ───────────────────────────────────────────────────────────
   init() {
     this.marks = [
-      { x: 1600, y: 1100, radius: 90, color: '#ffcc00', label: '1', approached: false, rounded: false },
-      { x: 3800, y: 1300, radius: 90, color: '#ffcc00', label: '2', approached: false, rounded: false },
-      { x: 2500, y: 3200, radius: 90, color: '#ffcc00', label: '3', approached: false, rounded: false },
+      { x: 2000, y: 2100, radius: 90, color: '#ffcc00', label: '1', approached: false, rounded: false },
+      { x: 3000, y: 2100, radius: 90, color: '#ffcc00', label: '2', approached: false, rounded: false },
+      { x: 2500, y: 3000, radius: 90, color: '#ffcc00', label: '3', approached: false, rounded: false },
     ];
     this.phase          = 'pre_start';
     this.wp             = 0;

@@ -1,7 +1,7 @@
 // Wind system – true wind direction/speed with slow random drift
 const Wind = {
   dir:   Math.PI / 2,   // direction wind blows TO (0=north CW+); start: blowing east
-  speed: 8,             // world-units / second
+  speed: 14,            // world-units / second
 
   vx: 0, vy: 0,         // velocity vector (+x east, +y south / canvas)
 

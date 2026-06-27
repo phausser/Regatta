@@ -21,7 +21,7 @@ const Boat = {
 
   // ── Update ──────────────────────────────────────────────────────────────────
   update(dt, wind) {
-    const TURN_RATE = 0.9;
+    const TURN_RATE = 1.2;
     const TRIM_RATE = 0.6;
     const TRIM_MIN  = 0.05;
     const TRIM_MAX  = 1.48;
@@ -112,7 +112,7 @@ const Boat = {
     // Asymmetrie der Rate: Beschleunigen (0.6) langsamer als Abbremsen (1.8) –
     // modelliert den höheren Strömungswiderstand bei Übergeschwindigkeit.
     const reefFactor = this.reefed ? 0.60 : 1.0;
-    const targetSpeed = eff * this.trimEff * this.awSpeed * 1.05 * reefFactor;
+    const targetSpeed = eff * this.trimEff * this.awSpeed * 1.35 * reefFactor;
     const rateToward  = targetSpeed > this.speed ? 0.6 : 1.8;
     this.speed += (targetSpeed - this.speed) * rateToward * dt;
     this.speed  = Math.max(0, this.speed);
