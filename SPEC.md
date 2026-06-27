@@ -123,14 +123,14 @@
 | 3 | Rennstrecke, Bojen, Start/Ziel, Zeitmessung | ✓ |
 | 4 | Wasser-Rendering, HUD, Bugwellen | ✓ |
 | 5 | Menü, Tutorial, Highscores, Sound | ✓ |
-| 6 | Three.js Foundation: Scene, OrthoCam, Renderer, HUD-Overlay | ☐ |
-| 7 | 3D Wasser: ShaderMaterial, GLSL-Wellen | ☐ |
-| 8 | 3D Boot & Segel: Rumpf, Mast, Segel-Mesh, Bugwellen-Partikel | ☐ |
-| 9 | 3D Bojen & Gate: Cylinder-Meshes, Bob-Animation | ☐ |
+| 6 | Three.js Foundation: Scene, OrthoCam, Renderer, HUD-Overlay | ✓ |
+| 7 | 3D Wasser: ShaderMaterial, GLSL-Wellen | ✓ |
+| 8 | 3D Boot & Segel: Rumpf, Mast, Segel-Mesh, Bugwellen-Partikel | ✓ |
+| 9 | 3D Bojen & Gate: Cylinder-Meshes, Bob-Animation | ✓ |
 | 10 | Arcade-Tuning: Kurs kompakt, Boot schneller, Wind 14 kn | ☐ |
 | 11 | Licht, Schatten, Polish | ☐ |
 
 ---
 
-**Letztes Update**: 27. Juni 2026 – Three.js Overhaul geplant (Branch: feature/threejs-visual-overhaul)
+**Letztes Update**: 27. Juni 2026 – Phase 9 abgeschlossen, Phase 10 als nächster Fokus
 **Autor**: Patrick + Claude
