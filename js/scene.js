@@ -7,7 +7,6 @@ const Scene = {
   _scene:      null,
   _camera:     null,
   _renderer:   null,
-  _markMeshes: [],
 
   init() {
     this.x = Boat.x;
@@ -95,46 +94,8 @@ const Scene = {
       ]),
       new THREE.LineBasicMaterial({ color: 0xffffff, transparent: true, opacity: 0.15 })));
 
-    // Gate cylinders + line
-    const cyl = (x, z, color) => {
-      const m = new THREE.Mesh(
-        new THREE.CylinderGeometry(6, 6, 16, 8),
-        new THREE.MeshBasicMaterial({ color })
-      );
-      m.position.set(x, 8, z);
-      this._scene.add(m);
-      return m;
-    };
-    cyl(Race.gate.port.x, Race.gate.port.y, 0xff4455);
-    cyl(Race.gate.stbd.x, Race.gate.stbd.y, 0x44ee88);
-    this._scene.add(new THREE.Line(
-      new THREE.BufferGeometry().setFromPoints([
-        new THREE.Vector3(Race.gate.port.x, 8, Race.gate.port.y),
-        new THREE.Vector3(Race.gate.stbd.x, 8, Race.gate.stbd.y),
-      ]),
-      new THREE.LineBasicMaterial({ color: 0xffffff, transparent: true, opacity: 0.25 })));
-
-    // Mark cylinders
-    this._markMeshes = Race.marks.map(m => {
-      const mesh = new THREE.Mesh(
-        new THREE.CylinderGeometry(7, 7, 16, 8),
-        new THREE.MeshBasicMaterial({ color: 0xffcc00 })
-      );
-      mesh.position.set(m.x, 8, m.y);
-      this._scene.add(mesh);
-      return mesh;
-    });
-
-    // Course path
-    const midX = (Race.gate.port.x + Race.gate.stbd.x) / 2;
-    const midZ = Race.gate.port.y;
-    this._scene.add(new THREE.Line(
-      new THREE.BufferGeometry().setFromPoints([
-        new THREE.Vector3(midX, 0.3, midZ),
-        ...Race.marks.map(m => new THREE.Vector3(m.x, 0.3, m.y)),
-        new THREE.Vector3(midX, 0.3, midZ),
-      ]),
-      new THREE.LineBasicMaterial({ color: 0xffffff, transparent: true, opacity: 0.07 })));
+    // Course marks, gate and path
+    MarksMesh.init(this._scene);
 
     // Boat (hull + mast + sail + bow wave)
     BoatMesh.init(this._scene);
@@ -142,15 +103,7 @@ const Scene = {
 
   updateMeshes() {
     BoatMesh.update();
-    Race.marks.forEach((m, i) => {
-      const mesh = this._markMeshes[i];
-      if (!mesh) return;
-      mesh.material.color.setHex(
-        m.rounded                                          ? 0x445566
-          : (Race.wp === i + 1 && Race.phase === 'racing') ? 0xffffff
-          : 0xffcc00
-      );
-    });
+    MarksMesh.update();
   },
 
   render() {

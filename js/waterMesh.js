@@ -48,8 +48,8 @@ const WaterMesh = {
       float wy = cos(uWindDir);
       float ws = uWindSpeed / 8.0;
 
-      float w1 = sin(p.x * 0.010 * wx + p.y * 0.010 * wy + uTime * 0.70       ) * 0.28;
-      float w2 = sin(p.x * 0.016 * wy - p.y * 0.016 * wx + uTime * 1.10 + 1.30) * 0.16;
+      float w1 = sin(p.x * 0.010 * wx + p.y * 0.010 * wy - uTime * 0.70       ) * 0.28;
+      float w2 = sin(p.x * 0.016 * wy - p.y * 0.016 * wx - uTime * 1.10 + 1.30) * 0.16;
       float w3 = sin(p.x * 0.006       + p.y * 0.022       + uTime * 0.45 + 2.80) * 0.10;
 
       float wh = (w1 + w2 + w3) * ws;
@@ -75,7 +75,7 @@ const WaterMesh = {
       float wy = cos(uWindDir);
 
       vec2  uv = vPos * 0.004;
-      float r1 = sin(uv.x * wx * 4.0 + uv.y * wy * 4.0 + uTime * 0.90       ) * 0.5 + 0.5;
+      float r1 = sin(uv.x * wx * 4.0 + uv.y * wy * 4.0 - uTime * 0.90       ) * 0.5 + 0.5;
       float r2 = sin(uv.x * 3.00      - uv.y * 2.00      + uTime * 0.55 + 1.60) * 0.5 + 0.5;
       float ripple = r1 * 0.6 + r2 * 0.4;
 

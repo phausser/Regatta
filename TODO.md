@@ -32,11 +32,11 @@ Basis-Implementierung (Canvas 2D): Physik, Rennstrecke, Sound, Menü, Tutorial, 
 - [x] Bugwellen: `Points`-Partikelsystem (Schaum-Fächer)
 - [x] `boat.js`: `draw()` entfernt
 
-## Phase 9: 3D Bojen & Gate ☐
-- [ ] `js/marksMesh.js`: Bojen-Gruppe
-- [ ] Kurstonnen: `CylinderGeometry`, gelb, Bob-Animation (sinus auf Y)
-- [ ] Gate-Pfosten: schlanke Zylinder, rot/grün
-- [ ] `race.js`: `draw()` entfernen, Logik-Daten werden von `marksMesh.js` gelesen
+## Phase 9: 3D Bojen & Gate ✓
+- [x] `js/marksMesh.js`: Bojen-Gruppe
+- [x] Kurstonnen: `CylinderGeometry`, gelb, Bob-Animation (sinus auf Y)
+- [x] Gate-Pfosten: schlanke Zylinder, rot/grün
+- [x] `race.js`: `draw()` entfernen, Logik-Daten werden von `marksMesh.js` gelesen
 
 ## Phase 10: Arcade-Tuning ☐
 - [ ] Wind-Default: 8 kn → 14 kn (`wind.js`)
@@ -62,6 +62,6 @@ Basis-Implementierung (Canvas 2D): Physik, Rennstrecke, Sound, Menü, Tutorial, 
 
 ---
 
-**Aktueller Fokus**: Phase 9 – 3D Bojen & Gate
+**Aktueller Fokus**: Phase 10 – Arcade-Tuning
 **Branch**: `feature/threejs-visual-overhaul`
 **Letztes Update**: 27. Juni 2026
