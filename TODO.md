@@ -17,11 +17,11 @@ Basis-Implementierung (Canvas 2D): Physik, Rennstrecke, Sound, Menü, Tutorial, 
 - [x] Koordinaten-Bridge: Physik-Welt (X/Y) → Three.js (X/Z)
 - [x] Placeholder-Meshes: Boot (Box), Bojen (Zylinder), Gate, Kurs-Linie
 
-## Phase 7: 3D Wasser ☐
-- [ ] `js/waterMesh.js`: `PlaneGeometry(5000, 5000, 128, 128)`
-- [ ] GLSL ShaderMaterial: Vertex-Wellen (2–3 überlagerte Sinuswellen)
-- [ ] Fragment-Shader: Tiefblau-Basis, Schaum an Wellenkämmen, windabhängige Intensität
-- [ ] Wasser-Mesh in Scene einfügen, animiert via `update(dt)`
+## Phase 7: 3D Wasser ✓
+- [x] `js/waterMesh.js`: `PlaneGeometry(12000, 12000, 128, 128)`
+- [x] GLSL ShaderMaterial: Vertex-Wellen (3 überlagerte Sinuswellen)
+- [x] Fragment-Shader: Tiefblau-Basis, Schaum an Wellenkämmen, windabhängige Intensität
+- [x] Wasser-Mesh in Scene einfügen, animiert via `update(dt)`
 
 ## Phase 8: 3D Boot & Segel ☐
 - [ ] `js/boatMesh.js`: Gruppe (hull + mast + sail + partikel)
@@ -62,6 +62,6 @@ Basis-Implementierung (Canvas 2D): Physik, Rennstrecke, Sound, Menü, Tutorial, 
 
 ---
 
-**Aktueller Fokus**: Phase 7 – 3D Wasser
+**Aktueller Fokus**: Phase 8 – 3D Boot & Segel
 **Branch**: `feature/threejs-visual-overhaul`
 **Letztes Update**: 27. Juni 2026
