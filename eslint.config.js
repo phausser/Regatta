@@ -1,0 +1,40 @@
+export default [
+  {
+    files: ["js/**/*.js"],
+    languageOptions: {
+      ecmaVersion: 2022,
+      sourceType: "module",
+      globals: {
+        window: "readonly",
+        document: "readonly",
+        console: "readonly",
+        performance: "readonly",
+        THREE: "readonly",
+        requestAnimationFrame: "readonly",
+        AudioContext: "readonly",
+        localStorage: "readonly",
+        // Projektkonstanten & -klassen (global via <script>-Tags)
+        WORLD_SCALE: "readonly",
+        devicePixelRatio: "readonly",
+        Boat: "readonly",
+        Scene: "readonly",
+        Camera: "readonly",
+        Debug: "readonly",
+        Input: "readonly",
+        Race: "readonly",
+        Renderer: "readonly",
+        Sfx: "readonly",
+        Tutorial: "readonly",
+        UI: "readonly",
+        Wind: "readonly",
+      },
+    },
+    rules: {
+      "no-unused-vars": "warn",
+      "no-undef": "error",
+      "no-console": "off",
+      "eqeqeq": "warn",
+      "no-var": "error",
+    },
+  },
+];

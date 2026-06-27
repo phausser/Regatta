@@ -1,20 +1,15 @@
-// UI – Startmenü, Rennende-Overlay, Highscores
+// UI – Menü, HUD, Finish-Overlay (DOM-basiert)
 const UI = {
-  _menuSel:   0,
-  _newRank:   -1,
-  _waveT:     0,
+  _menuSel:      0,
+  _newRank:      -1,
+  _pending:      null,
+  _finishPending: null,
 
-  // Farbpalette
-  _SEA:       '#083478',               // Meeresblau (Hauptfarbe)
-  _SEA_MID:   'rgba(8,52,120,0.55)',
-  _SEA_FAINT: 'rgba(8,52,120,0.35)',
-  _BTN:       'rgba(8,52,120,0.07)',   // Button Standard
-  _BTN_HOV:   'rgba(8,52,120,0.15)',   // Button Hover
-  _GOLD:      '#7a5800',               // Bestzeit-Akzent (lesbar auf Weiß)
+  _SEA:  '#083478',
+  _GOLD: '#7a5800',
+  _KEY:  'geosail-scores',
 
-  // ── Highscores (localStorage) ──────────────────────────────────────────────
-  _KEY: 'geosail-scores',
-
+  // ── Highscores ─────────────────────────────────────────────────────────────
   scores() {
     try { return JSON.parse(localStorage.getItem(this._KEY)) || []; }
     catch { return []; }
@@ -30,222 +25,247 @@ const UI = {
     return this._newRank;
   },
 
-  // ── Menu ───────────────────────────────────────────────────────────────────
-  updateMenu(dt) {
-    this._waveT += dt;
-    if (Input.isPressed('ArrowUp'))   this._menuSel = Math.max(0, this._menuSel - 1);
-    if (Input.isPressed('ArrowDown')) this._menuSel = Math.min(1, this._menuSel + 1);
-    if (Input.isPressed('Enter') || Input.isPressed('Space')) {
-      return this._menuSel === 0 ? 'game' : 'tutorial';
-    }
-    return null;
+  // ── Init ───────────────────────────────────────────────────────────────────
+  init() {
+    document.getElementById('btn-race').addEventListener('click', () => {
+      this._pending = 'game';
+    });
+    document.getElementById('btn-tutorial').addEventListener('click', () => {
+      this._pending = 'tutorial';
+    });
+    document.getElementById('btn-restart').addEventListener('click', () => {
+      this._finishPending = 'restart';
+    });
+    document.getElementById('btn-back-menu').addEventListener('click', () => {
+      this._finishPending = 'menu';
+    });
   },
 
-  drawMenu(ctx, canvas) {
-    const W = canvas.width, H = canvas.height;
+  // ── Screen switching ────────────────────────────────────────────────────────
+  showScreen(name) {
+    const isMenu   = name === 'menu';
+    const isFinish = name === 'finish';
+    const isGame   = name === 'game' || name === 'tutorial';
+    const isTut    = name === 'tutorial';
 
-    // Meereshintergrund (passend zu renderer.js)
-    const wf = Math.min(1, Wind.speed / 18);
-    const r  = Math.round(8  + wf * 5);
-    const g  = Math.round(52 + wf * 14);
-    const b  = Math.round(120 + wf * 20);
-    ctx.fillStyle = `rgb(${r},${g},${b})`;
-    ctx.fillRect(0, 0, W, H);
+    this._el('screen-menu').classList.toggle('hidden', !isMenu);
+    this._el('screen-finish').classList.toggle('hidden', !isFinish);
+    this._el('hud-game').classList.toggle('hidden', !isGame);
+    this._el('tutorial-panel').classList.toggle('hidden', !isTut);
 
-    // Wellenlinien
-    const wx = Math.sin(Wind.dir), wy = -Math.cos(Wind.dir);
-    const px = -wy, py = wx;
-    const spacing = 60;
-    const cx = W / 2, cy = H / 2;
-    const diag = Math.hypot(W, H);
-    const phase = (this._waveT * 18) % spacing;
-    ctx.save();
-    ctx.strokeStyle = 'rgba(140,200,255,0.16)';
-    ctx.lineWidth = 1.2;
-    for (let d = -diag + phase; d < diag + spacing; d += spacing) {
-      ctx.beginPath();
-      let first = true;
-      for (let s = -diag; s <= diag; s += 12) {
-        const wave = 4 * Math.sin(s * 0.018 + this._waveT * 1.6 + d * 0.01);
-        const sx = cx + px * s + wx * (d + wave);
-        const sy = cy + py * s + wy * (d + wave);
-        if (first) { ctx.moveTo(sx, sy); first = false; }
-        else ctx.lineTo(sx, sy);
-      }
-      ctx.stroke();
-    }
-    ctx.restore();
+    if (isMenu) this._renderMenuScores();
+  },
 
-    // Weißes Panel
-    const panW = 360, panH = 290;
-    const panX = W / 2 - panW / 2, panY = H / 2 - panH / 2 - 20;
-    ctx.save();
-    ctx.fillStyle = 'rgba(255,255,255,0.96)';
-    this._roundRect(ctx, panX, panY, panW, panH, 14);
-    ctx.fill();
-    ctx.restore();
+  // ── Menu ───────────────────────────────────────────────────────────────────
+  updateMenu() {
+    if (Input.isPressed('ArrowUp'))   this._menuSel = Math.max(0, this._menuSel - 1);
+    if (Input.isPressed('ArrowDown')) this._menuSel = Math.min(1, this._menuSel + 1);
 
-    // Titel
-    ctx.save();
-    ctx.textAlign    = 'center';
-    ctx.textBaseline = 'middle';
-    ctx.font         = 'bold 36px Roboto, sans-serif';
-    ctx.fillStyle    = this._SEA;
-    ctx.fillText('GeoSail', W / 2, panY + 52);
-    ctx.font      = '13px "Roboto Mono", monospace';
-    ctx.fillStyle = this._SEA_MID;
-    ctx.fillText('Regatta', W / 2, panY + 80);
-    ctx.restore();
+    document.querySelectorAll('.menu-btn').forEach((b, i) => {
+      b.classList.toggle('active', i === this._menuSel);
+    });
 
-    // Buttons
-    const labels = ['Rennen starten', 'Tutorial'];
-    const btnW   = 200, btnH = 42, btnX = W / 2 - btnW / 2;
-    const btnY0  = panY + 112;
-    const mouse  = Input.mousePos();
-
-    for (let i = 0; i < labels.length; i++) {
-      const by    = btnY0 + i * 56;
-      const hover = mouse.x >= btnX && mouse.x <= btnX + btnW &&
-                    mouse.y >= by   && mouse.y <= by + btnH;
-      if (hover) this._menuSel = i;
-
-      const active = this._menuSel === i;
-      ctx.save();
-      ctx.fillStyle = active ? this._BTN_HOV : this._BTN;
-      this._roundRect(ctx, btnX, by, btnW, btnH, 8);
-      ctx.fill();
-
-      ctx.font         = active ? 'bold 15px Roboto, sans-serif' : '15px Roboto, sans-serif';
-      ctx.fillStyle    = this._SEA;
-      ctx.textAlign    = 'center';
-      ctx.textBaseline = 'middle';
-      ctx.fillText(labels[i], W / 2, by + btnH / 2);
-      ctx.restore();
-
-      if (hover && Input.isClick()) return i === 0 ? 'game' : 'tutorial';
+    if (Input.isPressed('Enter') || Input.isPressed('Space')) {
+      this._pending = this._menuSel === 0 ? 'game' : 'tutorial';
     }
 
-    // Bestzeiten
-    const sc = this.scores();
-    if (sc.length > 0) {
-      ctx.save();
-      ctx.textAlign    = 'center';
-      ctx.textBaseline = 'top';
-      ctx.font         = '11px "Roboto Mono", monospace';
-      ctx.fillStyle    = this._SEA_FAINT;
-      ctx.fillText('Bestzeiten', W / 2, panY + panH - 72);
-      for (let i = 0; i < sc.length; i++) {
-        ctx.fillStyle = i === 0 ? this._SEA : this._SEA_MID;
-        ctx.font      = i === 0 ? 'bold 11px "Roboto Mono", monospace' : '11px "Roboto Mono", monospace';
-        ctx.fillText(`${i + 1}. ${this._fmtTime(sc[i])}`, W / 2, panY + panH - 57 + i * 14);
-      }
-      ctx.restore();
-    }
+    const action = this._pending;
+    this._pending = null;
+    return action;
+  },
 
-    // Hinweis unten
-    ctx.save();
-    ctx.textAlign    = 'center';
-    ctx.textBaseline = 'alphabetic';
-    ctx.font         = '10px "Roboto Mono", monospace';
-    ctx.fillStyle    = 'rgba(255,255,255,0.30)';
-    ctx.fillText('↑↓ navigieren  ·  Enter bestätigen', W / 2, H - 14);
-    ctx.restore();
-
-    return null;
+  // ── In-game HUD ─────────────────────────────────────────────────────────────
+  updateHUD() {
+    this._el('race-hud').innerHTML = this._raceHudHTML();
+    this._el('mute-indicator').classList.toggle('hidden', !Sfx.muted);
+    this._drawCompass();
   },
 
   // ── Finish overlay ─────────────────────────────────────────────────────────
-  drawFinishOverlay(ctx, canvas) {
-    const W = canvas.width, H = canvas.height;
-    const panW = 360, panH = 300;
-    const panX = W / 2 - panW / 2, panY = H / 2 - panH / 2;
+  showFinish() {
+    this._el('finish-time').textContent = this._fmtTime(Race.raceTime);
 
-    ctx.save();
+    const rank    = this._newRank;
+    const rankEl  = this._el('finish-rank');
+    rankEl.className = '';
+    if (rank === 0) {
+      rankEl.textContent = 'Neue Bestzeit!';
+      rankEl.className   = 'finish-gold';
+    } else if (rank > 0) {
+      rankEl.textContent = `Platz ${rank + 1} in den Bestzeiten`;
+    } else {
+      rankEl.textContent = '';
+    }
 
-    // Weißes Panel
+    const sc = this.scores();
+    this._el('finish-scores').innerHTML =
+      '<div class="scores-label">Bestzeiten</div>' +
+      sc.map((t, i) =>
+        `<div class="${i === rank ? 'hi' : ''}">${i + 1}. ${this._fmtTime(t)}</div>`
+      ).join('');
+  },
+
+  updateFinishOverlay() {
+    const action = this._finishPending;
+    this._finishPending = null;
+    return action;
+  },
+
+  // ── Tutorial panel ─────────────────────────────────────────────────────────
+  updateTutorial(tut) {
+    if (tut.isDone()) return;
+    const step  = Math.min(tut._step, tut._steps.length - 1);
+    const s     = tut._steps[step];
+    const total = tut._steps.length;
+    const prog  = Math.min(1, tut._timer / tut._HOLD[step]);
+
+    this._el('tutorial-step').textContent = `Schritt ${step + 1} / ${total}`;
+
+    // Dots
+    this._el('tutorial-dots').innerHTML = Array.from({ length: total }, (_, i) =>
+      `<span class="tdot${i <= step ? ' done' : ''}"></span>`
+    ).join('');
+
+    this._el('tutorial-title').textContent  = s.title;
+    this._el('tutorial-hint').textContent   = s.hint;
+    this._el('tutorial-metric').textContent = s.metric();
+    this._el('tutorial-progress').style.width = `${prog * 100}%`;
+  },
+
+  // ── Compass (small canvas in HUD) ──────────────────────────────────────────
+  _drawCompass() {
+    const canvas = document.getElementById('compass-canvas');
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+    const R   = 42;
+    const cx  = canvas.width  / 2;
+    const cy  = canvas.height / 2 - 10;
+
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    ctx.beginPath();
+    ctx.arc(cx, cy, R + 5, 0, Math.PI * 2);
     ctx.fillStyle = 'rgba(255,255,255,0.96)';
-    this._roundRect(ctx, panX, panY, panW, panH, 14);
     ctx.fill();
 
+    ctx.beginPath();
+    ctx.arc(cx, cy, R, 0, Math.PI * 2);
+    ctx.strokeStyle = 'rgba(8,52,120,0.18)';
+    ctx.lineWidth   = 1;
+    ctx.stroke();
+
+    ctx.font         = '9px "Roboto Mono", monospace';
     ctx.textAlign    = 'center';
     ctx.textBaseline = 'middle';
+    ctx.fillStyle    = 'rgba(8,52,120,0.40)';
+    [['N', 0, -1], ['O', 1, 0], ['S', 0, 1], ['W', -1, 0]].forEach(([l, dx, dy]) => {
+      ctx.fillText(l, cx + dx * (R - 9), cy + dy * (R - 9));
+    });
 
-    ctx.font      = 'bold 26px Roboto, sans-serif';
-    ctx.fillStyle = this._SEA;
-    ctx.fillText('Ziel erreicht!', W / 2, panY + 44);
+    this._compassArrow(ctx, cx, cy, R * 0.82, -Wind.dir, '#00e5ff', 2.5);
+    const awDir = Math.atan2(Boat.awvx, -Boat.awvy);
+    this._compassArrow(ctx, cx, cy, R * 0.62, -awDir, '#ff9800', 2.0);
 
-    ctx.font      = '22px "Roboto Mono", monospace';
-    ctx.fillStyle = this._SEA;
-    ctx.fillText(Race._fmtTime(Race.raceTime), W / 2, panY + 84);
+    ctx.textAlign    = 'left';
+    ctx.textBaseline = 'alphabetic';
+    ctx.font         = '9px "Roboto Mono", monospace';
+    ctx.fillStyle    = this._SEA;
 
-    const rank = this._newRank;
-    if (rank === 0) {
-      ctx.font      = '13px Roboto, sans-serif';
-      ctx.fillStyle = this._GOLD;
-      ctx.fillText('Neue Bestzeit!', W / 2, panY + 114);
-    } else if (rank > 0) {
-      ctx.font      = '13px Roboto, sans-serif';
-      ctx.fillStyle = this._SEA_MID;
-      ctx.fillText(`Platz ${rank + 1} in den Bestzeiten`, W / 2, panY + 114);
-    }
+    const twFrom = Wind.fromDeg().toFixed(0).padStart(3);
+    ctx.fillText(`TW ${twFrom}°  ${Wind.speed.toFixed(0)} kn`, cx - R, cy + R + 14);
 
-    // Bestzeiten-Liste
-    const sc = this.scores();
-    ctx.font      = '11px "Roboto Mono", monospace';
-    ctx.fillStyle = this._SEA_FAINT;
-    ctx.fillText('Bestzeiten', W / 2, panY + 146);
-    for (let i = 0; i < sc.length; i++) {
-      const hi = i === rank;
-      ctx.font      = hi ? 'bold 12px "Roboto Mono", monospace' : '11px "Roboto Mono", monospace';
-      ctx.fillStyle = hi ? this._SEA : this._SEA_MID;
-      ctx.fillText(`${i + 1}. ${this._fmtTime(sc[i])}`, W / 2, panY + 164 + i * 18);
-    }
+    const awaDeg = (Math.abs(Boat.awa) * 180 / Math.PI).toFixed(0).padStart(3);
+    const awaDir2 = Boat.awa >= 0 ? 'S' : 'B';
+    ctx.fillText(`AW ${awaDeg}°${awaDir2} ${Boat.awSpeed.toFixed(0)} kn`, cx - R, cy + R + 26);
+  },
 
-    // Buttons
-    const labels  = ['Nochmal', 'Hauptmenü'];
-    const btnW    = 130, btnH = 38;
-    const btnsY   = panY + panH - 52;
-    const gap     = 16;
-    const startBX = W / 2 - btnW - gap / 2;
-    const mouse   = Input.mousePos();
-    let   clicked = null;
-
-    for (let i = 0; i < 2; i++) {
-      const bx    = startBX + i * (btnW + gap);
-      const hover = mouse.x >= bx && mouse.x <= bx + btnW &&
-                    mouse.y >= btnsY && mouse.y <= btnsY + btnH;
-      ctx.fillStyle = hover ? this._BTN_HOV : this._BTN;
-      this._roundRect(ctx, bx, btnsY, btnW, btnH, 8);
-      ctx.fill();
-      ctx.font      = hover ? 'bold 14px Roboto, sans-serif' : '14px Roboto, sans-serif';
-      ctx.fillStyle = this._SEA;
-      ctx.fillText(labels[i], bx + btnW / 2, btnsY + btnH / 2);
-      if (hover && Input.isClick()) clicked = i === 0 ? 'restart' : 'menu';
-    }
-
+  _compassArrow(ctx, cx, cy, len, dir, color, lw) {
+    const ex = cx + Math.sin(dir) * len;
+    const ey = cy - Math.cos(dir) * len;
+    const tx = cx - Math.sin(dir) * len * 0.18;
+    const ty = cy + Math.cos(dir) * len * 0.18;
+    ctx.save();
+    ctx.strokeStyle  = color;
+    ctx.fillStyle    = color;
+    ctx.lineWidth    = lw;
+    ctx.globalAlpha  = 0.88;
+    ctx.beginPath();
+    ctx.moveTo(tx, ty);
+    ctx.lineTo(ex, ey);
+    ctx.stroke();
+    const hl = len * 0.24;
+    const a  = Math.atan2(ey - ty, ex - tx);
+    ctx.beginPath();
+    ctx.moveTo(ex, ey);
+    ctx.lineTo(ex - hl * Math.cos(a - 0.42), ey - hl * Math.sin(a - 0.42));
+    ctx.lineTo(ex - hl * Math.cos(a + 0.42), ey - hl * Math.sin(a + 0.42));
+    ctx.closePath();
+    ctx.fill();
     ctx.restore();
-    return clicked;
   },
 
   // ── Helpers ────────────────────────────────────────────────────────────────
+  _raceHudHTML() {
+    const phaseLabel = {
+      pre_start: 'PRE-START',
+      racing:    '● RENNEN',
+      finished:  '✓ ZIEL!',
+    }[Race.phase];
+    const faint = 'color:rgba(8,52,120,0.20)';
+    const div   = (txt, style = '') => `<div${style ? ` style="${style}"` : ''}>${txt}</div>`;
+
+    let h = div(phaseLabel);
+    h += div('──────────────────', faint);
+    if (Race.phase !== 'pre_start') h += div(`Zeit:   ${Race._fmtTime(Race.raceTime)}`);
+    h += div(`Speed:  ${Boat.speed.toFixed(1)} kn`);
+    h += div(`Gesamt: ${(Race.distance / 1852).toFixed(2)} nM`);
+
+    if (Race.phase === 'racing') {
+      h += div('──────────────────', faint);
+      h += div(`Nächste: ${this._nextLabel()}`);
+      h += div(`Dist:    ${this._nextDist().toFixed(0)} m`);
+    }
+    if (Race.phase === 'pre_start') {
+      h += div('──────────────────', faint);
+      h += div('Startlinie kreuzen', 'color:rgba(8,52,120,0.50)');
+    }
+    return h;
+  },
+
+  _nextLabel() {
+    if (Race.wp >= 1 && Race.wp <= Race.marks.length) return `Tonne ${Race.marks[Race.wp - 1].label}`;
+    if (Race.wp === Race.marks.length + 1)             return 'ZIEL-Gate';
+    return '—';
+  },
+
+  _nextDist() {
+    if (Race.wp >= 1 && Race.wp <= Race.marks.length) {
+      const m = Race.marks[Race.wp - 1];
+      return Math.hypot(Boat.x - m.x, Boat.y - m.y);
+    }
+    if (Race.wp === Race.marks.length + 1) {
+      const mx = (Race.gate.port.x + Race.gate.stbd.x) / 2;
+      return Math.hypot(Boat.x - mx, Boat.y - Race.gate.port.y);
+    }
+    return 0;
+  },
+
+  _renderMenuScores() {
+    const sc = this.scores();
+    const el = this._el('menu-scores');
+    if (sc.length === 0) { el.innerHTML = ''; return; }
+    el.innerHTML = '<div class="scores-label">Bestzeiten</div>' +
+      sc.map((t, i) =>
+        `<div class="${i === 0 ? 'gold' : ''}">${i + 1}. ${this._fmtTime(t)}</div>`
+      ).join('');
+  },
+
   _fmtTime(s) {
     const m  = Math.floor(s / 60);
     const ss = Math.floor(s % 60);
     const t  = Math.floor((s % 1) * 10);
-    return `${m}:${ss.toString().padStart(2,'0')}.${t}`;
+    return `${m}:${ss.toString().padStart(2, '0')}.${t}`;
   },
 
-  _roundRect(ctx, x, y, w, h, r) {
-    ctx.beginPath();
-    ctx.moveTo(x + r, y);
-    ctx.lineTo(x + w - r, y);
-    ctx.quadraticCurveTo(x + w, y,     x + w, y + r);
-    ctx.lineTo(x + w, y + h - r);
-    ctx.quadraticCurveTo(x + w, y + h, x + w - r, y + h);
-    ctx.lineTo(x + r, y + h);
-    ctx.quadraticCurveTo(x, y + h, x, y + h - r);
-    ctx.lineTo(x, y + r);
-    ctx.quadraticCurveTo(x, y, x + r, y);
-    ctx.closePath();
-  },
+  _el(id) { return document.getElementById(id); },
 };

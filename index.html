@@ -9,22 +9,228 @@
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
     body { background: #000; overflow: hidden; }
-    canvas { display: block; }
+
+    /* ── HUD container ─────────────────────────────────────────────────────── */
+    #hud {
+      position: fixed;
+      inset: 0;
+      z-index: 1;
+      pointer-events: none;
+      font-family: 'Roboto', sans-serif;
+      color: #083478;
+    }
+
+    .hidden { display: none !important; }
+
+    /* ── Full-screen overlays (menu, finish) ──────────────────────────────── */
+    .screen {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      pointer-events: all;
+    }
+
+    .panel {
+      background: rgba(255,255,255,0.96);
+      border-radius: 14px;
+      padding: 36px 44px;
+      text-align: center;
+      min-width: 320px;
+    }
+
+    /* ── Menu ─────────────────────────────────────────────────────────────── */
+    #menu-title    { font: bold 36px Roboto, sans-serif; color: #083478; margin-bottom: 4px; }
+    #menu-subtitle { font: 13px 'Roboto Mono', monospace; color: rgba(8,52,120,0.55); margin-bottom: 28px; }
+
+    #menu-buttons { display: flex; flex-direction: column; align-items: center; gap: 14px; }
+
+    .menu-btn {
+      display: block;
+      width: 200px;
+      padding: 12px 0;
+      border: none;
+      border-radius: 8px;
+      background: rgba(8,52,120,0.07);
+      color: #083478;
+      font: 15px Roboto, sans-serif;
+      cursor: pointer;
+    }
+    .menu-btn:hover, .menu-btn.active {
+      background: rgba(8,52,120,0.15);
+      font-weight: 700;
+    }
+
+    #menu-scores      { margin-top: 20px; font: 11px 'Roboto Mono', monospace; color: rgba(8,52,120,0.35); }
+    #menu-scores .gold { color: #083478; font-weight: 700; }
+
+    #menu-hint {
+      position: absolute;
+      bottom: 14px; left: 0; right: 0;
+      text-align: center;
+      font: 10px 'Roboto Mono', monospace;
+      color: rgba(255,255,255,0.30);
+      pointer-events: none;
+    }
+
+    /* ── Finish overlay ───────────────────────────────────────────────────── */
+    #finish-heading { font: bold 26px Roboto, sans-serif; color: #083478; margin-bottom: 12px; }
+    #finish-time    { font: 22px 'Roboto Mono', monospace; color: #083478; margin-bottom: 8px; }
+    #finish-rank    { font: 13px Roboto, sans-serif; min-height: 20px; margin-bottom: 8px; }
+    .finish-gold    { color: #7a5800; }
+
+    #finish-scores            { font: 11px 'Roboto Mono', monospace; color: rgba(8,52,120,0.55); margin-bottom: 24px; }
+    #finish-scores .hi        { font-weight: 700; color: #083478; font-size: 12px; }
+    #finish-scores .scores-label { color: rgba(8,52,120,0.35); margin-bottom: 4px; }
+
+    .panel-buttons { display: flex; gap: 16px; justify-content: center; }
+    .panel-buttons .menu-btn { width: 130px; }
+
+    /* ── In-game HUD ──────────────────────────────────────────────────────── */
+    #hud-game { position: absolute; inset: 0; }
+
+    /* Compass (top-left) */
+    #compass-wrap {
+      position: absolute;
+      top: 14px;
+      left: 14px;
+    }
+    #compass-canvas { display: block; }
+
+    /* Race info (top-right) */
+    #race-hud {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      background: rgba(255,255,255,0.96);
+      padding: 8px 10px;
+      min-width: 200px;
+      font: 12px 'Roboto Mono', monospace;
+      color: #083478;
+      line-height: 18px;
+    }
+
+    /* Mute indicator (bottom-left) */
+    #mute-indicator {
+      position: absolute;
+      bottom: 10px;
+      left: 10px;
+      font: 12px 'Roboto Mono', monospace;
+      color: rgba(255,255,255,0.40);
+    }
+
+    /* ── Tutorial panel (bottom) ──────────────────────────────────────────── */
+    #tutorial-panel {
+      position: absolute;
+      bottom: 0; left: 0; right: 0;
+      height: 110px;
+      background: rgba(255,255,255,0.96);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 4px;
+    }
+    #tutorial-step   { font: 11px 'Roboto Mono', monospace; color: rgba(8,52,120,0.55); }
+    #tutorial-dots   { display: flex; gap: 10px; }
+    .tdot            { display: inline-block; width: 12px; height: 12px; border-radius: 50%; background: rgba(8,52,120,0.22); }
+    .tdot.done       { background: #083478; }
+    #tutorial-title  { font: bold 16px Roboto, sans-serif; color: #083478; }
+    #tutorial-hint   { font: 12px 'Roboto Mono', monospace; color: rgba(8,52,120,0.55); }
+    #tutorial-metric { font: 11px 'Roboto Mono', monospace; color: #083478; }
+    #tutorial-progress-wrap {
+      width: min(320px, 40vw);
+      height: 6px;
+      background: rgba(8,52,120,0.22);
+      border-radius: 3px;
+      overflow: hidden;
+    }
+    #tutorial-progress { height: 100%; background: #083478; width: 0%; }
+
+    /* ── Debug overlay (bottom-right) ────────────────────────────────────── */
+    #debug-panel {
+      position: absolute;
+      bottom: 10px;
+      right: 10px;
+      background: rgba(255,255,255,0.96);
+      padding: 8px 10px;
+      font: 12px 'Roboto Mono', monospace;
+      color: rgba(8,52,120,0.55);
+      line-height: 18px;
+    }
+
+    .scores-label { color: rgba(8,52,120,0.35); margin-bottom: 4px; }
   </style>
 </head>
 <body>
-  <canvas id="canvas"></canvas>
+  <div id="hud">
 
+    <!-- ── Menu ────────────────────────────────────────────────────────────── -->
+    <div id="screen-menu" class="screen">
+      <div class="panel">
+        <div id="menu-title">GeoSail</div>
+        <div id="menu-subtitle">Regatta</div>
+        <div id="menu-buttons">
+          <button id="btn-race"     class="menu-btn">Rennen starten</button>
+          <button id="btn-tutorial" class="menu-btn">Tutorial</button>
+        </div>
+        <div id="menu-scores"></div>
+      </div>
+      <div id="menu-hint">↑↓ navigieren  ·  Enter bestätigen</div>
+    </div>
+
+    <!-- ── Finish overlay ──────────────────────────────────────────────────── -->
+    <div id="screen-finish" class="screen hidden">
+      <div class="panel">
+        <div id="finish-heading">Ziel erreicht!</div>
+        <div id="finish-time"></div>
+        <div id="finish-rank"></div>
+        <div id="finish-scores"></div>
+        <div class="panel-buttons">
+          <button id="btn-restart"   class="menu-btn">Nochmal</button>
+          <button id="btn-back-menu" class="menu-btn">Hauptmenü</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── In-game HUD ─────────────────────────────────────────────────────── -->
+    <div id="hud-game" class="hidden">
+      <div id="compass-wrap">
+        <canvas id="compass-canvas" width="120" height="140"></canvas>
+      </div>
+      <div id="race-hud"></div>
+      <div id="mute-indicator" class="hidden">🔇 M</div>
+    </div>
+
+    <!-- ── Tutorial panel ──────────────────────────────────────────────────── -->
+    <div id="tutorial-panel" class="hidden">
+      <div id="tutorial-step"></div>
+      <div id="tutorial-dots"></div>
+      <div id="tutorial-title"></div>
+      <div id="tutorial-hint"></div>
+      <div id="tutorial-metric"></div>
+      <div id="tutorial-progress-wrap">
+        <div id="tutorial-progress"></div>
+      </div>
+    </div>
+
+    <!-- ── Debug overlay ────────────────────────────────────────────────────── -->
+    <div id="debug-panel" class="hidden"></div>
+
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.min.js"></script>
   <script src="js/input.js"></script>
-  <script src="js/camera.js"></script>
   <script src="js/wind.js"></script>
   <script src="js/boat.js"></script>
   <script src="js/race.js"></script>
-  <script src="js/renderer.js"></script>
   <script src="js/audio.js"></script>
   <script src="js/tutorial.js"></script>
   <script src="js/ui.js"></script>
   <script src="js/debug.js"></script>
+  <script src="js/scene.js"></script>
   <script src="js/main.js"></script>
 </body>
 </html>

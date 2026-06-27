@@ -43,8 +43,8 @@ const Race = {
     Boat.speed   = 0;
     Boat.vx      = 0;
     Boat.vy      = 0;
-    Camera.x     = Boat.x;
-    Camera.y     = Boat.y;
+    Scene.x      = Boat.x;
+    Scene.y      = Boat.y;
     this.init();
   },
 
