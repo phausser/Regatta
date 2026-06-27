@@ -7,7 +7,6 @@ const Scene = {
   _scene:      null,
   _camera:     null,
   _renderer:   null,
-  _boatGroup:  null,
   _markMeshes: [],
 
   init() {
@@ -137,27 +136,12 @@ const Scene = {
       ]),
       new THREE.LineBasicMaterial({ color: 0xffffff, transparent: true, opacity: 0.07 })));
 
-    // Boat placeholder
-    const group = new THREE.Group();
-    group.add(new THREE.Mesh(
-      new THREE.BoxGeometry(WORLD_SCALE * 0.44, 2, WORLD_SCALE),
-      new THREE.MeshBasicMaterial({ color: 0xdde8f0 })
-    ));
-    const mast = new THREE.Mesh(
-      new THREE.CylinderGeometry(1.2, 1.2, 10, 6),
-      new THREE.MeshBasicMaterial({ color: 0xffffff })
-    );
-    mast.position.set(0, 6, -WORLD_SCALE * 0.25);
-    group.add(mast);
-    this._boatGroup = group;
-    this._scene.add(group);
+    // Boat (hull + mast + sail + bow wave)
+    BoatMesh.init(this._scene);
   },
 
   updateMeshes() {
-    if (this._boatGroup) {
-      this._boatGroup.position.set(Boat.x, 1, Boat.y);
-      this._boatGroup.rotation.y = -Boat.heading;
-    }
+    BoatMesh.update();
     Race.marks.forEach((m, i) => {
       const mesh = this._markMeshes[i];
       if (!mesh) return;

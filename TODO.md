@@ -23,14 +23,14 @@ Basis-Implementierung (Canvas 2D): Physik, Rennstrecke, Sound, Menü, Tutorial, 
 - [x] Fragment-Shader: Tiefblau-Basis, Schaum an Wellenkämmen, windabhängige Intensität
 - [x] Wasser-Mesh in Scene einfügen, animiert via `update(dt)`
 
-## Phase 8: 3D Boot & Segel ☐
-- [ ] `js/boatMesh.js`: Gruppe (hull + mast + sail + partikel)
-- [ ] Rumpf: `ExtrudeGeometry` aus 2D-Bootskontur, ~2 WE Höhe
-- [ ] Mast: `CylinderGeometry` (dünn, hoch), weißes Material, Schatten
-- [ ] Segel: `BufferGeometry` (3 Verts), jedes Frame neu berechnet (Wölbung = Bezier)
-- [ ] Segel-Farbe = Trim-Zustand (creme/gut, orange/overtrimmed, rot/luffing)
-- [ ] Bugwellen: `Points`-Partikelsystem (Schaum-Fächer), aus `renderer.js` portiert
-- [ ] `boat.js`: `draw()` entfernen, Physik-Daten werden von `boatMesh.js` gelesen
+## Phase 8: 3D Boot & Segel ✓
+- [x] `js/boatMesh.js`: Gruppe (hull + mast + sail + partikel)
+- [x] Rumpf: `ExtrudeGeometry` aus 2D-Bootskontur, ~2 WE Höhe
+- [x] Mast: `CylinderGeometry` (dünn, hoch), weißes Material
+- [x] Segel: `BufferGeometry` (3 Verts), jedes Frame neu berechnet (Wölbung = Bezier-Annäherung)
+- [x] Segel-Farbe = Trim-Zustand (creme/gut, orange/overtrimmed, rot/luffing)
+- [x] Bugwellen: `Points`-Partikelsystem (Schaum-Fächer)
+- [x] `boat.js`: `draw()` entfernt
 
 ## Phase 9: 3D Bojen & Gate ☐
 - [ ] `js/marksMesh.js`: Bojen-Gruppe
@@ -62,6 +62,6 @@ Basis-Implementierung (Canvas 2D): Physik, Rennstrecke, Sound, Menü, Tutorial, 
 
 ---
 
-**Aktueller Fokus**: Phase 8 – 3D Boot & Segel
+**Aktueller Fokus**: Phase 9 – 3D Bojen & Gate
 **Branch**: `feature/threejs-visual-overhaul`
 **Letztes Update**: 27. Juni 2026
