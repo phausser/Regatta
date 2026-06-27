@@ -10,13 +10,13 @@ const Tutorial = {
   _steps: [
     {
       title: 'Segel trimmen',
-      hint:  '↑ / ↓ – Segel ein- oder ausholen bis es gelb leuchtet',
+      hint:  '↑ / ↓ – Segel ein- oder ausholen bis es grün leuchtet',
       metric() { return `Segelstatus: ${Boat.sailState}`; },
       done()   { return Boat.sailState === 'good'; },
     },
     {
       title: 'Fahrt aufnehmen',
-      hint:  '← → steuern  ·  Kurs zum Wind finden, bis du > 3,5 kn fährst',
+      hint:  '← → steuern  ·  ↑ ↓ Trimm halten (grün)  ·  > 3,5 kn',
       metric() { return `Fahrt: ${Boat.speed.toFixed(1)} kn`; },
       done()   { return Boat.speed >= 3.5; },
     },
