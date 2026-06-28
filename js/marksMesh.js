@@ -36,7 +36,7 @@ const MarksMesh = {
   },
 
   _drawPost(ctx, x, y, color) {
-    this._shadow(ctx, x + 5, y + 7, 34, 18, 0.22);
+    Scene.drawProjectedShadow(ctx, this._circlePoints(x, y, 9, 18), 26, 0.46);
 
     ctx.save();
     ctx.fillStyle = color;
@@ -66,7 +66,7 @@ const MarksMesh = {
         ctx.restore();
       }
 
-      this._shadow(ctx, mark.x + 7, mark.y + 10, 48, 26, 0.26);
+      Scene.drawProjectedShadow(ctx, this._circlePoints(mark.x, mark.y + bob, 15, 24), 22, 0.46);
 
       ctx.save();
       ctx.translate(mark.x, mark.y + bob);
@@ -101,12 +101,15 @@ const MarksMesh = {
     ctx.restore();
   },
 
-  _shadow(ctx, x, y, rx, ry, alpha) {
-    ctx.save();
-    ctx.fillStyle = `rgba(10,31,50,${alpha})`;
-    ctx.beginPath();
-    ctx.ellipse(x, y, rx, ry, 0.42, 0, Math.PI * 2);
-    ctx.fill();
-    ctx.restore();
+  _circlePoints(x, y, radius, segments) {
+    const pts = [];
+    for (let i = 0; i < segments; i++) {
+      const a = i / segments * Math.PI * 2;
+      pts.push({
+        x: x + Math.cos(a) * radius,
+        y: y + Math.sin(a) * radius,
+      });
+    }
+    return pts;
   },
 };
