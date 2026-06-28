@@ -4,25 +4,25 @@ Dieses Dokument richtet sich an KI-Agenten (z. B. Claude Code), die an diesem Pr
 
 ## Projektübersicht
 
-Minimalistisches 3D-Segel-Regatta-Spiel im Browser. Top-Down-Ansicht (senkrecht von oben), echte Segelphysik (Scheinbarer Wind), Rundkurs mit Bojen. Rendering via **Three.js** (WebGL).
+Minimalistisches 2D-Segel-Regatta-Spiel im Browser. Top-Down-Ansicht (senkrecht von oben), echte Segelphysik (Scheinbarer Wind), Rundkurs mit Bojen. Rendering via **HTML5 Canvas**.
 
-- **Tech-Stack**: HTML5, Vanilla JavaScript, Three.js r168 (CDN) – kein Framework, kein Build-Step
+- **Tech-Stack**: HTML5 Canvas, Vanilla JavaScript, Web Audio API – kein Framework, kein Build-Step
 - **Einstieg**: `index.html` direkt im Browser öffnen
 - **Welt**: 5000 × 5000 Einheiten, Kamera folgt dem Boot
 
 ## Dateistruktur
 
 ```
-index.html            Einstiegspunkt, lädt Three.js + alle Scripts
+index.html            Einstiegspunkt, lädt alle Scripts
 js/
   input.js            Tastatur + Maus-State (isDown / isPressed / isClick / flush)
   wind.js             True Wind + langsame Drift                        ← Phase 2 (unverändert)
   boat.js             Boot-Physik + Apparent Wind (KEIN draw() mehr)    ← Phase 1 + 8
   race.js             Bojen, Start-/Zieltor, Renn-Logik (KEIN draw())   ← Phase 3 + 9
-  scene.js            Three.js: Scene, WebGLRenderer, OrthoCam, Lichter ← Phase 6 (NEU)
-  waterMesh.js        3D-Wasser: ShaderMaterial + GLSL-Wellen           ← Phase 7 (NEU)
-  boatMesh.js         3D-Rumpf, Mast, Segel-Mesh, Bugwellen-Partikel   ← Phase 8 (NEU)
-  marksMesh.js        3D-Bojen, Gate-Pfosten, Bob-Animation             ← Phase 9 (NEU)
+  scene.js            Canvas, Follow-Kamera, Zoom, Render-Orchestrierung
+  waterMesh.js        Canvas-Wasser + animierte Dreiecks-Wellen
+  boatMesh.js         Bootssilhouette, Segel, Bugwellen, Contact-Shadow
+  marksMesh.js        Bojen, Gate, Kurslinien, Contact-Shadows
   audio.js            Web Audio API – Wind, Wellen, Flattern, Pings     ← Phase 5 (unverändert)
   tutorial.js         Interaktives 4-Schritte-Tutorial (HTML-Overlay)   ← Phase 5
   ui.js               Startmenü, HUD, Finish-Overlay (HTML-Overlay)     ← Phase 5 + 6
@@ -30,9 +30,10 @@ js/
   main.js             Game Loop, State-Machine, resize, update/render
 ```
 
-**Entfernt in Phase 6:**
-- `camera.js` → Camera-Logik lebt in `scene.js` (Three.js OrthographicCamera)
-- `renderer.js` → vollständig ersetzt durch `waterMesh.js`, `boatMesh.js`, `marksMesh.js`
+**Entfernt:**
+- `camera.js` → Camera-Logik lebt in `scene.js`
+- `renderer.js` → ersetzt durch `scene.js`, `waterMesh.js`, `boatMesh.js`, `marksMesh.js`
+- Three.js-CDN → Rueckbau auf Canvas 2D
 
 **Script-Ladereihenfolge** (global, keine Module):
 `input → wind → boat → race → scene → waterMesh → boatMesh → marksMesh → audio → tutorial → ui → debug → main`
@@ -40,19 +41,18 @@ js/
 ## Koordinatensystem & Konventionen
 
 - **Weltkoordinaten**: X nach rechts, Y nach unten (wie bisher für Physik)
-- **Three.js**: Weltkoordinaten werden nach Three.js übersetzt: `threeX = worldX`, `threeZ = worldY` (Y ist oben in Three.js, wird für Top-Down-Kamera nicht benötigt)
+- **Canvas**: Weltkoordinaten werden direkt gezeichnet; Kamera transformiert per `translate/scale`
 - **Winkel**: Radiant, 0 = nach oben (Norden), im Uhrzeigersinn
 - **Geschwindigkeit**: Welt-Einheiten pro Sekunde
 - **Knoten**: Nur für HUD-Anzeige; interne Physik rechnet in WE/s
 - **Delta-Time**: `update(dt)` erhält `dt` in Sekunden, gekappt auf 0,1 s
 
-## Three.js Kamera
+## Canvas-Kamera
 
 ```
-OrthographicCamera, schaut senkrecht nach unten (Y-Achse negativ).
-Camera-Position: (boat.x, HIGH_Y, boat.z)
-Camera-Rotation: lookAt(boat.x, 0, boat.z)
-Zoom: anpasst left/right/top/bottom der OrthoCam
+Canvas 2D, senkrecht von oben.
+Screen: (world - cameraCenter) * zoom + viewportCenter
+Zoom: skaliert die Canvas-Welttransformation
 ```
 
 Kein Tilt, keine Rotation um die Y-Achse – Ansicht bleibt immer senkrecht von oben.
@@ -65,10 +65,10 @@ Kein Tilt, keine Rotation um die Y-Achse – Ansicht bleibt immer senkrecht von 
 | `Wind`      | wind.js      | True Wind (dir, speed, vx, vy)                     |
 | `Boat`      | boat.js      | Boot-Zustand + Physik (kein Rendering)             |
 | `Race`      | race.js      | Renn-Logik, Wegpunkte, Zeitmessung (kein Rendering)|
-| `Scene`     | scene.js     | Three.js Scene, Camera, Renderer, Lichter          |
-| `WaterMesh` | waterMesh.js | Animiertes Wasser-Mesh (ShaderMaterial)            |
-| `BoatMesh`  | boatMesh.js  | 3D-Boot + Segel + Bugwellen-Partikel               |
-| `MarksMesh` | marksMesh.js | 3D-Bojen und Gate-Pfosten                          |
+| `Scene`     | scene.js     | Canvas, Kamera, Render-Orchestrierung              |
+| `WaterMesh` | waterMesh.js | Animiertes Canvas-Wasser                           |
+| `BoatMesh`  | boatMesh.js  | Boot, Segel, Bugwellen und Contact-Shadow          |
+| `MarksMesh` | marksMesh.js | Bojen, Gate, Kurslinien und Contact-Shadows        |
 | `Sfx`       | audio.js     | Web Audio API – Ambient + One-shots                |
 | `Tutorial`  | tutorial.js  | 4-Schritte-Tutorial                                |
 | `UI`        | ui.js        | Startmenü, HUD-Overlay, Finish-Overlay, Highscores |
@@ -86,7 +86,7 @@ Kein Tilt, keine Rotation um die Y-Achse – Ansicht bleibt immer senkrecht von 
 
 ## HUD (HTML-Overlay)
 
-Das HUD ist **kein Canvas-Zeichnen mehr**, sondern ein `<div id="hud">` über dem WebGL-Canvas.
+Das HUD ist **kein Spiel-Canvas-Zeichnen**, sondern ein `<div id="hud">` über dem Canvas.
 `ui.js` schreibt `element.textContent` statt `ctx.fillText(...)`.
 Wind-Kompass: kleines `<canvas>`-Element im HUD für die Pfeil-Animation (2D Canvas, mini).
 
@@ -95,15 +95,15 @@ Wind-Kompass: kleines `<canvas>`-Element im HUD für die Pfeil-Animation (2D Can
 **Clean und minimalistisch** – dieser Grundsatz ist nicht verhandelbar:
 - Keine unnötigen Dekorationen, kein Lärm
 - Jedes visuelle Element hat eine klare Funktion
-- Texturen: keine (außer GLSL-generierte Wasser-Muster)
-- Geometrie: primitiv und klar – Zylinder, Extrusions, Planes
+- Texturen: keine
+- Geometrie: primitiv und klar – Canvas-Formen, Kreise, Polygone, Ellipsen
 - Farbpalette konsequent einhalten (siehe SPEC.md)
 
 ## Coding-Stil
 
 - **Einfach und lesbar** – kein cleverer Code auf Kosten der Verständlichkeit
 - Alle Module sind einfache `const`-Objekte (kein ES6-Klassen-Zwang)
-- Keine externen Abhängigkeiten außer Three.js via CDN
+- Keine externen Rendering-Abhängigkeiten
 - Kommentare nur wenn das *Warum* nicht offensichtlich ist
 - Deutsche Kommentare sind ok
 
@@ -112,7 +112,7 @@ Wind-Kompass: kleines `<canvas>`-Element im HUD für die Pfeil-Animation (2D Can
 - Phasen 6–11 werden einzeln abgeschlossen; nach jeder Phase prüft Patrick den Stand
 - Nach jeder Phase: TODO.md, SPEC.md Status-Tabelle, AGENTS.md aktualisieren
 - Keine Phase überspringen oder parallel implementieren
-- Aktueller Stand: Phasen 6–11 abgeschlossen
+- Aktueller Stand: Canvas-2D-Rueckbau abgeschlossen
 
 ## Steuerung
 

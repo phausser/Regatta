@@ -1,4 +1,4 @@
-// Three.js scene, camera, renderer – replaces camera.js + renderer.js
+// Canvas scene, camera and render orchestration
 const WORLD_SIZE = 5000;
 const MAX_ZOOM   = 5;
 
@@ -7,53 +7,45 @@ const Scene = {
   y:    2500,
   zoom: 1,
 
-  _scene:      null,
-  _camera:     null,
-  _renderer:   null,
-  _sun:        null,
+  _canvas:   null,
+  _ctx:      null,
+  _renderer: null,
+  _dpr:      1,
 
   init() {
     this.x = Boat.x;
     this.y = Boat.y;
 
-    this._scene = new THREE.Scene();
+    this._canvas = document.createElement('canvas');
+    this._ctx = this._canvas.getContext('2d');
+    this._renderer = { domElement: this._canvas };
 
-    this._renderer = new THREE.WebGLRenderer({ antialias: true });
-    this._renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
-    this._renderer.setSize(window.innerWidth, window.innerHeight);
-    this._renderer.shadowMap.enabled = true;
-    this._renderer.shadowMap.type = THREE.PCFSoftShadowMap;
-
-    const el = this._renderer.domElement;
+    const el = this._canvas;
     el.style.position = 'fixed';
     el.style.top      = '0';
     el.style.left     = '0';
     el.style.zIndex   = '0';
     document.body.appendChild(el);
 
-    this._camera = new THREE.OrthographicCamera(-1, 1, 1, -1, 0.1, 2000);
-    this._camera.up.set(0, 0, -1);
-    this._syncCamera();
+    this._resize();
+    window.addEventListener('resize', () => {
+      this._resize();
+      this.zoom = this.clampZoom(this.zoom);
+    });
 
     el.addEventListener('wheel', e => {
       e.preventDefault();
       const f = e.deltaY < 0 ? 1.12 : 1 / 1.12;
       this.zoom = this.clampZoom(this.zoom * f);
-      this._applyFrustum();
     }, { passive: false });
 
-    window.addEventListener('resize', () => {
-      this._renderer.setSize(window.innerWidth, window.innerHeight);
-      this.zoom = this.clampZoom(this.zoom);
-      this._applyFrustum();
-    });
-
-    this._buildScene();
+    WaterMesh.init();
+    MarksMesh.init();
+    BoatMesh.init();
   },
 
-  applyFrustum() { this._applyFrustum(); },
+  applyFrustum() {},
 
-  // Rauszoomen begrenzt: sichtbare Welt ≤ WORLD_SIZE in beiden Achsen
   minZoom() {
     return Math.max(window.innerWidth / WORLD_SIZE, window.innerHeight / WORLD_SIZE);
   },
@@ -62,91 +54,53 @@ const Scene = {
     return Math.max(this.minZoom(), Math.min(MAX_ZOOM, z));
   },
 
-  _applyFrustum() {
-    const hw = window.innerWidth  / 2 / this.zoom;
-    const hh = window.innerHeight / 2 / this.zoom;
-    this._camera.left   = -hw;
-    this._camera.right  =  hw;
-    this._camera.top    =  hh;
-    this._camera.bottom = -hh;
-    this._camera.updateProjectionMatrix();
-  },
-
-  _syncCamera() {
-    this._camera.position.set(this.x, 1000, this.y);
-    this._camera.lookAt(new THREE.Vector3(this.x, 0, this.y));
-    this._applyFrustum();
-  },
-
   follow(target) {
     this.x = target.x;
     this.y = target.y;
-    this._syncCamera();
   },
 
-  _buildScene() {
-    // Animated water (shader)
-    WaterMesh.init(this._scene);
-    this._buildLights();
-    this._buildShadowReceiver();
+  worldToScreen(x, y) {
+    return {
+      x: (x - this.x) * this.zoom + window.innerWidth / 2,
+      y: (y - this.y) * this.zoom + window.innerHeight / 2,
+    };
+  },
 
-    // Grid 500 WU
-    const gPts = [];
-    for (let i = 0; i <= 10; i++) {
-      const v = i * 500;
-      gPts.push(v, 0, 0, v, 0, 5000, 0, 0, v, 5000, 0, v);
+  _resize() {
+    this._dpr = Math.min(window.devicePixelRatio || 1, 2);
+    this._canvas.width  = Math.floor(window.innerWidth * this._dpr);
+    this._canvas.height = Math.floor(window.innerHeight * this._dpr);
+    this._canvas.style.width  = `${window.innerWidth}px`;
+    this._canvas.style.height = `${window.innerHeight}px`;
+  },
+
+  _beginWorld() {
+    const ctx = this._ctx;
+    ctx.save();
+    ctx.scale(this._dpr, this._dpr);
+    ctx.translate(window.innerWidth / 2, window.innerHeight / 2);
+    ctx.scale(this.zoom, this.zoom);
+    ctx.translate(-this.x, -this.y);
+  },
+
+  _drawGrid() {
+    const ctx = this._ctx;
+
+    ctx.save();
+    ctx.lineWidth = 1 / this.zoom;
+    ctx.strokeStyle = 'rgba(255,255,255,0.04)';
+    ctx.beginPath();
+    for (let v = 0; v <= WORLD_SIZE; v += 500) {
+      ctx.moveTo(v, 0);
+      ctx.lineTo(v, WORLD_SIZE);
+      ctx.moveTo(0, v);
+      ctx.lineTo(WORLD_SIZE, v);
     }
-    const gGeo = new THREE.BufferGeometry();
-    gGeo.setAttribute('position', new THREE.Float32BufferAttribute(gPts, 3));
-    this._scene.add(new THREE.LineSegments(gGeo,
-      new THREE.LineBasicMaterial({ color: 0xffffff, transparent: true, opacity: 0.04 })));
+    ctx.stroke();
 
-    // World border (5000 × 5000)
-    this._scene.add(new THREE.Line(
-      new THREE.BufferGeometry().setFromPoints([
-        new THREE.Vector3(   0, 0.2,    0),
-        new THREE.Vector3(5000, 0.2,    0),
-        new THREE.Vector3(5000, 0.2, 5000),
-        new THREE.Vector3(   0, 0.2, 5000),
-        new THREE.Vector3(   0, 0.2,    0),
-      ]),
-      new THREE.LineBasicMaterial({ color: 0xffffff, transparent: true, opacity: 0.15 })));
-
-    // Course marks, gate and path
-    MarksMesh.init(this._scene);
-
-    // Boat (hull + mast + sail + bow wave)
-    BoatMesh.init(this._scene);
-  },
-
-  _buildLights() {
-    this._scene.add(new THREE.AmbientLight(0xb8d8f0, 0.78));
-
-    this._sun = new THREE.DirectionalLight(0xfffaf2, 1.05);
-    this._sun.position.set(1400, 1800, 800);
-    this._sun.target.position.set(2500, 0, 2500);
-    this._sun.castShadow = true;
-    this._sun.shadow.mapSize.set(2048, 2048);
-    this._sun.shadow.camera.left = -2200;
-    this._sun.shadow.camera.right = 2200;
-    this._sun.shadow.camera.top = 2200;
-    this._sun.shadow.camera.bottom = -2200;
-    this._sun.shadow.camera.near = 100;
-    this._sun.shadow.camera.far = 4000;
-    this._sun.shadow.bias = -0.0004;
-    this._scene.add(this._sun);
-    this._scene.add(this._sun.target);
-  },
-
-  _buildShadowReceiver() {
-    const shadowPlane = new THREE.Mesh(
-      new THREE.PlaneGeometry(12000, 12000),
-      new THREE.ShadowMaterial({ color: 0x244d70, opacity: 0.18, transparent: true }),
-    );
-    shadowPlane.rotation.x = -Math.PI / 2;
-    shadowPlane.position.set(2500, -0.50, 2500);
-    shadowPlane.receiveShadow = true;
-    this._scene.add(shadowPlane);
+    ctx.strokeStyle = 'rgba(255,255,255,0.15)';
+    ctx.strokeRect(0, 0, WORLD_SIZE, WORLD_SIZE);
+    ctx.restore();
   },
 
   updateMeshes() {
@@ -155,6 +109,15 @@ const Scene = {
   },
 
   render() {
-    this._renderer.render(this._scene, this._camera);
+    const ctx = this._ctx;
+    ctx.setTransform(1, 0, 0, 1, 0, 0);
+    ctx.clearRect(0, 0, this._canvas.width, this._canvas.height);
+
+    this._beginWorld();
+    WaterMesh.draw(ctx);
+    this._drawGrid();
+    MarksMesh.draw(ctx);
+    BoatMesh.draw(ctx);
+    ctx.restore();
   },
 };
