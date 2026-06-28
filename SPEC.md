@@ -11,24 +11,24 @@
 
 ### Stil
 - **Clean und minimalistisch** – keine unnötigen Details, kein Lärm
-- Wenige, gut gewählte Farben: Tiefblau Wasser, Weiß/Creme Segel, kräftige Akzentfarben für Bojen
-- Tiefe durch kontrollierte Contact-Shadows – Boot, Bojen und Gate werfen weiche Schatten auf das Wasser
+- Wenige, gut gewählte Farben: blaues Wasser mit leichtem Sonnenverlauf, weißer Rumpf, kräftige Akzentfarben für Bojen
+- Tiefe durch projizierte Schatten – Boot, Bojen und Gate werfen formbasierte Schatten auf das Wasser
 - Kamera immer senkrecht von oben (kein Tilt)
 
 ### Farbpalette
 | Element | Farbe |
 |---------|-------|
-| Wasser (tief) | `#0a1f3c` |
-| Wasser (Kamm) | `#1a4a7a` |
-| Schaum / Wellen | `rgba(255,255,255,0.15–0.5)` |
-| Rumpf | `#e8f0f5` (hell, leicht grau) |
+| Wasser Verlauf hell | `#6398c7` |
+| Wasser Verlauf dunkel | `#356891` |
+| Wellen | `#e6f7ff` mit Alpha |
+| Rumpf | `#ffffff` |
 | Mast | `#ffffff` |
-| Segel (gut getrimmt) | `#fffce0` (cremeweiß) |
-| Segel (luffing) | `#ff6040` |
-| Segel (overtrimmed) | `#ffd050` |
+| Segel | `#44ff88` |
 | Boje Backbord (rot) | `#ff3344` |
 | Boje Steuerbord (grün) | `#33ee66` |
 | Kurstonnen | `#ffcc00` |
+| Kursindikator Bojen | `#ffcc00` aktiv, 25 % Alpha inaktiv |
+| Kursindikator Gate | `#ffffff` aktiv, 25 % Alpha inaktiv |
 | HUD Text | `#e0eeff` auf dunklem Hintergrund |
 
 ## Kern-Features
@@ -39,16 +39,16 @@
 - Kamera folgt dem Boot, immer senkrecht von oben
 
 ### 2. Wasser
-- Große Canvas-Wasserfläche mit animierten Dreiecks-Wellen
-- Tiefblau-Basis, helle windabhängige Wellenkämme
+- Große Canvas-Wasserfläche mit linearem Farbverlauf von Sonnenrichtung in Schattenrichtung
+- Animierte Dreiecks-Wellen bewegen sich in Richtung des wahren Windes
 - Dezentes Welt-Grid und Kurslinien bleiben funktional sichtbar
 
 ### 3. Boot & Segel
 - Rumpf: weiße, gefüllte Canvas-Außenform ohne Deckdetails
 - Mast: weißer Punkt, funktional sichtbar
-- Segel: gewölbtes Polygon, jedes Frame aus Trimm/AWA berechnet
-- Bugwellen: leichte Canvas-Partikel
-- Schatten: gezeichneter Contact-Shadow unter dem Boot
+- Segel: gewölbtes grünes Polygon, jedes Frame aus Trimm/AWA berechnet
+- Bugwellen: subtile weiße Pixel am Bug; Anzahl steigt mit Geschwindigkeit, langsames Ausblenden
+- Schatten: aus Sonnenposition, Sonnenhöhe und Objektkontur projiziert
 
 ### 4. Physik
 - **Scheinbarer Wind (Apparent Wind)** – echte Vektorberechnung
@@ -72,18 +72,24 @@
 - Apparent Wind: TW − v_Boot
 
 ### 7. Bojen & Gate
-- Bojen: klare farbcodierte Canvas-Kreise mit Bob-Animation
+- Kurstonnen: gelbe Canvas-Kreise mit Bob-Animation; Farbe ändert sich nicht bei Aktivität
 - Gate-Pfosten: rote/grüne Marker
-- Alle Marken werfen gezeichnete weiche Contact-Shadows
+- Alle Marken werfen formbasierte projizierte Schatten
+- Kursindikatoren liegen als Dreiecke in ca. 100 px Abstand um das Boot: Bojen gelb, Gate weiß, inaktiv 25 % Alpha
 
-### 8. Schatten
+### 8. Schatten & Lichtwirkung
 - Keine Licht-/Shadow-Map-Abhängigkeit
-- Schatten werden als weiche, dunkle Ellipsen direkt ins Canvas gezeichnet
+- Sonnenposition lebt in `Scene.sun`
+- Schattenlänge = Objekthöhe × horizontale Sonnendistanz / Sonnenhöhe
+- Schattenfläche entsteht aus der konvexen Außenhülle von Objektkontur + projizierter Kontur
+- Schatten startet am Objekt dunkler und läuft in Schattenrichtung auf Alpha 0 aus
 
 ### 9. HUD
 - **HTML-Overlay** (kein Canvas-Zeichnen)
 - Oben rechts: Phase, Zeit, Geschwindigkeit, nächste Tonne + Distanz
-- Wind-Kompass: reiner HTML-SVG oder Canvas-Element (klein, oben links)
+- Wind-Kompass: Canvas-Element oben links, 50 % Alpha, größerer Kreis
+- Wahrer Wind: blauer Dreieckspfeil, zeigt woher der Wind kommt
+- Scheinbarer Wind: roter Dreieckspfeil, zeigt woher der scheinbare Wind kommt
 - Klares, minimalistisches Design: dunkler semi-transparenter Hintergrund, heller Text
 
 ### 10. Menü & Sound
@@ -95,7 +101,8 @@
 | Taste | Aktion |
 |-------|--------|
 | `←` / `→` | Ruder |
-| `↑` / `↓` | Segeltrimm |
+| `↑` | Segel fieren |
+| `↓` | Segel einholen |
 | `R` | Reef |
 | `T` | Neustart |
 | `Esc` | Hauptmenü |
@@ -121,15 +128,15 @@
 | 3 | Rennstrecke, Bojen, Start/Ziel, Zeitmessung | ✓ |
 | 4 | Wasser-Rendering, HUD, Bugwellen | ✓ |
 | 5 | Menü, Tutorial, Highscores, Sound | ✓ |
-| 6 | Three.js Foundation: Scene, OrthoCam, Renderer, HUD-Overlay | ✓ |
-| 7 | 3D Wasser: ShaderMaterial, GLSL-Wellen | ✓ |
-| 8 | 3D Boot & Segel: Rumpf, Mast, Segel-Mesh, Bugwellen-Partikel | ✓ |
-| 9 | 3D Bojen & Gate: Cylinder-Meshes, Bob-Animation | ✓ |
+| 6 | Canvas-Renderer, HTML-HUD, Follow-Kamera | ✓ |
+| 7 | Canvas-Wasser, Wasserverlauf, Dreiecks-Wellen | ✓ |
+| 8 | Bootssilhouette, Segel, Bugpixel, projizierter Schatten | ✓ |
+| 9 | Bojen, Gate, Kurslinien, Kursindikatoren | ✓ |
 | 10 | Arcade-Tuning: Kurs kompakt, Boot schneller, Wind 14 kn | ✓ |
-| 11 | Licht, Schatten, Polish | ✓ |
-| 12 | Rueckbau auf Canvas 2D, Contact-Shadows statt Three.js | ✓ |
+| 11 | Visueller Polish: Kompass, Schatten, Wasser, HUD | ✓ |
+| 12 | Three.js-Rueckbau abgeschlossen | ✓ |
 
 ---
 
-**Letztes Update**: 28. Juni 2026 – Canvas-2D-Rueckbau abgeschlossen
+**Letztes Update**: 28. Juni 2026 - Canvas-2D-Stand mit projizierten Schatten und Kursindikatoren
 **Autor**: Patrick + Claude

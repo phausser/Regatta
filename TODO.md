@@ -5,38 +5,31 @@ Basis-Implementierung (Canvas 2D): Physik, Rennstrecke, Sound, Menü, Tutorial, 
 
 ---
 
-## Phase 6: Three.js Foundation ✓
-- [x] Three.js r160 via CDN in `index.html` (r168 hat keinen UMD-Build mehr)
-- [x] `js/scene.js`: Scene, WebGLRenderer, OrthographicCamera (senkrecht von oben)
-- [x] Resize-Handler (Kamera + Renderer)
-- [x] `camera.js` entfernt (Logik in scene.js)
-- [x] `renderer.js` entfernt
+## Phase 6: Canvas-Renderer & HUD ✓
+- [x] `scene.js`: Canvas-Renderer, Follow-Kamera und Zoom
+- [x] Resize-Handler für Canvas und Kamera
 - [x] HUD als `<div id="hud">` HTML-Overlay in `index.html`
-- [x] `main.js`: Game-Loop auf `renderer.setAnimationLoop()` umgestellt
-- [x] `ui.js`: HUD-Update auf DOM-Elemente umgestellt (kein ctx mehr)
-- [x] Koordinaten-Bridge: Physik-Welt (X/Y) → Three.js (X/Z)
-- [x] Placeholder-Meshes: Boot (Box), Bojen (Zylinder), Gate, Kurs-Linie
+- [x] `main.js`: Game-Loop mit `requestAnimationFrame`
+- [x] `ui.js`: HUD-Update auf DOM-Elemente umgestellt
 
-## Phase 7: 3D Wasser ✓
-- [x] `js/waterMesh.js`: `PlaneGeometry(12000, 12000, 128, 128)`
-- [x] GLSL ShaderMaterial: Vertex-Wellen (3 überlagerte Sinuswellen)
-- [x] Fragment-Shader: Tiefblau-Basis, Schaum an Wellenkämmen, windabhängige Intensität
-- [x] Wasser-Mesh in Scene einfügen, animiert via `update(dt)`
+## Phase 7: Canvas-Wasser ✓
+- [x] `waterMesh.js`: Wasserfläche mit Sonnen-/Schatten-Farbverlauf
+- [x] Animierte Dreiecks-Wellen
+- [x] Wellen bewegen sich in Richtung des wahren Windes
 
-## Phase 8: 3D Boot & Segel ✓
-- [x] `js/boatMesh.js`: Gruppe (hull + mast + sail + partikel)
-- [x] Rumpf: `ExtrudeGeometry` aus 2D-Bootskontur, ~2 WE Höhe
-- [x] Mast: `CylinderGeometry` (dünn, hoch), weißes Material
-- [x] Segel: `BufferGeometry` (3 Verts), jedes Frame neu berechnet (Wölbung = Bezier-Annäherung)
-- [x] Segel-Farbe = Trim-Zustand (creme/gut, orange/overtrimmed, rot/luffing)
-- [x] Bugwellen: `Points`-Partikelsystem (Schaum-Fächer)
-- [x] `boat.js`: `draw()` entfernt
+## Phase 8: Boot & Segel ✓
+- [x] `boatMesh.js`: weiße Bootssilhouette ohne Deckdetails
+- [x] Segel als gewölbtes Canvas-Polygon
+- [x] Bugwellen als subtile weiße Pixel, geschwindigkeitsabhängig
+- [x] Formbasierter projizierter Bootsschatten
+- [x] `boat.js`: Physik bleibt getrennt vom Rendering
 
-## Phase 9: 3D Bojen & Gate ✓
-- [x] `js/marksMesh.js`: Bojen-Gruppe
-- [x] Kurstonnen: `CylinderGeometry`, gelb, Bob-Animation (sinus auf Y)
-- [x] Gate-Pfosten: schlanke Zylinder, rot/grün
-- [x] `race.js`: `draw()` entfernen, Logik-Daten werden von `marksMesh.js` gelesen
+## Phase 9: Bojen, Gate & Kursindikatoren ✓
+- [x] `marksMesh.js`: Bojen, Gate und Kurslinien
+- [x] Kurstonnen bleiben gelb und ändern bei Aktivität nicht die Farbe
+- [x] Gate-Pfosten rot/grün
+- [x] Projizierte Schatten für Bojen und Gate
+- [x] Kursindikatoren als Dreiecke 100 px um das Boot: Gate weiß, Bojen gelb, inaktiv 25 % Alpha
 
 ## Phase 10: Arcade-Tuning ✓
 - [x] Wind-Default: 8 kn → 14 kn (`wind.js`)
@@ -45,21 +38,19 @@ Basis-Implementierung (Canvas 2D): Physik, Rennstrecke, Sound, Menü, Tutorial, 
 - [x] Kurs kompakter: Gate (2200/2800, 2600), Mark1 (2000,2100), Mark2 (3000,2100), Mark3 (2500,3000)
 - [x] Ziel verifizieren: Rundenzeit 5–8 Minuten
 
-## Phase 11: Licht, Schatten & Polish ✓
-- [x] `DirectionalLight` (Sonne, schräg oben)
-- [x] `AmbientLight` für Fill
-- [x] `PCFSoftShadowMap`: Boot + Bojen werfen Schatten auf Wasser
-- [x] Wind-Kompass: sauberes HTML-Overlay (mini 2D-Canvas)
+## Phase 11: Schatten & Polish ✓
+- [x] `Scene.sun`: Sonnenposition und Sonnenhöhe
+- [x] Schattenlänge aus Objekthöhe und Sonnenhöhe
+- [x] Schattenfläche aus äußerer Hülle von Objektkontur + projizierter Kontur
+- [x] Schattenverlauf: am Objekt dunkler, Ende Alpha 0
+- [x] Wind-Kompass: 50 % Alpha, blau/rot, Pfeile zeigen woher der Wind kommt
 - [x] HUD: finales Design (minimalistisch, semitransparent dunkel, heller Text)
 - [x] Startmenü: auf neuen visuellen Stil abstimmen
 
-## Phase 12: Rueckbau auf Canvas 2D ✓
+## Phase 12: Rückbau & Abgleich ✓
 - [x] Three.js-CDN aus `index.html` entfernt
-- [x] `scene.js`: Canvas-Renderer, Follow-Kamera und Zoom
-- [x] `waterMesh.js`: Canvas-Wasser und animierte Dreiecks-Wellen
-- [x] `boatMesh.js`: weiße Bootssilhouette, Segel, Bugwellen und Contact-Shadow
-- [x] `marksMesh.js`: Bojen, Gate, Kurslinien und Contact-Shadows
-- [x] `main.js`: Game-Loop wieder auf `requestAnimationFrame`
+- [x] Keine Three.js-Runtime-Referenzen in `index.html` und `js/`
+- [x] README, SPEC, TODO, AGENTS auf Canvas-Stand aktualisiert
 
 ---
 
@@ -70,6 +61,6 @@ Basis-Implementierung (Canvas 2D): Physik, Rennstrecke, Sound, Menü, Tutorial, 
 
 ---
 
-**Aktueller Fokus**: Canvas-2D-Rueckbau abgeschlossen
+**Aktueller Fokus**: Canvas-2D-Stand abgeschlossen
 **Branch**: `feature/threejs-visual-overhaul`
 **Letztes Update**: 28. Juni 2026

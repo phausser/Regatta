@@ -20,9 +20,9 @@ js/
   boat.js             Boot-Physik + Apparent Wind (KEIN draw() mehr)    ← Phase 1 + 8
   race.js             Bojen, Start-/Zieltor, Renn-Logik (KEIN draw())   ← Phase 3 + 9
   scene.js            Canvas, Follow-Kamera, Zoom, Render-Orchestrierung
-  waterMesh.js        Canvas-Wasser + animierte Dreiecks-Wellen
-  boatMesh.js         Bootssilhouette, Segel, Bugwellen, Contact-Shadow
-  marksMesh.js        Bojen, Gate, Kurslinien, Contact-Shadows
+  waterMesh.js        Canvas-Wasserverlauf + animierte Dreiecks-Wellen
+  boatMesh.js         Bootssilhouette, Segel, Bugpixel, projizierter Schatten
+  marksMesh.js        Bojen, Gate, Kurslinien, projizierte Schatten
   audio.js            Web Audio API – Wind, Wellen, Flattern, Pings     ← Phase 5 (unverändert)
   tutorial.js         Interaktives 4-Schritte-Tutorial (HTML-Overlay)   ← Phase 5
   ui.js               Startmenü, HUD, Finish-Overlay (HTML-Overlay)     ← Phase 5 + 6
@@ -33,7 +33,7 @@ js/
 **Entfernt:**
 - `camera.js` → Camera-Logik lebt in `scene.js`
 - `renderer.js` → ersetzt durch `scene.js`, `waterMesh.js`, `boatMesh.js`, `marksMesh.js`
-- Three.js-CDN → Rueckbau auf Canvas 2D
+- Three.js-CDN → Rückbau auf Canvas 2D
 
 **Script-Ladereihenfolge** (global, keine Module):
 `input → wind → boat → race → scene → waterMesh → boatMesh → marksMesh → audio → tutorial → ui → debug → main`
@@ -43,6 +43,7 @@ js/
 - **Weltkoordinaten**: X nach rechts, Y nach unten (wie bisher für Physik)
 - **Canvas**: Weltkoordinaten werden direkt gezeichnet; Kamera transformiert per `translate/scale`
 - **Winkel**: Radiant, 0 = nach oben (Norden), im Uhrzeigersinn
+- **Wind.dir**: Richtung, in die der wahre Wind weht; Kompasspfeil zeigt `dir + π` (woher der Wind kommt)
 - **Geschwindigkeit**: Welt-Einheiten pro Sekunde
 - **Knoten**: Nur für HUD-Anzeige; interne Physik rechnet in WE/s
 - **Delta-Time**: `update(dt)` erhält `dt` in Sekunden, gekappt auf 0,1 s
@@ -66,9 +67,9 @@ Kein Tilt, keine Rotation um die Y-Achse – Ansicht bleibt immer senkrecht von 
 | `Boat`      | boat.js      | Boot-Zustand + Physik (kein Rendering)             |
 | `Race`      | race.js      | Renn-Logik, Wegpunkte, Zeitmessung (kein Rendering)|
 | `Scene`     | scene.js     | Canvas, Kamera, Render-Orchestrierung              |
-| `WaterMesh` | waterMesh.js | Animiertes Canvas-Wasser                           |
-| `BoatMesh`  | boatMesh.js  | Boot, Segel, Bugwellen und Contact-Shadow          |
-| `MarksMesh` | marksMesh.js | Bojen, Gate, Kurslinien und Contact-Shadows        |
+| `WaterMesh` | waterMesh.js | Wasserverlauf und animierte Wind-Wellen            |
+| `BoatMesh`  | boatMesh.js  | Boot, Segel, Bugpixel und projizierter Schatten    |
+| `MarksMesh` | marksMesh.js | Bojen, Gate, Kurslinien und projizierte Schatten   |
 | `Sfx`       | audio.js     | Web Audio API – Ambient + One-shots                |
 | `Tutorial`  | tutorial.js  | 4-Schritte-Tutorial                                |
 | `UI`        | ui.js        | Startmenü, HUD-Overlay, Finish-Overlay, Highscores |
@@ -89,6 +90,8 @@ Kein Tilt, keine Rotation um die Y-Achse – Ansicht bleibt immer senkrecht von 
 Das HUD ist **kein Spiel-Canvas-Zeichnen**, sondern ein `<div id="hud">` über dem Canvas.
 `ui.js` schreibt `element.textContent` statt `ctx.fillText(...)`.
 Wind-Kompass: kleines `<canvas>`-Element im HUD für die Pfeil-Animation (2D Canvas, mini).
+Die Kompasspfeile zeigen, woher wahrer und scheinbarer Wind kommen; die Wasserwellen bewegen sich in die Richtung, in die der wahre Wind weht.
+Kursindikatoren werden im Spiel-Canvas gezeichnet: alle Dreiecke liegen ca. 100 px um das Boot und zeigen zum jeweiligen Zielobjekt.
 
 ## Visueller Stil
 
@@ -97,6 +100,7 @@ Wind-Kompass: kleines `<canvas>`-Element im HUD für die Pfeil-Animation (2D Can
 - Jedes visuelle Element hat eine klare Funktion
 - Texturen: keine
 - Geometrie: primitiv und klar – Canvas-Formen, Kreise, Polygone, Ellipsen
+- Schatten sind formbasierte Projektionen aus Sonnenposition und Objekthöhe, keine Ellipsen-Dummies
 - Farbpalette konsequent einhalten (siehe SPEC.md)
 
 ## Coding-Stil
@@ -109,17 +113,18 @@ Wind-Kompass: kleines `<canvas>`-Element im HUD für die Pfeil-Animation (2D Can
 
 ## Arbeitsweise
 
-- Phasen 6–11 werden einzeln abgeschlossen; nach jeder Phase prüft Patrick den Stand
+- Phasen werden einzeln abgeschlossen; nach jeder Phase prüft Patrick den Stand
 - Nach jeder Phase: TODO.md, SPEC.md Status-Tabelle, AGENTS.md aktualisieren
 - Keine Phase überspringen oder parallel implementieren
-- Aktueller Stand: Canvas-2D-Rueckbau abgeschlossen
+- Aktueller Stand: Canvas-2D-Stand abgeschlossen
 
 ## Steuerung
 
 | Taste            | Aktion                        |
 |------------------|-------------------------------|
 | `←` / `→`        | Ruder links / rechts          |
-| `↑` / `↓`        | Segeltrimm einholen / fieren  |
+| `↑`              | Segel fieren                  |
+| `↓`              | Segel einholen                |
 | `R`              | Reef togglen                  |
 | `T`              | Rennen neu starten            |
 | `Esc`            | Zurück zum Hauptmenü          |
