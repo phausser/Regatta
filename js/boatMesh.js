@@ -8,8 +8,10 @@ const _B = {
 
 const BoatMesh = {
   _particles: [],
+  _hullPoints: [],
 
   init() {
+    this._hullPoints = this._buildHullPoints();
     this._particles = Array.from({ length: 40 }, () => ({
       x: 0,
       y: 0,
@@ -56,31 +58,83 @@ const BoatMesh = {
   },
 
   _drawShadow(ctx) {
+    const c = Math.cos(Boat.heading);
+    const s = Math.sin(Boat.heading);
+    const points = this._hullPoints.map(p => ({
+      x: Boat.x + p.x * c - p.y * s,
+      y: Boat.y + p.x * s + p.y * c,
+    }));
+    Scene.drawProjectedShadow(ctx, points, 18, 0.44);
+  },
+
+  _drawHull(ctx) {
     ctx.save();
-    ctx.translate(Boat.x + 10, Boat.y + 13);
-    ctx.rotate(Boat.heading + 0.18);
-    ctx.fillStyle = 'rgba(10,31,50,0.34)';
+    ctx.fillStyle = '#ffffff';
     ctx.beginPath();
-    ctx.ellipse(0, 1, _B.HW * 1.22, (_B.HL + _B.HS) * 0.50, 0, 0, Math.PI * 2);
+    this._traceHull(ctx);
+    ctx.closePath();
     ctx.fill();
     ctx.restore();
   },
 
-  _drawHull(ctx) {
+  _traceHull(ctx) {
     const { HL, HS, HW, SW } = _B;
-
-    ctx.save();
-    ctx.fillStyle = '#ffffff';
-    ctx.beginPath();
     ctx.moveTo(0, -HL);
     ctx.bezierCurveTo(-HW * 0.20, -HL * 0.88, -HW * 0.88, -HL * 0.38, -HW, 0);
     ctx.bezierCurveTo(-HW * 0.98, HS * 0.44, -SW * 1.08, HS * 0.90, -SW, HS);
     ctx.lineTo(SW, HS);
     ctx.bezierCurveTo(SW * 1.08, HS * 0.90, HW * 0.98, HS * 0.44, HW, 0);
     ctx.bezierCurveTo(HW * 0.88, -HL * 0.38, HW * 0.20, -HL * 0.88, 0, -HL);
-    ctx.closePath();
-    ctx.fill();
-    ctx.restore();
+  },
+
+  _buildHullPoints() {
+    const { HL, HS, HW, SW } = _B;
+    const pts = [];
+    const cubic = (p0, p1, p2, p3, t) => {
+      const u = 1 - t;
+      return u * u * u * p0 + 3 * u * u * t * p1 + 3 * u * t * t * p2 + t * t * t * p3;
+    };
+    const addBezier = (p0, p1, p2, p3, steps) => {
+      for (let i = 1; i <= steps; i++) {
+        const t = i / steps;
+        pts.push({
+          x: cubic(p0.x, p1.x, p2.x, p3.x, t),
+          y: cubic(p0.y, p1.y, p2.y, p3.y, t),
+        });
+      }
+    };
+
+    pts.push({ x: 0, y: -HL });
+    addBezier(
+      { x: 0, y: -HL },
+      { x: -HW * 0.20, y: -HL * 0.88 },
+      { x: -HW * 0.88, y: -HL * 0.38 },
+      { x: -HW, y: 0 },
+      8,
+    );
+    addBezier(
+      { x: -HW, y: 0 },
+      { x: -HW * 0.98, y: HS * 0.44 },
+      { x: -SW * 1.08, y: HS * 0.90 },
+      { x: -SW, y: HS },
+      8,
+    );
+    pts.push({ x: SW, y: HS });
+    addBezier(
+      { x: SW, y: HS },
+      { x: SW * 1.08, y: HS * 0.90 },
+      { x: HW * 0.98, y: HS * 0.44 },
+      { x: HW, y: 0 },
+      8,
+    );
+    addBezier(
+      { x: HW, y: 0 },
+      { x: HW * 0.88, y: -HL * 0.38 },
+      { x: HW * 0.20, y: -HL * 0.88 },
+      { x: 0, y: -HL },
+      8,
+    );
+    return pts;
   },
 
   _drawMast(ctx) {

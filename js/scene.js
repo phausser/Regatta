@@ -6,6 +6,13 @@ const Scene = {
   x:    2500,
   y:    2500,
   zoom: 1,
+  sun: {
+    x: 1400,
+    y: 700,
+    z: 800,
+    targetX: 2500,
+    targetZ: 2500,
+  },
 
   _canvas:   null,
   _ctx:      null,
@@ -101,6 +108,87 @@ const Scene = {
     ctx.strokeStyle = 'rgba(255,255,255,0.15)';
     ctx.strokeRect(0, 0, WORLD_SIZE, WORLD_SIZE);
     ctx.restore();
+  },
+
+  shadowVector(height) {
+    const sx = this.sun.targetX - this.sun.x;
+    const sy = this.sun.targetZ - this.sun.z;
+    const ground = Math.hypot(sx, sy) || 1;
+    const len = height * ground / Math.max(1, this.sun.y);
+
+    return {
+      x: sx / ground * len,
+      y: sy / ground * len,
+      len,
+    };
+  },
+
+  drawProjectedShadow(ctx, points, height, alpha) {
+    if (points.length < 3) return;
+
+    const sv = this.shadowVector(height);
+    const projected = points.map(p => ({ x: p.x + sv.x, y: p.y + sv.y }));
+    const hull = this._convexHull([...points, ...projected]);
+    if (hull.length < 3) return;
+
+    const center = points.reduce((acc, p) => {
+      acc.x += p.x;
+      acc.y += p.y;
+      return acc;
+    }, { x: 0, y: 0 });
+    center.x /= points.length;
+    center.y /= points.length;
+
+    const grad = ctx.createLinearGradient(center.x, center.y, center.x + sv.x, center.y + sv.y);
+    grad.addColorStop(0, `rgba(5,18,36,${alpha})`);
+    grad.addColorStop(0.35, `rgba(5,18,36,${alpha * 0.62})`);
+    grad.addColorStop(0.72, `rgba(5,18,36,${alpha * 0.24})`);
+    grad.addColorStop(1, 'rgba(5,18,36,0)');
+
+    ctx.save();
+    ctx.filter = 'blur(0.7px)';
+    ctx.fillStyle = grad;
+    ctx.beginPath();
+    ctx.moveTo(hull[0].x, hull[0].y);
+    for (let i = 1; i < hull.length; i++) ctx.lineTo(hull[i].x, hull[i].y);
+    ctx.closePath();
+    ctx.fill();
+
+    ctx.fillStyle = `rgba(5,18,36,${alpha * 0.50})`;
+    ctx.beginPath();
+    ctx.moveTo(points[0].x, points[0].y);
+    for (let i = 1; i < points.length; i++) ctx.lineTo(points[i].x, points[i].y);
+    ctx.closePath();
+    ctx.fill();
+    ctx.restore();
+  },
+
+  _convexHull(points) {
+    const sorted = points
+      .slice()
+      .sort((a, b) => a.x === b.x ? a.y - b.y : a.x - b.x);
+
+    const cross = (o, a, b) => (a.x - o.x) * (b.y - o.y) - (a.y - o.y) * (b.x - o.x);
+    const lower = [];
+    sorted.forEach(p => {
+      while (lower.length >= 2 && cross(lower[lower.length - 2], lower[lower.length - 1], p) <= 0) {
+        lower.pop();
+      }
+      lower.push(p);
+    });
+
+    const upper = [];
+    for (let i = sorted.length - 1; i >= 0; i--) {
+      const p = sorted[i];
+      while (upper.length >= 2 && cross(upper[upper.length - 2], upper[upper.length - 1], p) <= 0) {
+        upper.pop();
+      }
+      upper.push(p);
+    }
+
+    lower.pop();
+    upper.pop();
+    return lower.concat(upper);
   },
 
   updateMeshes() {
