@@ -61,7 +61,7 @@ const WaterMesh = {
     for (let ax = Math.floor(alongMin / cellLen); ax <= Math.ceil(alongMax / cellLen); ax++) {
       for (let cy = Math.floor(crossMin / cellWid); cy <= Math.ceil(crossMax / cellWid); cy++) {
         const count = Math.floor(this._hash(ax, cy, 91.7) * 4) + 1;
-        const maxSize = 14 + this._hash(ax, cy, 5.1) * 7;
+        const maxSize = 7 + this._hash(ax, cy, 5.1) * 3.5;
         const rowSpacing = maxSize * 1.15;
         const delay = this._hash(ax, cy, 43.1) * cycle;
         const speed = 28 + (this._hash(ax, cy, 12.9) - 0.5) * 4;
