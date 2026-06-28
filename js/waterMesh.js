@@ -6,11 +6,15 @@ const WaterMesh = {
   _elapsed:   0,
 
   init(scene) {
-    const waterMat = new THREE.MeshBasicMaterial({ color: 0x487cae });
+    const waterMat = new THREE.MeshStandardMaterial({
+      color: 0x487cae,
+      roughness: 0.82,
+      metalness: 0.0,
+    });
     this._water = new THREE.Mesh(new THREE.PlaneGeometry(12000, 12000, 1, 1), waterMat);
     this._water.rotation.x = -Math.PI / 2;
     this._water.position.set(2500, -0.55, 2500);
-    this._water.receiveShadow = false;
+    this._water.receiveShadow = true;
     scene.add(this._water);
 
     this._uni = {

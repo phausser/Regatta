@@ -3,11 +3,11 @@
 // So: bow at local Z = -HL, stern at local Z = +HS, local X = port/stbd
 
 const _B = {
-  HL:  WORLD_SCALE * 0.50,  // 10   – how far bow is forward of group origin
-  HS:  WORLD_SCALE * 0.45,  //  9   – how far stern is aft of group origin
-  HW:  WORLD_SCALE * 0.14,  //  2.8 – max half-beam (L/B ≈ 3.4 : 1)
-  SW:  WORLD_SCALE * 0.095, //  1.9 – stern half-width
-  BY:  WORLD_SCALE * 0.05,  //  1.0 – shape-Y of max beam (slightly aft of center)
+  HL:  WORLD_SCALE * 0.58,  // 11.6 – how far bow is forward of group origin
+  HS:  WORLD_SCALE * 0.46,  //  9.2 – how far stern is aft of group origin
+  HW:  WORLD_SCALE * 0.18,  //  3.6 – max half-beam
+  SW:  WORLD_SCALE * 0.16,  //  3.2 – stern half-width
+  BY:  WORLD_SCALE * -0.04, // -0.8 – widest section aft of center
   MZ: -WORLD_SCALE * 0.12,  // -2.4 – local Z of mast (40 % from bow)
 };
 
@@ -44,57 +44,38 @@ const BoatMesh = {
     const shape = new THREE.Shape();
     shape.moveTo(0, HL);  // bow tip
 
-    // Port side (bow aft → max beam → stern corner)
+    // Port side: narrow bow, full mid-body, broad straight transom.
     shape.bezierCurveTo(
-      -HW * 0.35, HL * 0.75,      // cp1 – bow flare starts
-      -HW,         BY + HS * 0.25, // cp2 – reaching max beam
-      -HW,         BY              // max beam (port)
+      -HW * 0.20, HL * 0.88,
+      -HW * 0.88, HL * 0.38,
+      -HW,        BY
     );
     shape.bezierCurveTo(
-      -HW,         -HS * 0.65,     // cp1 – hold width going aft
-      -SW * 1.15,  -HS + HS * 0.08,// cp2 – approaching stern corner
-      -SW,         -HS             // stern port corner
+      -HW * 0.98, -HS * 0.44,
+      -SW * 1.08, -HS * 0.90,
+      -SW,        -HS
     );
 
-    // Stern transom (straight, port → stbd)
     shape.lineTo(SW, -HS);
 
-    // Stbd side (stern corner → max beam → bow)
     shape.bezierCurveTo(
-      SW * 1.15,  -HS + HS * 0.08,
-      HW,         -HS * 0.65,
-      HW,         BY
+      SW * 1.08, -HS * 0.90,
+      HW * 0.98, -HS * 0.44,
+      HW,        BY
     );
     shape.bezierCurveTo(
-      HW,         BY + HS * 0.25,
-      HW * 0.35,  HL * 0.75,
-      0,          HL
+      HW * 0.88, HL * 0.38,
+      HW * 0.20, HL * 0.88,
+      0,         HL
     );
     shape.closePath();
 
     const hull = new THREE.Mesh(
       new THREE.ExtrudeGeometry(shape, { depth: 2, bevelEnabled: false }),
-      new THREE.MeshStandardMaterial({ color: 0xe8f0f5, roughness: 0.62, metalness: 0.02 }),
+      new THREE.MeshBasicMaterial({ color: 0xffffff }),
     );
     hull.rotation.x = -Math.PI / 2;
     this._group.add(hull);
-
-    // Cabin coach-roof: narrow box along centerline
-    const roof = new THREE.Mesh(
-      new THREE.BoxGeometry(HW * 0.65, 0.8, HL * 0.85),
-      new THREE.MeshStandardMaterial({ color: 0xf6fbff, roughness: 0.55 }),
-    );
-    roof.position.set(0, 2.8, _B.MZ + HL * 0.18);
-    this._group.add(roof);
-
-    // Teak deck color (darker warm strip around edges – implied by hull tint)
-    // Keel centerline stripe
-    const keel = new THREE.Mesh(
-      new THREE.BoxGeometry(HW * 0.22, 0.1, HL * 0.80 + HS * 0.50),
-      new THREE.MeshStandardMaterial({ color: 0x3a4a5a, roughness: 0.80 }),
-    );
-    keel.position.set(0, 2.05, (HL * 0.80 - HS * 0.50) * -0.5 + HS * 0.05);
-    this._group.add(keel);
   },
 
   // ── Mast ────────────────────────────────────────────────────────────────────
