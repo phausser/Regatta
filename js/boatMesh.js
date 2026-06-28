@@ -12,11 +12,10 @@ const BoatMesh = {
 
   init() {
     this._hullPoints = this._buildHullPoints();
-    this._particles = Array.from({ length: 40 }, () => ({
+    this._particles = Array.from({ length: 140 }, () => ({
       x: 0,
       y: 0,
       a: 0,
-      r: 1 + Math.random() * 1.6,
     }));
   },
 
@@ -28,16 +27,18 @@ const BoatMesh = {
     const stbdY = bowX;
 
     this._particles.forEach((p, i) => {
-      if (Math.random() < speedNorm * 0.18 || p.a <= 0) {
+      if (p.a <= 0 && Math.random() < speedNorm * 0.16) {
         const side = i % 2 === 0 ? 1 : -1;
-        const spread = (Math.random() * 0.7 + 0.35) * _B.HW;
-        p.x = Boat.x + bowX * _B.HL + stbdX * side * spread;
-        p.y = Boat.y + bowY * _B.HL + stbdY * side * spread;
-        p.a = speedNorm * (0.20 + Math.random() * 0.22);
+        const spread = (Math.random() * 0.75 + 0.20) * _B.HW;
+        const aft = Math.random() * 5.0;
+        p.x = Boat.x + bowX * (_B.HL - aft) + stbdX * side * spread;
+        p.y = Boat.y + bowY * (_B.HL - aft) + stbdY * side * spread;
+        p.a = 0.42 + speedNorm * 0.42;
       } else {
-        p.x -= bowX * (1.2 + speedNorm * 2.8);
-        p.y -= bowY * (1.2 + speedNorm * 2.8);
-        p.a *= 0.92;
+        p.x -= bowX * (0.08 + speedNorm * 0.28);
+        p.y -= bowY * (0.08 + speedNorm * 0.28);
+        p.a *= 0.972;
+        if (p.a < 0.01) p.a = 0;
       }
     });
   },
@@ -193,10 +194,8 @@ const BoatMesh = {
     this._particles.forEach(p => {
       if (p.a <= 0.01) return;
       ctx.globalAlpha = p.a;
-      ctx.fillStyle = '#c0d8ff';
-      ctx.beginPath();
-      ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
-      ctx.fill();
+      ctx.fillStyle = '#ffffff';
+      ctx.fillRect(p.x, p.y, 1.7 / Scene.zoom, 1.7 / Scene.zoom);
     });
     ctx.restore();
   },
