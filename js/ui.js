@@ -162,9 +162,9 @@ const UI = {
       ctx.fillText(l, cx + dx * (R - 9), cy + dy * (R - 9));
     });
 
-    this._compassArrow(ctx, cx, cy, R * 0.90, -Wind.dir, '#1b8cff');
+    this._compassArrow(ctx, cx, cy, R * 0.90, Wind.dir + Math.PI, '#1b8cff');
     const awDir = Math.atan2(Boat.awvx, -Boat.awvy);
-    this._compassArrow(ctx, cx, cy, R * 0.70, -awDir, '#ff2f2f');
+    this._compassArrow(ctx, cx, cy, R * 0.70, awDir + Math.PI, '#ff2f2f');
 
     ctx.textAlign    = 'left';
     ctx.textBaseline = 'alphabetic';
