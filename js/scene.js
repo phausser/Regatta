@@ -141,10 +141,10 @@ const Scene = {
   _buildShadowReceiver() {
     const shadowPlane = new THREE.Mesh(
       new THREE.PlaneGeometry(12000, 12000),
-      new THREE.ShadowMaterial({ color: 0x3a6888, opacity: 0.07, transparent: true }),
+      new THREE.ShadowMaterial({ color: 0x244d70, opacity: 0.18, transparent: true }),
     );
     shadowPlane.rotation.x = -Math.PI / 2;
-    shadowPlane.position.set(2500, 0.08, 2500);
+    shadowPlane.position.set(2500, -0.50, 2500);
     shadowPlane.receiveShadow = true;
     this._scene.add(shadowPlane);
   },
