@@ -1,13 +1,13 @@
 // UI – Menü, HUD, Finish-Overlay (DOM-basiert)
 const UI = {
-  _menuSel:      0,
-  _newRank:      -1,
-  _pending:      null,
+  _menuSel: 0,
+  _newRank: -1,
+  _pending: null,
   _finishPending: null,
 
-  _SEA:  '#e0eeff',
+  _SEA: '#e0eeff',
   _GOLD: '#ffdc50',
-  _KEY:  'geosail-scores',
+  _KEY: 'geosail-scores',
 
   // ── Highscores ─────────────────────────────────────────────────────────────
   scores() {
@@ -21,7 +21,7 @@ const UI = {
     list.sort((a, b) => a - b);
     const top5 = list.slice(0, 5);
     this._newRank = top5.indexOf(timeSeconds);
-    try { localStorage.setItem(this._KEY, JSON.stringify(top5)); } catch {}
+    try { localStorage.setItem(this._KEY, JSON.stringify(top5)); } catch { }
     return this._newRank;
   },
 
@@ -43,10 +43,10 @@ const UI = {
 
   // ── Screen switching ────────────────────────────────────────────────────────
   showScreen(name) {
-    const isMenu   = name === 'menu';
+    const isMenu = name === 'menu';
     const isFinish = name === 'finish';
-    const isGame   = name === 'game' || name === 'tutorial';
-    const isTut    = name === 'tutorial';
+    const isGame = name === 'game' || name === 'tutorial';
+    const isTut = name === 'tutorial';
 
     this._el('screen-menu').classList.toggle('hidden', !isMenu);
     this._el('screen-finish').classList.toggle('hidden', !isFinish);
@@ -58,7 +58,7 @@ const UI = {
 
   // ── Menu ───────────────────────────────────────────────────────────────────
   updateMenu() {
-    if (Input.isPressed('ArrowUp'))   this._menuSel = Math.max(0, this._menuSel - 1);
+    if (Input.isPressed('ArrowUp')) this._menuSel = Math.max(0, this._menuSel - 1);
     if (Input.isPressed('ArrowDown')) this._menuSel = Math.min(1, this._menuSel + 1);
 
     document.querySelectorAll('.menu-btn').forEach((b, i) => {
@@ -85,12 +85,12 @@ const UI = {
   showFinish() {
     this._el('finish-time').textContent = this._fmtTime(Race.raceTime);
 
-    const rank    = this._newRank;
-    const rankEl  = this._el('finish-rank');
+    const rank = this._newRank;
+    const rankEl = this._el('finish-rank');
     rankEl.className = '';
     if (rank === 0) {
       rankEl.textContent = 'Neue Bestzeit!';
-      rankEl.className   = 'finish-gold';
+      rankEl.className = 'finish-gold';
     } else if (rank > 0) {
       rankEl.textContent = `Platz ${rank + 1} in den Bestzeiten`;
     } else {
@@ -114,10 +114,10 @@ const UI = {
   // ── Tutorial panel ─────────────────────────────────────────────────────────
   updateTutorial(tut) {
     if (tut.isDone()) return;
-    const step  = Math.min(tut._step, tut._steps.length - 1);
-    const s     = tut._steps[step];
+    const step = Math.min(tut._step, tut._steps.length - 1);
+    const s = tut._steps[step];
     const total = tut._steps.length;
-    const prog  = Math.min(1, tut._timer / tut._HOLD[step]);
+    const prog = Math.min(1, tut._timer / tut._HOLD[step]);
 
     this._el('tutorial-step').textContent = `Schritt ${step + 1} / ${total}`;
 
@@ -126,8 +126,8 @@ const UI = {
       `<span class="tdot${i <= step ? ' done' : ''}"></span>`
     ).join('');
 
-    this._el('tutorial-title').textContent  = s.title;
-    this._el('tutorial-hint').textContent   = s.hint;
+    this._el('tutorial-title').textContent = s.title;
+    this._el('tutorial-hint').textContent = s.hint;
     this._el('tutorial-metric').textContent = s.metric();
     this._el('tutorial-progress').style.width = `${prog * 100}%`;
   },
@@ -137,9 +137,9 @@ const UI = {
     const canvas = document.getElementById('compass-canvas');
     if (!canvas) return;
     const ctx = canvas.getContext('2d');
-    const R   = 64;
-    const cx  = canvas.width  / 2;
-    const cy  = canvas.height / 2 - 14;
+    const R = 64;
+    const cx = canvas.width / 2;
+    const cy = canvas.height / 2 - 14;
 
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
@@ -148,40 +148,22 @@ const UI = {
     ctx.fillStyle = 'rgba(5,18,36,0.76)';
     ctx.fill();
 
-    ctx.beginPath();
-    ctx.arc(cx, cy, R, 0, Math.PI * 2);
-    ctx.strokeStyle = 'rgba(224,238,255,0.18)';
-    ctx.lineWidth   = 1;
-    ctx.stroke();
-
-    ctx.font         = '12px "Roboto Mono", monospace';
-    ctx.textAlign    = 'center';
+    ctx.font = '18px "Roboto Mono", monospace';
+    ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
-    ctx.fillStyle    = 'rgba(224,238,255,0.48)';
+    ctx.fillStyle = 'rgba(224,238,255,0.2)';
     [['N', 0, -1], ['O', 1, 0], ['S', 0, 1], ['W', -1, 0]].forEach(([l, dx, dy]) => {
-      ctx.fillText(l, cx + dx * (R - 9), cy + dy * (R - 9));
+      ctx.fillText(l, cx + dx * (R - 10), cy + dy * (R - 10));
     });
 
-    this._compassArrow(ctx, cx, cy, R * 0.90, Wind.dir + Math.PI, '#1b8cff');
+    this._compassArrow(ctx, cx, cy, R * 0.90, Wind.dir + Math.PI, '#3388ff');
     const awDir = Math.atan2(Boat.awvx, -Boat.awvy);
-    this._compassArrow(ctx, cx, cy, R * 0.70, awDir + Math.PI, '#ff2f2f');
-
-    ctx.textAlign    = 'left';
-    ctx.textBaseline = 'alphabetic';
-    ctx.font         = '11px "Roboto Mono", monospace';
-    ctx.fillStyle    = this._SEA;
-
-    const twFrom = Wind.fromDeg().toFixed(0).padStart(3);
-    ctx.fillText(`TW ${twFrom}°  ${Wind.speed.toFixed(0)} kn`, cx - R, cy + R + 18);
-
-    const awaDeg = (Math.abs(Boat.awa) * 180 / Math.PI).toFixed(0).padStart(3);
-    const awaDir2 = Boat.awa >= 0 ? 'S' : 'B';
-    ctx.fillText(`AW ${awaDeg}°${awaDir2} ${Boat.awSpeed.toFixed(0)} kn`, cx - R, cy + R + 34);
+    this._compassArrow(ctx, cx, cy, R * 0.80, awDir + Math.PI, '#ff0066');
   },
 
   _compassArrow(ctx, cx, cy, len, dir, color) {
-    const tipX  = cx + Math.sin(dir) * len;
-    const tipY  = cy - Math.cos(dir) * len;
+    const tipX = cx + Math.sin(dir) * len;
+    const tipY = cy - Math.cos(dir) * len;
     const tailX = cx - Math.sin(dir) * len * 0.24;
     const tailY = cy + Math.cos(dir) * len * 0.24;
     const perpX = Math.cos(dir);
@@ -189,8 +171,8 @@ const UI = {
     const halfW = len * 0.11;
 
     ctx.save();
-    ctx.fillStyle    = color;
-    ctx.globalAlpha  = 0.88;
+    ctx.fillStyle = color;
+    ctx.globalAlpha = 0.88;
     ctx.beginPath();
     ctx.moveTo(tipX, tipY);
     ctx.lineTo(tailX + perpX * halfW, tailY + perpY * halfW);
@@ -204,11 +186,11 @@ const UI = {
   _raceHudHTML() {
     const phaseLabel = {
       pre_start: 'PRE-START',
-      racing:    '● RENNEN',
-      finished:  '✓ ZIEL!',
+      racing: '● RENNEN',
+      finished: '✓ ZIEL!',
     }[Race.phase];
     const faint = 'color:rgba(224,238,255,0.24)';
-    const div   = (txt, style = '') => `<div${style ? ` style="${style}"` : ''}>${txt}</div>`;
+    const div = (txt, style = '') => `<div${style ? ` style="${style}"` : ''}>${txt}</div>`;
 
     let h = div(phaseLabel);
     h += div('──────────────────', faint);
@@ -230,15 +212,15 @@ const UI = {
   },
 
   _sailHudHTML() {
-    const good  = Boat.sailState === 'good';
-    const text  = { good: 'OK', luffing: 'Luff ↑', overtrimmed: 'Eng ↓' }[Boat.sailState];
+    const good = Boat.sailState === 'good';
+    const text = { good: 'OK', luffing: 'Luff ↑', overtrimmed: 'Eng ↓' }[Boat.sailState];
     const color = good ? '#44ff88' : '#ff3d4a';
     return `<div style="color:${color}">Segel:  ${text}</div>`;
   },
 
   _nextLabel() {
     if (Race.wp >= 1 && Race.wp <= Race.marks.length) return `Tonne ${Race.marks[Race.wp - 1].label}`;
-    if (Race.wp === Race.marks.length + 1)             return 'ZIEL-Gate';
+    if (Race.wp === Race.marks.length + 1) return 'ZIEL-Gate';
     return '—';
   },
 
@@ -265,9 +247,9 @@ const UI = {
   },
 
   _fmtTime(s) {
-    const m  = Math.floor(s / 60);
+    const m = Math.floor(s / 60);
     const ss = Math.floor(s % 60);
-    const t  = Math.floor((s % 1) * 10);
+    const t = Math.floor((s % 1) * 10);
     return `${m}:${ss.toString().padStart(2, '0')}.${t}`;
   },
 
