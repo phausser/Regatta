@@ -32,7 +32,11 @@ const WaterMesh = {
   },
 
   draw(ctx) {
-    ctx.fillStyle = '#487cae';
+    const sv = Scene.shadowVector(1000);
+    const grad = ctx.createLinearGradient(2500 - sv.x, 2500 - sv.y, 2500 + sv.x, 2500 + sv.y);
+    grad.addColorStop(0, '#7799ff');
+    grad.addColorStop(1, '#113388');
+    ctx.fillStyle = grad;
     ctx.fillRect(-3500, -3500, 12000, 12000);
 
     const wtoX = Math.sin(Wind.dir);

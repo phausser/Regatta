@@ -191,6 +191,50 @@ const Scene = {
     return lower.concat(upper);
   },
 
+  _currentTarget() {
+    const gateX = (Race.gate.port.x + Race.gate.stbd.x) / 2;
+    const gateY = Race.gate.port.y;
+
+    if (Race.phase === 'finished') return null;
+    if (Race.wp === 0) return { x: gateX, y: gateY };
+    if (Race.wp >= 1 && Race.wp <= Race.marks.length) return Race.marks[Race.wp - 1];
+    return { x: gateX, y: gateY };
+  },
+
+  _drawTargetIndicator() {
+    const target = this._currentTarget();
+    if (!target) return;
+
+    const dx = target.x - Boat.x;
+    const dy = target.y - Boat.y;
+    const d = Math.hypot(dx, dy);
+    if (d < 1) return;
+
+    const ctx = this._ctx;
+    const cx = window.innerWidth / 2;
+    const cy = window.innerHeight / 2;
+    const ux = dx / d;
+    const uy = dy / d;
+    const x = cx + ux * 100;
+    const y = cy + uy * 100;
+    const angle = Math.atan2(uy, ux) + Math.PI / 2;
+    const side = 18;
+    const h = side * Math.sqrt(3) / 2;
+
+    ctx.save();
+    ctx.scale(this._dpr, this._dpr);
+    ctx.translate(x, y);
+    ctx.rotate(angle);
+    ctx.fillStyle = '#ffcc00';
+    ctx.beginPath();
+    ctx.moveTo(0, -h * 0.65);
+    ctx.lineTo(side / 2, h * 0.35);
+    ctx.lineTo(-side / 2, h * 0.35);
+    ctx.closePath();
+    ctx.fill();
+    ctx.restore();
+  },
+
   updateMeshes() {
     BoatMesh.update();
     MarksMesh.update();
@@ -207,5 +251,7 @@ const Scene = {
     MarksMesh.draw(ctx);
     BoatMesh.draw(ctx);
     ctx.restore();
+
+    this._drawTargetIndicator();
   },
 };
