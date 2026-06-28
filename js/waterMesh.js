@@ -1,44 +1,88 @@
-// Wasser – einfache Fläche plus instanzierte Dreiecks-Wellen
+// Wasser - einfache Flaeche plus animierte Dreiecks-Wellen
 const WaterMesh = {
-  _water:     null,
-  _triangles: null,
-  _uni:       null,
-  _elapsed:   0,
+  _elapsed: 0,
+  _triangles: [],
 
-  init(scene) {
-    const waterMat = new THREE.MeshStandardMaterial({
-      color: 0x487cae,
-      roughness: 0.82,
-      metalness: 0.0,
-    });
-    this._water = new THREE.Mesh(new THREE.PlaneGeometry(12000, 12000, 1, 1), waterMat);
-    this._water.rotation.x = -Math.PI / 2;
-    this._water.position.set(2500, -0.55, 2500);
-    this._water.receiveShadow = true;
-    scene.add(this._water);
+  init() {
+    this._triangles = [];
 
-    this._uni = {
-      uTime:    { value: 0.0 },
-      uWindDir: { value: Wind.dir },
-    };
+    const cellLen = 240;
+    const cellWid = 220;
+    for (let ax = Math.floor(-2500 / cellLen); ax <= Math.ceil(8000 / cellLen); ax++) {
+      for (let cy = Math.floor(-2500 / cellWid); cy <= Math.ceil(8000 / cellWid); cy++) {
+        const count = Math.floor(this._hash(ax, cy, 91.7) * 4) + 1;
+        const maxSize = 7 + this._hash(ax, cy, 5.1) * 3.5;
+        const rowSpacing = maxSize * 1.15;
 
-    this._triangles = new THREE.Mesh(this._buildTriangleGeometry(), new THREE.ShaderMaterial({
-      uniforms:     this._uni,
-      vertexShader: WaterMesh._triVert,
-      fragmentShader: WaterMesh._triFrag,
-      transparent:  true,
-      depthWrite:   false,
-      side:         THREE.DoubleSide,
-    }));
-    this._triangles.frustumCulled = false;
-    this._triangles.renderOrder = 1;
-    scene.add(this._triangles);
+        for (let i = 0; i < count; i++) {
+          this._triangles.push({
+            along: (ax + 0.5) * cellLen,
+            cross: (cy + 0.5) * cellWid + (i - (count - 1) * 0.5) * rowSpacing,
+            delay: this._hash(ax, cy, 43.1) * 5,
+            maxSize,
+            speed: 28 + (this._hash(ax, cy, 12.9) - 0.5) * 4,
+          });
+        }
+      }
+    }
   },
 
   update(dt) {
     this._elapsed += dt;
-    this._uni.uTime.value = this._elapsed;
-    this._uni.uWindDir.value = Wind.dir;
+  },
+
+  draw(ctx) {
+    ctx.fillStyle = '#487cae';
+    ctx.fillRect(-3500, -3500, 12000, 12000);
+
+    const wtoX = Math.sin(Wind.dir);
+    const wtoY = -Math.cos(Wind.dir);
+    const wpX = -wtoY;
+    const wpY = wtoX;
+
+    ctx.save();
+    ctx.fillStyle = '#e6f7ff';
+    this._triangles.forEach(t => {
+      const buildTime = 2.0;
+      const breakTime = 3.0;
+      const cycle = buildTime + breakTime;
+      const life = (this._elapsed + t.delay) % cycle;
+
+      const build = Math.max(0, Math.min(1, life / buildTime));
+      const brk = Math.max(0, Math.min(1, (life - buildTime) / breakTime));
+      const breakElapsed = Math.max(life - buildTime, 0);
+      const grow = this._smooth(build);
+      const slide = this._smooth(Math.max(0, Math.min(1, breakElapsed)));
+      const shrink = this._smooth(Math.max(0, Math.min(1, brk * 2 - 1)));
+      const size = life < buildTime ? this._mix(1.2, t.maxSize, grow) : this._mix(t.maxSize, 0.6, shrink);
+
+      const h = size * 0.866025404;
+      const firstHalf = Math.max(0, Math.min(1, slide * 2));
+      const secondHalf = Math.max(0, Math.min(1, slide * 2 - 1));
+      let tipX = this._mix(-h * 0.666666667, 0, firstHalf);
+      tipX = this._mix(tipX, h * 0.666666667, secondHalf);
+      const baseX = this._mix(h * 0.333333333, -h * 0.333333333, secondHalf);
+
+      const driftAlong = t.speed * life;
+      const baseAlong = t.along + driftAlong;
+      const alpha = life < buildTime ? 0.5 * build : 0.5;
+
+      ctx.globalAlpha = alpha;
+      ctx.beginPath();
+      this._wavePoint(ctx, wtoX, wtoY, wpX, wpY, baseAlong + tipX, t.cross, true);
+      this._wavePoint(ctx, wtoX, wtoY, wpX, wpY, baseAlong + baseX, t.cross + size * 0.5);
+      this._wavePoint(ctx, wtoX, wtoY, wpX, wpY, baseAlong + baseX, t.cross - size * 0.5);
+      ctx.closePath();
+      ctx.fill();
+    });
+    ctx.restore();
+  },
+
+  _wavePoint(ctx, wtoX, wtoY, wpX, wpY, along, cross, move) {
+    const x = wtoX * along + wpX * cross;
+    const y = wtoY * along + wpY * cross;
+    if (move) ctx.moveTo(x, y);
+    else ctx.lineTo(x, y);
   },
 
   _hash(x, y, salt) {
@@ -46,120 +90,6 @@ const WaterMesh = {
     return v - Math.floor(v);
   },
 
-  _buildTriangleGeometry() {
-    const cellLen = 240;
-    const cellWid = 220;
-    const cycle = 5;
-
-    const alongMin = -2500;
-    const alongMax = 8000;
-    const crossMin = -2500;
-    const crossMax = 8000;
-
-    const alongs = [];
-    const crosses = [];
-    const delays = [];
-    const sizes = [];
-    const speeds = [];
-
-    for (let ax = Math.floor(alongMin / cellLen); ax <= Math.ceil(alongMax / cellLen); ax++) {
-      for (let cy = Math.floor(crossMin / cellWid); cy <= Math.ceil(crossMax / cellWid); cy++) {
-        const count = Math.floor(this._hash(ax, cy, 91.7) * 4) + 1;
-        const maxSize = 7 + this._hash(ax, cy, 5.1) * 3.5;
-        const rowSpacing = maxSize * 1.15;
-        const delay = this._hash(ax, cy, 43.1) * cycle;
-        const speed = 28 + (this._hash(ax, cy, 12.9) - 0.5) * 4;
-
-        for (let i = 0; i < count; i++) {
-          alongs.push((ax + 0.5) * cellLen);
-          crosses.push((cy + 0.5) * cellWid + (i - (count - 1) * 0.5) * rowSpacing);
-          delays.push(delay);
-          sizes.push(maxSize);
-          speeds.push(speed);
-        }
-      }
-    }
-
-    const geo = new THREE.InstancedBufferGeometry();
-    geo.setAttribute('position', new THREE.Float32BufferAttribute([
-      0, 0, 0,
-      0, 0, 0,
-      0, 0, 0,
-    ], 3));
-    geo.setAttribute('aCorner', new THREE.Float32BufferAttribute([0, 1, 2], 1));
-    geo.setAttribute('aAlong', new THREE.InstancedBufferAttribute(new Float32Array(alongs), 1));
-    geo.setAttribute('aCross', new THREE.InstancedBufferAttribute(new Float32Array(crosses), 1));
-    geo.setAttribute('aDelay', new THREE.InstancedBufferAttribute(new Float32Array(delays), 1));
-    geo.setAttribute('aMaxSize', new THREE.InstancedBufferAttribute(new Float32Array(sizes), 1));
-    geo.setAttribute('aSpeed', new THREE.InstancedBufferAttribute(new Float32Array(speeds), 1));
-    geo.instanceCount = alongs.length;
-    return geo;
-  },
-
-  _triVert: /* glsl */`
-    uniform float uTime;
-    uniform float uWindDir;
-
-    attribute float aCorner;
-    attribute float aAlong;
-    attribute float aCross;
-    attribute float aDelay;
-    attribute float aMaxSize;
-    attribute float aSpeed;
-
-    varying float vAlpha;
-    varying float vBright;
-
-    void main() {
-      float buildTime = 2.0;
-      float breakTime = 3.0;
-      float cycle = buildTime + breakTime;
-      float life = mod(uTime + aDelay, cycle);
-
-      float build = clamp(life / buildTime, 0.0, 1.0);
-      float brk = clamp((life - buildTime) / breakTime, 0.0, 1.0);
-      float breakElapsed = max(life - buildTime, 0.0);
-
-      float grow = smoothstep(0.0, 1.0, build);
-      float slide = smoothstep(0.0, 1.0, clamp(breakElapsed / 1.0, 0.0, 1.0));
-      float shrink = smoothstep(0.0, 1.0, clamp(brk * 2.0 - 1.0, 0.0, 1.0));
-      float size = life < buildTime ? mix(1.2, aMaxSize, grow) : mix(aMaxSize, 0.6, shrink);
-
-      float h = size * 0.866025404;
-      float firstHalf = clamp(slide * 2.0, 0.0, 1.0);
-      float secondHalf = clamp(slide * 2.0 - 1.0, 0.0, 1.0);
-
-      float tipX = mix(-h * 0.666666667, 0.0, firstHalf);
-      tipX = mix(tipX, h * 0.666666667, secondHalf);
-      float baseX = mix(h * 0.333333333, -h * 0.333333333, secondHalf);
-
-      float localAlong = tipX;
-      float localCross = 0.0;
-      if (aCorner > 0.5) {
-        localAlong = baseX;
-        localCross = aCorner < 1.5 ? size * 0.5 : -size * 0.5;
-      }
-
-      float driftAlong = aSpeed * life;
-      vec2 wto = vec2(sin(uWindDir), -cos(uWindDir));
-      vec2 wperp = vec2(-wto.y, wto.x);
-      vec2 worldXZ = wto * (aAlong + driftAlong + localAlong) + wperp * (aCross + localCross);
-
-      vAlpha = life < buildTime ? 0.5 * build : 0.5;
-      vBright = life < buildTime ? mix(0.08, 1.0, grow) : 1.0;
-
-      gl_Position = projectionMatrix * viewMatrix * vec4(worldXZ.x, 0.12, worldXZ.y, 1.0);
-    }
-  `,
-
-  _triFrag: /* glsl */`
-    varying float vAlpha;
-    varying float vBright;
-
-    void main() {
-      vec3 waterColor = vec3(0.282, 0.486, 0.682);
-      vec3 triColor = mix(waterColor, vec3(0.90, 0.97, 1.0), vBright);
-      gl_FragColor = vec4(triColor, vAlpha);
-    }
-  `,
+  _mix(a, b, t) { return a + (b - a) * t; },
+  _smooth(t) { return t * t * (3 - 2 * t); },
 };

@@ -2,9 +2,9 @@
 
 ## Allgemeines
 - **Projektname**: GeoSail Regatta
-- **Typ**: Minimalistisches 3D Segel-Regatta Spiel (Top-Down)
-- **Technik**: HTML5, Vanilla JavaScript, **Three.js r168** (CDN), Web Audio API
-- **Ansicht**: Senkrecht von oben (OrthographicCamera), keine Kamera-Rotation
+- **Typ**: Minimalistisches 2D Segel-Regatta Spiel (Top-Down)
+- **Technik**: HTML5 Canvas, Vanilla JavaScript, Web Audio API
+- **Ansicht**: Senkrecht von oben, Kamera folgt dem Boot, keine Rotation
 - **Ziel**: Spaßiges, arcade-taugliches Segelspiel mit realistischer Windphysik
 
 ## Visuelles Konzept
@@ -12,7 +12,7 @@
 ### Stil
 - **Clean und minimalistisch** – keine unnötigen Details, kein Lärm
 - Wenige, gut gewählte Farben: Tiefblau Wasser, Weiß/Creme Segel, kräftige Akzentfarben für Bojen
-- 3D-Tiefe durch Licht und Schatten – Objekte werfen weiche Schatten auf das Wasser
+- Tiefe durch kontrollierte Contact-Shadows – Boot, Bojen und Gate werfen weiche Schatten auf das Wasser
 - Kamera immer senkrecht von oben (kein Tilt)
 
 ### Farbpalette
@@ -35,21 +35,20 @@
 
 ### 1. Spielwelt
 - Welt: 5000 × 5000 Einheiten (1 WE ≈ 1 Meter)
-- Three.js Scene mit einem großen Water-Plane
-- Kamera folgt dem Boot, immer orthografisch von oben
+- Canvas-Welt mit Follow-Kamera und Zoom
+- Kamera folgt dem Boot, immer senkrecht von oben
 
 ### 2. Wasser
-- `PlaneGeometry(5000, 5000, 128, 128)` mit GLSL `ShaderMaterial`
-- Vertex-Shader: Überlagerung von 2–3 Sinus-Wellen (unterschiedliche Frequenz, Richtung, Amplitude)
-- Fragment-Shader: Tiefblau-Basis, Schaumweiß an Wellenkämmen, windabhängige Farbintensität
-- Keine Kacheln, kein Grid
+- Große Canvas-Wasserfläche mit animierten Dreiecks-Wellen
+- Tiefblau-Basis, helle windabhängige Wellenkämme
+- Dezentes Welt-Grid und Kurslinien bleiben funktional sichtbar
 
 ### 3. Boot & Segel
-- Rumpf: `ExtrudeGeometry` aus 2D-Bootsprofil, ~2 WE Höhe
-- Mast: `CylinderGeometry`, weiß, wirft Schatten
-- Segel: `BufferGeometry` (3 Verts: Mast-Top, Mast-Fuß, Baum-Ende), QuadraticBezier-Wölbung, jedes Frame aktualisiert
-- Segel-Material: `MeshStandardMaterial`, leicht transparent, Farbe = Trim-Zustand
-- Bugwellen: `Points`-Partikelsystem (Schaum-Fächer)
+- Rumpf: weiße, gefüllte Canvas-Außenform ohne Deckdetails
+- Mast: weißer Punkt, funktional sichtbar
+- Segel: gewölbtes Polygon, jedes Frame aus Trimm/AWA berechnet
+- Bugwellen: leichte Canvas-Partikel
+- Schatten: gezeichneter Contact-Shadow unter dem Boot
 
 ### 4. Physik
 - **Scheinbarer Wind (Apparent Wind)** – echte Vektorberechnung
@@ -73,14 +72,13 @@
 - Apparent Wind: TW − v_Boot
 
 ### 7. Bojen & Gate
-- Bojen: `CylinderGeometry` (Tonnen-Form), farbcodiert, Bob-Animation
-- Gate-Pfosten: schlanke Zylinder, rot/grün
-- Alle Marken werfen weiche Schatten
+- Bojen: klare farbcodierte Canvas-Kreise mit Bob-Animation
+- Gate-Pfosten: rote/grüne Marker
+- Alle Marken werfen gezeichnete weiche Contact-Shadows
 
-### 8. Beleuchtung
-- `DirectionalLight` von schräg oben (Sonne, mild)
-- `AmbientLight` für Schatten-Fill
-- `PCFSoftShadowMap` für weiche Schatten
+### 8. Schatten
+- Keine Licht-/Shadow-Map-Abhängigkeit
+- Schatten werden als weiche, dunkle Ellipsen direkt ins Canvas gezeichnet
 
 ### 9. HUD
 - **HTML-Overlay** (kein Canvas-Zeichnen)
@@ -106,8 +104,8 @@
 | `D` | Debug |
 
 ## Technische Anforderungen
-- Three.js r168 via CDN (kein npm, kein Build-Step)
-- Delta-Time Game-Loop (dt gekappt auf 0,1 s), integriert in `renderer.setAnimationLoop()`
+- Kein npm, kein Build-Step, keine externen Rendering-Abhängigkeiten
+- Delta-Time Game-Loop (dt gekappt auf 0,1 s), integriert in `requestAnimationFrame`
 - Saubere Modul-Trennung: Physik ≠ Rendering
 - Responsive (window resize → camera + renderer update)
 - AudioContext lazy initialisiert
@@ -129,8 +127,9 @@
 | 9 | 3D Bojen & Gate: Cylinder-Meshes, Bob-Animation | ✓ |
 | 10 | Arcade-Tuning: Kurs kompakt, Boot schneller, Wind 14 kn | ✓ |
 | 11 | Licht, Schatten, Polish | ✓ |
+| 12 | Rueckbau auf Canvas 2D, Contact-Shadows statt Three.js | ✓ |
 
 ---
 
-**Letztes Update**: 27. Juni 2026 – Phasen 6–11 abgeschlossen
+**Letztes Update**: 28. Juni 2026 – Canvas-2D-Rueckbau abgeschlossen
 **Autor**: Patrick + Claude

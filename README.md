@@ -39,11 +39,13 @@ Minimalistische 2D-Segel-Regatta-Simulation im Browser. Top-Down, geometrischer 
 ```
 js/
   input.js     – Tastatur + Maus-State
-  camera.js    – Welt ↔ Screen-Transformation, Follow + Zoom
   wind.js      – True Wind mit langsamem Drift
-  boat.js      – Boot-Physik, Segel, Rendering
+  boat.js      – Boot-Physik, Apparent Wind
   race.js      – Bojen, Start-/Zieltor, Renn-Logik, HUD
-  renderer.js  – Wasser, Wellenlinien, Bugwellen, Windkompass
+  scene.js     – Canvas, Kamera, Follow + Zoom
+  waterMesh.js – Wasser und animierte Wellen
+  boatMesh.js  – Boot, Segel, Bugwellen und Contact-Shadow
+  marksMesh.js – Bojen, Gate, Kurs und Contact-Shadows
   audio.js     – Web Audio API: Wind, Wellen, Flattern, Pings, Fanfare
   tutorial.js  – Interaktives 4-Schritte-Tutorial
   ui.js        – Startmenü, Finish-Overlay, Highscores (localStorage)

@@ -51,6 +51,7 @@ function loop(timestamp) {
   draw();
 
   Input.flush();
+  requestAnimationFrame(loop);
 }
 
 // ── Update ────────────────────────────────────────────────────────────────────
@@ -129,4 +130,4 @@ function draw() {
 }
 
 // ── Start ─────────────────────────────────────────────────────────────────────
-Scene._renderer.setAnimationLoop(loop);
+requestAnimationFrame(loop);

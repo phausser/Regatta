@@ -53,6 +53,14 @@ Basis-Implementierung (Canvas 2D): Physik, Rennstrecke, Sound, Menü, Tutorial, 
 - [x] HUD: finales Design (minimalistisch, semitransparent dunkel, heller Text)
 - [x] Startmenü: auf neuen visuellen Stil abstimmen
 
+## Phase 12: Rueckbau auf Canvas 2D ✓
+- [x] Three.js-CDN aus `index.html` entfernt
+- [x] `scene.js`: Canvas-Renderer, Follow-Kamera und Zoom
+- [x] `waterMesh.js`: Canvas-Wasser und animierte Dreiecks-Wellen
+- [x] `boatMesh.js`: weiße Bootssilhouette, Segel, Bugwellen und Contact-Shadow
+- [x] `marksMesh.js`: Bojen, Gate, Kurslinien und Contact-Shadows
+- [x] `main.js`: Game-Loop wieder auf `requestAnimationFrame`
+
 ---
 
 ## Backlog
@@ -62,6 +70,6 @@ Basis-Implementierung (Canvas 2D): Physik, Rennstrecke, Sound, Menü, Tutorial, 
 
 ---
 
-**Aktueller Fokus**: Phasen 6–11 abgeschlossen
+**Aktueller Fokus**: Canvas-2D-Rueckbau abgeschlossen
 **Branch**: `feature/threejs-visual-overhaul`
-**Letztes Update**: 27. Juni 2026
+**Letztes Update**: 28. Juni 2026
