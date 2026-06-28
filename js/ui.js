@@ -132,14 +132,14 @@ const UI = {
     this._el('tutorial-progress').style.width = `${prog * 100}%`;
   },
 
-  // ── Compass (small canvas in HUD) ──────────────────────────────────────────
+  // ── Compass (canvas in HUD) ────────────────────────────────────────────────
   _drawCompass() {
     const canvas = document.getElementById('compass-canvas');
     if (!canvas) return;
     const ctx = canvas.getContext('2d');
-    const R   = 42;
+    const R   = 64;
     const cx  = canvas.width  / 2;
-    const cy  = canvas.height / 2 - 10;
+    const cy  = canvas.height / 2 - 14;
 
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
@@ -154,7 +154,7 @@ const UI = {
     ctx.lineWidth   = 1;
     ctx.stroke();
 
-    ctx.font         = '9px "Roboto Mono", monospace';
+    ctx.font         = '12px "Roboto Mono", monospace';
     ctx.textAlign    = 'center';
     ctx.textBaseline = 'middle';
     ctx.fillStyle    = 'rgba(224,238,255,0.48)';
@@ -162,43 +162,39 @@ const UI = {
       ctx.fillText(l, cx + dx * (R - 9), cy + dy * (R - 9));
     });
 
-    this._compassArrow(ctx, cx, cy, R * 0.82, -Wind.dir, '#00e5ff', 2.5);
+    this._compassArrow(ctx, cx, cy, R * 0.90, -Wind.dir, '#1b8cff');
     const awDir = Math.atan2(Boat.awvx, -Boat.awvy);
-    this._compassArrow(ctx, cx, cy, R * 0.62, -awDir, '#ff9800', 2.0);
+    this._compassArrow(ctx, cx, cy, R * 0.70, -awDir, '#ff2f2f');
 
     ctx.textAlign    = 'left';
     ctx.textBaseline = 'alphabetic';
-    ctx.font         = '9px "Roboto Mono", monospace';
+    ctx.font         = '11px "Roboto Mono", monospace';
     ctx.fillStyle    = this._SEA;
 
     const twFrom = Wind.fromDeg().toFixed(0).padStart(3);
-    ctx.fillText(`TW ${twFrom}°  ${Wind.speed.toFixed(0)} kn`, cx - R, cy + R + 14);
+    ctx.fillText(`TW ${twFrom}°  ${Wind.speed.toFixed(0)} kn`, cx - R, cy + R + 18);
 
     const awaDeg = (Math.abs(Boat.awa) * 180 / Math.PI).toFixed(0).padStart(3);
     const awaDir2 = Boat.awa >= 0 ? 'S' : 'B';
-    ctx.fillText(`AW ${awaDeg}°${awaDir2} ${Boat.awSpeed.toFixed(0)} kn`, cx - R, cy + R + 26);
+    ctx.fillText(`AW ${awaDeg}°${awaDir2} ${Boat.awSpeed.toFixed(0)} kn`, cx - R, cy + R + 34);
   },
 
-  _compassArrow(ctx, cx, cy, len, dir, color, lw) {
-    const ex = cx + Math.sin(dir) * len;
-    const ey = cy - Math.cos(dir) * len;
-    const tx = cx - Math.sin(dir) * len * 0.18;
-    const ty = cy + Math.cos(dir) * len * 0.18;
+  _compassArrow(ctx, cx, cy, len, dir, color) {
+    const tipX  = cx + Math.sin(dir) * len;
+    const tipY  = cy - Math.cos(dir) * len;
+    const tailX = cx - Math.sin(dir) * len * 0.24;
+    const tailY = cy + Math.cos(dir) * len * 0.24;
+    const perpX = Math.cos(dir);
+    const perpY = Math.sin(dir);
+    const halfW = len * 0.11;
+
     ctx.save();
-    ctx.strokeStyle  = color;
     ctx.fillStyle    = color;
-    ctx.lineWidth    = lw;
     ctx.globalAlpha  = 0.88;
     ctx.beginPath();
-    ctx.moveTo(tx, ty);
-    ctx.lineTo(ex, ey);
-    ctx.stroke();
-    const hl = len * 0.24;
-    const a  = Math.atan2(ey - ty, ex - tx);
-    ctx.beginPath();
-    ctx.moveTo(ex, ey);
-    ctx.lineTo(ex - hl * Math.cos(a - 0.42), ey - hl * Math.sin(a - 0.42));
-    ctx.lineTo(ex - hl * Math.cos(a + 0.42), ey - hl * Math.sin(a + 0.42));
+    ctx.moveTo(tipX, tipY);
+    ctx.lineTo(tailX + perpX * halfW, tailY + perpY * halfW);
+    ctx.lineTo(tailX - perpX * halfW, tailY - perpY * halfW);
     ctx.closePath();
     ctx.fill();
     ctx.restore();
