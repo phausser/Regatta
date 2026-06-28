@@ -73,8 +73,8 @@ function update(dt) {
   // Zoom keys
   const zoomIn  = Input.isDown('Equal') || Input.isDown('BracketRight') || Input.isDown('NumpadAdd');
   const zoomOut = Input.isDown('Minus') || Input.isDown('NumpadSubtract');
-  if (zoomIn)  { Scene.zoom = Math.min(5,   Scene.zoom * (1 + 1.2 * dt)); Scene.applyFrustum(); }
-  if (zoomOut) { Scene.zoom = Math.max(0.1, Scene.zoom / (1 + 1.2 * dt)); Scene.applyFrustum(); }
+  if (zoomIn)  { Scene.zoom = Scene.clampZoom(Scene.zoom * (1 + 1.2 * dt)); Scene.applyFrustum(); }
+  if (zoomOut) { Scene.zoom = Scene.clampZoom(Scene.zoom / (1 + 1.2 * dt)); Scene.applyFrustum(); }
 
   Boat.update(dt, Wind);
   Race.update(dt, Boat);
