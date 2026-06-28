@@ -47,8 +47,8 @@ const WaterMesh = {
     ctx.save();
     ctx.fillStyle = '#e6f7ff';
     this._triangles.forEach(t => {
-      const buildTime = 2.0;
-      const breakTime = 3.0;
+      const buildTime = 2;
+      const breakTime = 3;
       const cycle = buildTime + breakTime;
       const life = (this._elapsed + t.delay) % cycle;
 

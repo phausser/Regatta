@@ -148,7 +148,7 @@ const UI = {
     ctx.fillStyle = 'rgba(5,18,36,0.76)';
     ctx.fill();
 
-    ctx.font = '18px "Roboto Mono", monospace';
+    ctx.font = '18überpx "Roboto Mono", monospace';
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
     ctx.fillStyle = 'rgba(224,238,255,0.2)';
@@ -156,9 +156,9 @@ const UI = {
       ctx.fillText(l, cx + dx * (R - 10), cy + dy * (R - 10));
     });
 
-    this._compassArrow(ctx, cx, cy, R * 0.90, Wind.dir + Math.PI, '#3388ff');
+    this._compassArrow(ctx, cx, cy, R * 0.9, Wind.dir + Math.PI, '#3388ff');
     const awDir = Math.atan2(Boat.awvx, -Boat.awvy);
-    this._compassArrow(ctx, cx, cy, R * 0.80, awDir + Math.PI, '#ff0066');
+    this._compassArrow(ctx, cx, cy, R * 0.8, awDir + Math.PI, '#ff0066');
   },
 
   _compassArrow(ctx, cx, cy, len, dir, color) {
@@ -190,7 +190,8 @@ const UI = {
       finished: '✓ ZIEL!',
     }[Race.phase];
     const faint = 'color:rgba(224,238,255,0.24)';
-    const div = (txt, style = '') => `<div${style ? ` style="${style}"` : ''}>${txt}</div>`;
+    const div = (txt, style = '') =>
+      '<div' + (style ? ' style="' + style + '"' : '') + '>' + txt + '</div>';
 
     let h = div(phaseLabel);
     h += div('──────────────────', faint);
