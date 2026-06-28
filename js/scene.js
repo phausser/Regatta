@@ -191,22 +191,39 @@ const Scene = {
     return lower.concat(upper);
   },
 
-  _currentTarget() {
+  _courseIndicators() {
     const gateX = (Race.gate.port.x + Race.gate.stbd.x) / 2;
     const gateY = Race.gate.port.y;
 
-    if (Race.phase === 'finished') return null;
-    if (Race.wp === 0) return { x: gateX, y: gateY };
-    if (Race.wp >= 1 && Race.wp <= Race.marks.length) return Race.marks[Race.wp - 1];
-    return { x: gateX, y: gateY };
+    if (Race.phase === 'finished') return [];
+
+    return [
+      {
+        x: gateX,
+        y: gateY,
+        color: '#ffffff',
+        alpha: Race.wp === 0 || (Race.wp === Race.marks.length + 1 && Race.phase === 'racing') ? 1 : 0.25,
+        side: 24,
+      },
+      ...Race.marks.map((mark, i) => ({
+        x: mark.x,
+        y: mark.y,
+        color: '#ffcc00',
+        alpha: Race.wp === i + 1 && Race.phase === 'racing' ? 1 : 0.25,
+        side: 18,
+      })),
+    ];
   },
 
-  _drawTargetIndicator() {
-    const target = this._currentTarget();
-    if (!target) return;
+  _drawCourseIndicators() {
+    this._courseIndicators().forEach(indicator => {
+      this._drawScreenIndicator(indicator);
+    });
+  },
 
-    const dx = target.x - Boat.x;
-    const dy = target.y - Boat.y;
+  _drawScreenIndicator(indicator) {
+    const dx = indicator.x - Boat.x;
+    const dy = indicator.y - Boat.y;
     const d = Math.hypot(dx, dy);
     if (d < 1) return;
 
@@ -218,14 +235,15 @@ const Scene = {
     const x = cx + ux * 100;
     const y = cy + uy * 100;
     const angle = Math.atan2(uy, ux) + Math.PI / 2;
-    const side = 18;
+    const side = indicator.side;
     const h = side * Math.sqrt(3) / 2;
 
     ctx.save();
     ctx.scale(this._dpr, this._dpr);
     ctx.translate(x, y);
     ctx.rotate(angle);
-    ctx.fillStyle = '#ffcc00';
+    ctx.globalAlpha = indicator.alpha;
+    ctx.fillStyle = indicator.color;
     ctx.beginPath();
     ctx.moveTo(0, -h * 0.65);
     ctx.lineTo(side / 2, h * 0.35);
@@ -252,6 +270,6 @@ const Scene = {
     BoatMesh.draw(ctx);
     ctx.restore();
 
-    this._drawTargetIndicator();
+    this._drawCourseIndicators();
   },
 };

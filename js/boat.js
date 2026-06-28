@@ -29,8 +29,8 @@ const Boat = {
     // Controls
     if (Input.isDown('ArrowLeft'))  this.heading   -= TURN_RATE * dt;
     if (Input.isDown('ArrowRight')) this.heading   += TURN_RATE * dt;
-    if (Input.isDown('ArrowUp'))    this.trimAngle  = Math.max(TRIM_MIN, this.trimAngle - TRIM_RATE * dt);
-    if (Input.isDown('ArrowDown'))  this.trimAngle  = Math.min(TRIM_MAX, this.trimAngle + TRIM_RATE * dt);
+    if (Input.isDown('ArrowUp'))    this.trimAngle  = Math.min(TRIM_MAX, this.trimAngle + TRIM_RATE * dt);
+    if (Input.isDown('ArrowDown'))  this.trimAngle  = Math.max(TRIM_MIN, this.trimAngle - TRIM_RATE * dt);
     if (Input.isPressed('KeyR'))    this.reefed     = !this.reefed;
 
     this.heading = ((this.heading % (Math.PI * 2)) + Math.PI * 2) % (Math.PI * 2);

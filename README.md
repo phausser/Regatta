@@ -11,7 +11,8 @@ Minimalistische 2D-Segel-Regatta-Simulation im Browser. Top-Down, geometrischer 
 | Taste | Aktion |
 |-------|--------|
 | `←` `→` | Ruder (Boot drehen) |
-| `↑` `↓` | Segel trimmen (einholen / fieren) |
+| `↑` | Segel fieren |
+| `↓` | Segel einholen |
 | `R` | Reef togglen (Segelfläche −40 %) |
 | `T` | Rennen neu starten |
 | `Esc` | Zurück zum Hauptmenü |
@@ -26,13 +27,22 @@ Minimalistische 2D-Segel-Regatta-Simulation im Browser. Top-Down, geometrischer 
 3. Alle 3 Tonnen in Reihenfolge runden
 4. Zurück durchs Zieltor – Zeit wird gestoppt und in den Bestzeiten (Top 5) gespeichert
 
+## Aktuelle Optik
+
+- Canvas-2D-Rendering ohne externe Rendering-Abhängigkeit
+- Wasser mit leichtem Verlauf von Sonnenrichtung in Schattenrichtung
+- Wellen bewegen sich in Richtung des wahren Windes
+- Wind-Kompass zeigt mit blauem/rotem Pfeil, woher wahrer/scheinbarer Wind kommt
+- Formbasierte projizierte Schatten statt Shadow-Maps
+- Kursindikatoren als Dreiecke ca. 100 px um das Boot: Gate weiß, Bojen gelb
+
 ## Physik-Grundlagen
 
-- **True Wind** (cyan) – tatsächliche Windrichtung und -stärke
-- **Apparent Wind** (orange) – resultierender Wind aus True Wind + Bootsbewegung; entscheidend für den Trimm
+- **True Wind** (blau) – tatsächliche Windrichtung und -stärke; Kompasspfeil zeigt, woher der Wind kommt
+- **Apparent Wind** (rot) – resultierender Wind aus True Wind + Bootsbewegung; Kompasspfeil zeigt, woher der scheinbare Wind kommt
 - **No-Go-Zone** – innerhalb ~34° gegen den Wind kommt das Boot nicht voran
 - **Polarkurve** – breiterer Raumschoter (~120° AWA) ist die schnellste Kurslage
-- **Trimm** – Segel-Trimm dem Apparent Wind anpassen; Segel leuchtet gelb (gut), orange (zu eng) oder rot-flatternd (zu weit)
+- **Trimm** – Segel-Trimm dem Apparent Wind anpassen
 
 ## Projektstruktur
 
@@ -43,9 +53,9 @@ js/
   boat.js      – Boot-Physik, Apparent Wind
   race.js      – Bojen, Start-/Zieltor, Renn-Logik, HUD
   scene.js     – Canvas, Kamera, Follow + Zoom
-  waterMesh.js – Wasser und animierte Wellen
-  boatMesh.js  – Boot, Segel, Bugwellen und Contact-Shadow
-  marksMesh.js – Bojen, Gate, Kurs und Contact-Shadows
+  waterMesh.js – Wasserverlauf und animierte Dreiecks-Wellen
+  boatMesh.js  – Boot, Segel, dezente Bugpixel und projizierter Schatten
+  marksMesh.js – Bojen, Gate, Kurs und projizierte Schatten
   audio.js     – Web Audio API: Wind, Wellen, Flattern, Pings, Fanfare
   tutorial.js  – Interaktives 4-Schritte-Tutorial
   ui.js        – Startmenü, Finish-Overlay, Highscores (localStorage)
@@ -61,3 +71,4 @@ js/
 - **Phase 3** ✓ Rennstrecke – Bojen, Start/Ziel, Zeitmessung
 - **Phase 4** ✓ Wasser-Rendering, HUD, Bugwellen
 - **Phase 5** ✓ Menü, Tutorial, Highscores, Sound
+- **Phase 12** ✓ Canvas-2D-Rueckbau, projizierte Schatten, Zielindikatoren

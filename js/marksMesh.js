@@ -51,37 +51,19 @@ const MarksMesh = {
 
   _drawMarks(ctx) {
     Race.marks.forEach((mark, i) => {
-      const isNext = Race.wp === i + 1 && Race.phase === 'racing';
-      const color = mark.rounded ? '#445566' : (isNext ? '#ffffff' : mark.color);
-      const capColor = mark.rounded ? '#667788' : (isNext ? '#fff5c0' : '#ffe080');
       const bob = this._bob[i] || 0;
-
-      if (isNext) {
-        ctx.save();
-        ctx.strokeStyle = `rgba(255,220,80,${0.30 + Math.sin(performance.now() * 0.004) * 0.12})`;
-        ctx.lineWidth = 2 / Scene.zoom;
-        ctx.beginPath();
-        ctx.arc(mark.x, mark.y, mark.radius, 0, Math.PI * 2);
-        ctx.stroke();
-        ctx.restore();
-      }
 
       Scene.drawProjectedShadow(ctx, this._circlePoints(mark.x, mark.y + bob, 15, 24), 22, 0.46);
 
       ctx.save();
       ctx.translate(mark.x, mark.y + bob);
-      ctx.fillStyle = color;
+      ctx.fillStyle = mark.color;
       ctx.strokeStyle = 'rgba(255,255,255,0.26)';
       ctx.lineWidth = 1 / Scene.zoom;
       ctx.beginPath();
       ctx.arc(0, 0, 15, 0, Math.PI * 2);
       ctx.fill();
       ctx.stroke();
-
-      ctx.fillStyle = capColor;
-      ctx.beginPath();
-      ctx.arc(0, -3, 8, 0, Math.PI * 2);
-      ctx.fill();
       ctx.restore();
     });
   },
