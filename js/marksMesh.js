@@ -11,7 +11,7 @@ const MarksMesh = {
   },
 
   draw(ctx) {
-    this._drawCoursePath(ctx);
+    if (Debug.enabled) this._drawCoursePath(ctx);
     this._drawGate(ctx);
     this._drawMarks(ctx);
   },
