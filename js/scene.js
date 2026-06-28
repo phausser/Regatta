@@ -1,4 +1,7 @@
 // Three.js scene, camera, renderer – replaces camera.js + renderer.js
+const WORLD_SIZE = 5000;
+const MAX_ZOOM   = 5;
+
 const Scene = {
   x:    2500,
   y:    2500,
@@ -35,12 +38,13 @@ const Scene = {
     el.addEventListener('wheel', e => {
       e.preventDefault();
       const f = e.deltaY < 0 ? 1.12 : 1 / 1.12;
-      this.zoom = Math.max(0.1, Math.min(5, this.zoom * f));
+      this.zoom = this.clampZoom(this.zoom * f);
       this._applyFrustum();
     }, { passive: false });
 
     window.addEventListener('resize', () => {
       this._renderer.setSize(window.innerWidth, window.innerHeight);
+      this.zoom = this.clampZoom(this.zoom);
       this._applyFrustum();
     });
 
@@ -48,6 +52,15 @@ const Scene = {
   },
 
   applyFrustum() { this._applyFrustum(); },
+
+  // Rauszoomen begrenzt: sichtbare Welt ≤ WORLD_SIZE in beiden Achsen
+  minZoom() {
+    return Math.max(window.innerWidth / WORLD_SIZE, window.innerHeight / WORLD_SIZE);
+  },
+
+  clampZoom(z) {
+    return Math.max(this.minZoom(), Math.min(MAX_ZOOM, z));
+  },
 
   _applyFrustum() {
     const hw = window.innerWidth  / 2 / this.zoom;
@@ -107,9 +120,9 @@ const Scene = {
   },
 
   _buildLights() {
-    this._scene.add(new THREE.AmbientLight(0x8fb0d0, 0.55));
+    this._scene.add(new THREE.AmbientLight(0xb8d8f0, 0.78));
 
-    this._sun = new THREE.DirectionalLight(0xffffff, 1.45);
+    this._sun = new THREE.DirectionalLight(0xfffaf2, 1.05);
     this._sun.position.set(1400, 1800, 800);
     this._sun.target.position.set(2500, 0, 2500);
     this._sun.castShadow = true;
@@ -128,7 +141,7 @@ const Scene = {
   _buildShadowReceiver() {
     const shadowPlane = new THREE.Mesh(
       new THREE.PlaneGeometry(12000, 12000),
-      new THREE.ShadowMaterial({ color: 0x001020, opacity: 0.20, transparent: true }),
+      new THREE.ShadowMaterial({ color: 0x3a6888, opacity: 0.07, transparent: true }),
     );
     shadowPlane.rotation.x = -Math.PI / 2;
     shadowPlane.position.set(2500, 0.08, 2500);
