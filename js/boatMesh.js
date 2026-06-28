@@ -16,11 +16,13 @@ const BoatMesh = {
   _sailMat:  null,
   _sailAttr: null,
   _sailMesh: null,
+  _shadow:   null,
   _partMat:  null,
   _partAttr: null,
 
   init(scene) {
     this._group = new THREE.Group();
+    this._buildShadow();
     this._buildHull();
     this._buildMast();
     this._buildSail();
@@ -32,6 +34,25 @@ const BoatMesh = {
     });
     if (this._sailMesh) this._sailMesh.receiveShadow = false;
     scene.add(this._group);
+  },
+
+  _buildShadow() {
+    const shadowShape = new THREE.Shape();
+    shadowShape.absellipse(0, 0, _B.HW * 1.18, (_B.HL + _B.HS) * 0.48, 0, Math.PI * 2);
+
+    this._shadow = new THREE.Mesh(
+      new THREE.ShapeGeometry(shadowShape),
+      new THREE.MeshBasicMaterial({
+        color: 0x12314a,
+        transparent: true,
+        opacity: 0.24,
+        depthWrite: false,
+      }),
+    );
+    this._shadow.rotation.x = -Math.PI / 2;
+    this._shadow.position.set(1.6, -0.86, 1.8);
+    this._shadow.renderOrder = 2;
+    this._group.add(this._shadow);
   },
 
   // ── Hull ────────────────────────────────────────────────────────────────────

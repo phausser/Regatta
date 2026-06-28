@@ -3,6 +3,7 @@ const MarksMesh = {
   _gateLine:   null,
   _courseLine: null,
   _gate:       {},
+  _gateShadows: [],
   _marks:      [],
   _rings:      [],
 
@@ -40,6 +41,12 @@ const MarksMesh = {
     );
     post.position.set(x, 13, z);
     this._group.add(post);
+
+    const shadow = this._shadowDisc(15, 0.20);
+    shadow.position.set(x + 3, 0.14, z + 4);
+    this._group.add(shadow);
+    this._gateShadows.push(shadow);
+
     return post;
   },
 
@@ -68,8 +75,28 @@ const MarksMesh = {
       this._group.add(ring);
       this._rings.push(ring);
 
-      return { buoy, body, cap };
+      const shadow = this._shadowDisc(24, 0.24);
+      shadow.position.set(mark.x + 4, 0.14, mark.y + 6);
+      shadow.scale.set(1.25, 0.72, 1);
+      this._group.add(shadow);
+
+      return { buoy, body, cap, shadow };
     });
+  },
+
+  _shadowDisc(radius, opacity) {
+    const shadow = new THREE.Mesh(
+      new THREE.CircleGeometry(radius, 32),
+      new THREE.MeshBasicMaterial({
+        color: 0x12314a,
+        transparent: true,
+        opacity,
+        depthWrite: false,
+      }),
+    );
+    shadow.rotation.x = -Math.PI / 2;
+    shadow.renderOrder = 2;
+    return shadow;
   },
 
   _markRing(mark) {
