@@ -1,6 +1,6 @@
 // ScoreApi – Server-Anbindung fuer Highscores
 const ScoreApi = {
-  baseUrl: window.GEOSAIL_SCORE_API || '/api',
+  baseUrl: window.GEOSAIL_SCORE_API || 'https://regatta.binaerraum.de/api',
   _session: null,
   _sessionPromise: null,
   _startedAt: 0,
