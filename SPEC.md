@@ -119,7 +119,6 @@
 | `↓` | Segel einholen |
 | `R` | Reef |
 | `T` | Neustart |
-| `H` | Test-Finish speichern |
 | `Esc` | Hauptmenü |
 | `M` | Ton |
 | `+` / `−` / Rad | Zoom |

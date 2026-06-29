@@ -31,11 +31,12 @@ const ScoreApi = {
     const session = await this._sessionPromise;
     if (!session) throw new Error('No score session');
 
+    const scoreName = this.playerName(playername);
     const timeValue = Number(timeSeconds).toFixed(3);
-    const hash = await this._sha256(`${timeValue}:${session.secret}:${playername}`);
+    const hash = await this._sha256(`${timeValue}:${session.secret}:${scoreName}`);
     const result = await this._post('/submit-score', {
       session_id: session.session_id,
-      playername,
+      playername: scoreName,
       time: timeValue,
       hash,
     });
@@ -59,6 +60,10 @@ const ScoreApi = {
     const data = await res.json().catch(() => ({}));
     if (!res.ok) throw new Error(data.error || `Request failed: ${res.status}`);
     return data;
+  },
+
+  playerName(name) {
+    return String(name || 'Anonymous').trim().slice(0, 30) || 'Anonymous';
   },
 
   async _sha256(text) {

@@ -44,12 +44,15 @@ function goToMenu() {
 }
 
 function finishRaceForHighscoreTest() {
-  if (gameScreen !== 'game' || Race.phase === 'finished') return;
-  if (!ScoreApi.hasSession()) UI.startScoreSession();
+  if (gameScreen !== 'game' || Race.phase !== 'racing') return;
+
+  const testTime = Race.raceTime < 181
+    ? 181 + Race.raceTime
+    : Race.raceTime;
 
   Race.phase    = 'finished';
   Race.wp       = Race.marks.length + 1;
-  Race.raceTime = Math.max(Race.raceTime, 181, ScoreApi.sessionAgeSeconds() + 1);
+  Race.raceTime = Math.max(testTime, ScoreApi.sessionAgeSeconds() + 1);
 }
 
 // ── Game loop ─────────────────────────────────────────────────────────────────
@@ -95,8 +98,6 @@ function update(dt) {
   Race.update(dt, Boat);
   Scene.follow(Boat);
   Sfx.update(Boat, Wind);
-
-  if (Input.isPressed('KeyH')) finishRaceForHighscoreTest();
 
   // One-shot sounds on race transitions
   if (Race.wp > _prevWp)                                        Sfx.playBuoyPing();

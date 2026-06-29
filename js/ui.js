@@ -22,11 +22,12 @@ const UI = {
   },
 
   async submitScore(timeSeconds) {
+    const playername = this.requestPlayerName();
     this._scoreStatus = 'Wird gespeichert';
     this.showFinish();
 
     try {
-      await ScoreApi.submitScore(timeSeconds);
+      await ScoreApi.submitScore(timeSeconds, playername);
       this._scoreStatus = 'Online gespeichert';
       await this.refreshScores();
       this._newRank = this._rankForTime(timeSeconds, this._serverScores);
@@ -35,6 +36,11 @@ const UI = {
       this._newRank = -1;
     }
     this.showFinish();
+  },
+
+  requestPlayerName() {
+    const name = window.prompt('Name fuer die Bestenliste:', 'Anonymous');
+    return ScoreApi.playerName(name);
   },
 
   async refreshScores() {

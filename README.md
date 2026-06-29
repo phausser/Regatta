@@ -15,7 +15,6 @@ Minimalistische 2D-Segel-Regatta-Simulation im Browser. Top-Down, geometrischer 
 | `↓` | Segel einholen |
 | `R` | Reef togglen (Segelfläche −40 %) |
 | `T` | Rennen neu starten |
-| `H` | Test-Finish speichern |
 | `Esc` | Zurück zum Hauptmenü |
 | `M` | Ton stummschalten |
 | `+` `−` / Mausrad | Zoom |
