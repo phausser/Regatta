@@ -35,6 +35,17 @@ def get_db():
     conn.row_factory = sqlite3.Row
     return conn
 
+def browser_signature():
+    data = {
+        "user_agent": request.headers.get("User-Agent", ""),
+        "accept_language": request.headers.get("Accept-Language", ""),
+        "accept": request.headers.get("Accept", ""),
+        "sec_ch_ua": request.headers.get("Sec-Ch-Ua", ""),
+        "sec_ch_ua_platform": request.headers.get("Sec-Ch-Ua-Platform", ""),
+        "sec_ch_ua_mobile": request.headers.get("Sec-Ch-Ua-Mobile", ""),
+    }
+    return json.dumps(data, sort_keys=True)
+
 def hash_score(time_val, secret, playername):
     data = f"{time_val}:{secret}:{playername}"
     return hashlib.sha256(data.encode('utf-8')).hexdigest()
@@ -43,8 +54,7 @@ def hash_score(time_val, secret, playername):
 
 @app.route('/start-session', methods=['POST'])
 def start_session():
-    data = request.get_json() or {}
-    fingerprint = json.dumps(data.get('fingerprint', {}), sort_keys=True)
+    fingerprint = browser_signature()
     
     session_id = secrets.token_hex(16)
     secret = secrets.token_hex(32)
@@ -64,14 +74,22 @@ def start_session():
 @app.route('/submit-score', methods=['POST'])
 def submit_score():
     data = request.get_json() or {}
-    fingerprint = json.dumps(data.get('fingerprint', {}), sort_keys=True)
+    fingerprint = browser_signature()
     time_val = data.get('time')
     playername = data.get('playername', 'Anonymous').strip()[:30]
     client_hash = data.get('hash')
     session_id = data.get('session_id')
 
-    if not all([fingerprint, time_val is not None, client_hash, session_id]):
+    if not all([time_val is not None, client_hash, session_id]):
         return jsonify({"error": "Missing data"}), 400
+
+    try:
+        score_time = float(time_val)
+    except (TypeError, ValueError):
+        return jsonify({"error": "Invalid time"}), 400
+
+    if score_time <= 180 or score_time >= 3600:
+        return jsonify({"error": "Implausible time"}), 400
 
     conn = get_db()
     session = conn.execute("SELECT * FROM sessions WHERE id = ?", (session_id,)).fetchone()
@@ -93,7 +111,7 @@ def submit_score():
     # Speichern
     now = datetime.now().isoformat()
     conn.execute("INSERT INTO highscores (playername, time, fingerprint, created_at) VALUES (?, ?, ?, ?)",
-                 (playername, float(time_val), fingerprint, now))
+                 (playername, score_time, fingerprint, now))
     conn.execute("DELETE FROM sessions WHERE id = ?", (session_id,))
     conn.commit()
     conn.close()
