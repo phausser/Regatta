@@ -5,12 +5,34 @@ import secrets
 import time
 from datetime import datetime
 import json
+import os
+from pathlib import Path
 
 app = Flask(__name__)
+ALLOWED_ORIGINS = {
+    "http://localhost:8000",
+    "http://127.0.0.1:8000",
+    "http://localhost:5173",
+    "http://127.0.0.1:5173",
+    "null",
+}
+
+DB_PATH = Path(__file__).with_name("highscores.db")
+SESSION_TTL_SECONDS = 600
+
+@app.after_request
+def add_cors_headers(response):
+    origin = request.headers.get("Origin")
+    if origin in ALLOWED_ORIGINS:
+        response.headers["Access-Control-Allow-Origin"] = origin
+        response.headers["Vary"] = "Origin"
+        response.headers["Access-Control-Allow-Methods"] = "GET, POST, OPTIONS"
+        response.headers["Access-Control-Allow-Headers"] = "Content-Type"
+    return response
 
 # ====================== DB SETUP ======================
 def init_db():
-    conn = sqlite3.connect('highscores.db')
+    conn = sqlite3.connect(DB_PATH)
     c = conn.cursor()
     c.execute('''CREATE TABLE IF NOT EXISTS sessions (
                     id TEXT PRIMARY KEY,
@@ -31,9 +53,13 @@ def init_db():
 init_db()
 
 def get_db():
-    conn = sqlite3.connect('highscores.db')
+    conn = sqlite3.connect(DB_PATH)
     conn.row_factory = sqlite3.Row
     return conn
+
+def cleanup_sessions(conn):
+    expires_before = time.time() - SESSION_TTL_SECONDS
+    conn.execute("DELETE FROM sessions WHERE created_at < ?", (expires_before,))
 
 def browser_signature():
     data = {
@@ -60,6 +86,7 @@ def start_session():
     secret = secrets.token_hex(32)
     
     conn = get_db()
+    cleanup_sessions(conn)
     conn.execute("INSERT INTO sessions (id, fingerprint, secret, created_at) VALUES (?, ?, ?, ?)",
                  (session_id, fingerprint, secret, time.time()))
     conn.commit()
@@ -68,7 +95,7 @@ def start_session():
     return jsonify({
         "session_id": session_id,
         "secret": secret,
-        "expires_in": 600
+        "expires_in": SESSION_TTL_SECONDS
     })
 
 @app.route('/submit-score', methods=['POST'])
@@ -76,7 +103,7 @@ def submit_score():
     data = request.get_json() or {}
     fingerprint = browser_signature()
     time_val = data.get('time')
-    playername = data.get('playername', 'Anonymous').strip()[:30]
+    playername = str(data.get('playername') or 'Anonymous').strip()[:30] or 'Anonymous'
     client_hash = data.get('hash')
     session_id = data.get('session_id')
 
@@ -98,9 +125,14 @@ def submit_score():
         conn.close()
         return jsonify({"error": "Invalid session"}), 403
 
-    if time.time() - session['created_at'] > 600:
+    session_age = time.time() - session['created_at']
+    if session_age > SESSION_TTL_SECONDS:
         conn.close()
         return jsonify({"error": "Session expired"}), 403
+
+    if score_time < session_age:
+        conn.close()
+        return jsonify({"error": "Score time shorter than session age"}), 400
 
     # Hash + Fingerprint prüfen
     expected_hash = hash_score(time_val, session['secret'], playername)
@@ -118,9 +150,18 @@ def submit_score():
 
     return jsonify({"success": True})
 
+@app.route('/health', methods=['GET'])
+def health():
+    return jsonify({"ok": True})
+
 @app.route('/leaderboard', methods=['GET'])
 def leaderboard():
-    limit = min(int(request.args.get('limit', 5)), 100)
+    try:
+        limit = int(request.args.get('limit', 5))
+    except (TypeError, ValueError):
+        limit = 5
+    limit = max(1, min(limit, 100))
+
     conn = get_db()
     rows = conn.execute("""
         SELECT playername, time, created_at 
@@ -133,5 +174,7 @@ def leaderboard():
     return jsonify([dict(row) for row in rows])
 
 if __name__ == '__main__':
-    print("🚤 Regatta Highscore Server läuft → http://localhost:5000")
-    app.run(host='0.0.0.0', port=5000, debug=True)
+    port = int(os.environ.get("PORT", "5000"))
+    print(f"🚤 Regatta Highscore Server läuft → http://localhost:{port}")
+    debug = os.environ.get("FLASK_DEBUG") == "1"
+    app.run(host='0.0.0.0', port=port, debug=debug)

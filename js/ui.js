@@ -4,6 +4,8 @@ const UI = {
   _newRank: -1,
   _pending: null,
   _finishPending: null,
+  _serverScores: null,
+  _scoreStatus: '',
 
   _SEA: '#e0eeff',
   _GOLD: '#ffdc50',
@@ -23,6 +25,34 @@ const UI = {
     this._newRank = top5.indexOf(timeSeconds);
     try { localStorage.setItem(this._KEY, JSON.stringify(top5)); } catch { }
     return this._newRank;
+  },
+
+  startScoreSession() {
+    this._scoreStatus = '';
+    ScoreApi.startSession().catch(() => {
+      ScoreApi.clearSession();
+      this._scoreStatus = 'Server nicht erreichbar';
+    });
+  },
+
+  async submitScore(timeSeconds) {
+    try {
+      await ScoreApi.submitScore(timeSeconds);
+      this._scoreStatus = 'Online gespeichert';
+      await this.refreshScores();
+      this._newRank = this._rankForTime(timeSeconds, this._displayScores());
+    } catch (err) {
+      this._scoreStatus = 'Nur lokal gespeichert';
+    }
+    this.showFinish();
+  },
+
+  async refreshScores() {
+    try {
+      this._serverScores = await ScoreApi.leaderboard(5);
+    } catch (err) {
+      this._serverScores = null;
+    }
   },
 
   // ── Init ───────────────────────────────────────────────────────────────────
@@ -53,7 +83,10 @@ const UI = {
     this._el('hud-game').classList.toggle('hidden', !isGame);
     this._el('tutorial-panel').classList.toggle('hidden', !isTut);
 
-    if (isMenu) this._renderMenuScores();
+    if (isMenu) {
+      this._renderMenuScores();
+      this.refreshScores().then(() => this._renderMenuScores());
+    }
   },
 
   // ── Menu ───────────────────────────────────────────────────────────────────
@@ -97,11 +130,15 @@ const UI = {
       rankEl.textContent = '';
     }
 
-    const sc = this.scores();
+    const sc = this._displayScores();
+    const scoreStatus = this._scoreStatus
+      ? `<div class="scores-label">${this._scoreStatus}</div>`
+      : '';
     this._el('finish-scores').innerHTML =
+      scoreStatus +
       '<div class="scores-label">Bestzeiten</div>' +
-      sc.map((t, i) =>
-        `<div class="${i === rank ? 'hi' : ''}">${i + 1}. ${this._fmtTime(t)}</div>`
+      sc.map((score, i) =>
+        `<div class="${i === rank ? 'hi' : ''}">${i + 1}. ${this._scoreLabel(score)}</div>`
       ).join('');
   },
 
@@ -238,13 +275,30 @@ const UI = {
   },
 
   _renderMenuScores() {
-    const sc = this.scores();
+    const sc = this._displayScores();
     const el = this._el('menu-scores');
     if (sc.length === 0) { el.innerHTML = ''; return; }
     el.innerHTML = '<div class="scores-label">Bestzeiten</div>' +
-      sc.map((t, i) =>
-        `<div class="${i === 0 ? 'gold' : ''}">${i + 1}. ${this._fmtTime(t)}</div>`
+      sc.map((score, i) =>
+        `<div class="${i === 0 ? 'gold' : ''}">${i + 1}. ${this._scoreLabel(score)}</div>`
       ).join('');
+  },
+
+  _displayScores() {
+    return this._serverScores || this.scores();
+  },
+
+  _scoreLabel(score) {
+    if (typeof score === 'number') return this._fmtTime(score);
+    const name = score.playername && score.playername !== 'Anonymous'
+      ? `${score.playername} · `
+      : '';
+    return `${name}${this._fmtTime(Number(score.time))}`;
+  },
+
+  _rankForTime(timeSeconds, scores) {
+    const idx = scores.findIndex(score => Math.abs(Number(score.time ?? score) - timeSeconds) < 0.01);
+    return idx >= 0 ? idx : -1;
   },
 
   _fmtTime(s) {

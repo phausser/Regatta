@@ -11,20 +11,24 @@ Race.init();
 Scene.init();
 Input.initMouse(Scene._renderer.domElement);
 UI.init();
+UI.showScreen('menu');
 
 // ── Transitions ───────────────────────────────────────────────────────────────
 function startGame() {
   Race.reset();
+  ScoreApi.clearSession();
   _scoreSaved = false;
   _prevWp     = 0;
   _prevPhase  = 'pre_start';
   UI._newRank = -1;
+  UI._scoreStatus = '';
   gameScreen  = 'game';
   UI.showScreen('game');
 }
 
 function startTutorial() {
   Race.reset();
+  ScoreApi.clearSession();
   Tutorial.begin();
   _scoreSaved = false;
   _prevWp     = 0;
@@ -34,6 +38,7 @@ function startTutorial() {
 }
 
 function goToMenu() {
+  ScoreApi.clearSession();
   gameScreen = 'menu';
   UI.showScreen('menu');
 }
@@ -84,6 +89,7 @@ function update(dt) {
 
   // One-shot sounds on race transitions
   if (Race.wp > _prevWp)                                        Sfx.playBuoyPing();
+  if (Race.phase === 'racing' && _prevPhase === 'pre_start')     UI.startScoreSession();
   if (Race.phase === 'finished' && _prevPhase !== 'finished')   Sfx.playFinish();
   _prevWp    = Race.wp;
   _prevPhase = Race.phase;
@@ -101,6 +107,7 @@ function update(dt) {
     UI.saveScore(Race.raceTime);
     UI.showFinish();
     UI.showScreen('finish');
+    UI.submitScore(Race.raceTime);
     _scoreSaved = true;
   }
 
@@ -114,10 +121,12 @@ function update(dt) {
 
   if (Input.isPressed('KeyT')) {
     Race.reset();
+    ScoreApi.clearSession();
     _scoreSaved = false;
     _prevWp     = 0;
     _prevPhase  = 'pre_start';
     UI._newRank = -1;
+    UI._scoreStatus = '';
   }
 
   Debug.draw(state);
