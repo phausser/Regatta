@@ -146,6 +146,7 @@ Kursindikatoren werden im Spiel-Canvas gezeichnet: alle Dreiecke liegen ca. 100 
 | `↓`              | Segel einholen                |
 | `R`              | Reef togglen                  |
 | `T`              | Rennen neu starten            |
+| `H`              | Test-Finish speichern         |
 | `Esc`            | Zurück zum Hauptmenü          |
 | `M`              | Ton stummschalten             |
 | `+` / `−` / Rad  | Zoom                          |

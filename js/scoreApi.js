@@ -1,10 +1,12 @@
 // ScoreApi – Server-Anbindung fuer Highscores
 const ScoreApi = {
-  baseUrl: window.GEOSAIL_SCORE_API || 'http://localhost:5000',
+  baseUrl: window.GEOSAIL_SCORE_API || '/api',
   _session: null,
   _sessionPromise: null,
+  _startedAt: 0,
 
   async startSession() {
+    this._startedAt = performance.now();
     this._sessionPromise = this._post('/start-session', {});
     this._session = await this._sessionPromise;
     return this._session;
@@ -13,6 +15,16 @@ const ScoreApi = {
   clearSession() {
     this._session = null;
     this._sessionPromise = null;
+    this._startedAt = 0;
+  },
+
+  hasSession() {
+    return Boolean(this._sessionPromise);
+  },
+
+  sessionAgeSeconds() {
+    if (!this._startedAt) return 0;
+    return (performance.now() - this._startedAt) / 1000;
   },
 
   async submitScore(timeSeconds, playername = 'Anonymous') {

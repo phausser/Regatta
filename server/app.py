@@ -14,6 +14,7 @@ ALLOWED_ORIGINS = {
     "http://127.0.0.1:8000",
     "http://localhost:5173",
     "http://127.0.0.1:5173",
+    "https://phausser.github.io",
     "null",
 }
 
@@ -81,17 +82,17 @@ def hash_score(time_val, secret, playername):
 @app.route('/start-session', methods=['POST'])
 def start_session():
     fingerprint = browser_signature()
-    
+
     session_id = secrets.token_hex(16)
     secret = secrets.token_hex(32)
-    
+
     conn = get_db()
     cleanup_sessions(conn)
     conn.execute("INSERT INTO sessions (id, fingerprint, secret, created_at) VALUES (?, ?, ?, ?)",
                  (session_id, fingerprint, secret, time.time()))
     conn.commit()
     conn.close()
-    
+
     return jsonify({
         "session_id": session_id,
         "secret": secret,
@@ -120,7 +121,7 @@ def submit_score():
 
     conn = get_db()
     session = conn.execute("SELECT * FROM sessions WHERE id = ?", (session_id,)).fetchone()
-    
+
     if not session:
         conn.close()
         return jsonify({"error": "Invalid session"}), 403
@@ -164,13 +165,13 @@ def leaderboard():
 
     conn = get_db()
     rows = conn.execute("""
-        SELECT playername, time, created_at 
-        FROM highscores 
-        ORDER BY time ASC 
+        SELECT playername, time, created_at
+        FROM highscores
+        ORDER BY time ASC
         LIMIT ?
     """, (limit,)).fetchall()
     conn.close()
-    
+
     return jsonify([dict(row) for row in rows])
 
 if __name__ == '__main__':
