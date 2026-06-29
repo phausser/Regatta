@@ -4,25 +4,48 @@ const UI = {
   _newRank: -1,
   _pending: null,
   _finishPending: null,
+  _serverScores: null,
+  _scoreStatus: '',
+  _scoresLoaded: false,
+  _scoresError: false,
 
   _SEA: '#e0eeff',
   _GOLD: '#ffdc50',
-  _KEY: 'geosail-scores',
 
   // ── Highscores ─────────────────────────────────────────────────────────────
-  scores() {
-    try { return JSON.parse(localStorage.getItem(this._KEY)) || []; }
-    catch { return []; }
+  startScoreSession() {
+    this._scoreStatus = '';
+    ScoreApi.startSession().catch(() => {
+      ScoreApi.clearSession();
+      this._scoreStatus = 'Server nicht erreichbar';
+    });
   },
 
-  saveScore(timeSeconds) {
-    const list = this.scores();
-    list.push(timeSeconds);
-    list.sort((a, b) => a - b);
-    const top5 = list.slice(0, 5);
-    this._newRank = top5.indexOf(timeSeconds);
-    try { localStorage.setItem(this._KEY, JSON.stringify(top5)); } catch { }
-    return this._newRank;
+  async submitScore(timeSeconds) {
+    this._scoreStatus = 'Wird gespeichert';
+    this.showFinish();
+
+    try {
+      await ScoreApi.submitScore(timeSeconds);
+      this._scoreStatus = 'Online gespeichert';
+      await this.refreshScores();
+      this._newRank = this._rankForTime(timeSeconds, this._serverScores);
+    } catch (err) {
+      this._scoreStatus = 'Server nicht erreichbar';
+      this._newRank = -1;
+    }
+    this.showFinish();
+  },
+
+  async refreshScores() {
+    this._scoresError = false;
+    try {
+      this._serverScores = await ScoreApi.leaderboard(5);
+    } catch (err) {
+      this._serverScores = [];
+      this._scoresError = true;
+    }
+    this._scoresLoaded = true;
   },
 
   // ── Init ───────────────────────────────────────────────────────────────────
@@ -53,7 +76,10 @@ const UI = {
     this._el('hud-game').classList.toggle('hidden', !isGame);
     this._el('tutorial-panel').classList.toggle('hidden', !isTut);
 
-    if (isMenu) this._renderMenuScores();
+    if (isMenu) {
+      this._renderMenuScores();
+      this.refreshScores().then(() => this._renderMenuScores());
+    }
   },
 
   // ── Menu ───────────────────────────────────────────────────────────────────
@@ -97,11 +123,15 @@ const UI = {
       rankEl.textContent = '';
     }
 
-    const sc = this.scores();
+    const sc = this._serverScores || [];
+    const scoreStatus = this._scoreStatus
+      ? `<div class="scores-label">${this._scoreStatus}</div>`
+      : '';
     this._el('finish-scores').innerHTML =
+      scoreStatus +
       '<div class="scores-label">Bestzeiten</div>' +
-      sc.map((t, i) =>
-        `<div class="${i === rank ? 'hi' : ''}">${i + 1}. ${this._fmtTime(t)}</div>`
+      sc.map((score, i) =>
+        `<div class="${i === rank ? 'hi' : ''}">${i + 1}. ${this._scoreLabel(score)}</div>`
       ).join('');
   },
 
@@ -238,13 +268,36 @@ const UI = {
   },
 
   _renderMenuScores() {
-    const sc = this.scores();
+    const sc = this._serverScores || [];
     const el = this._el('menu-scores');
-    if (sc.length === 0) { el.innerHTML = ''; return; }
+    if (!this._scoresLoaded) {
+      el.innerHTML = '<div class="scores-label">Lade Bestzeiten</div>';
+      return;
+    }
+    if (this._scoresError) {
+      el.innerHTML = '<div class="scores-label">Server nicht erreichbar</div>';
+      return;
+    }
+    if (sc.length === 0) {
+      el.innerHTML = '<div class="scores-label">Keine Server-Bestzeiten</div>';
+      return;
+    }
     el.innerHTML = '<div class="scores-label">Bestzeiten</div>' +
-      sc.map((t, i) =>
-        `<div class="${i === 0 ? 'gold' : ''}">${i + 1}. ${this._fmtTime(t)}</div>`
+      sc.map((score, i) =>
+        `<div class="${i === 0 ? 'gold' : ''}">${i + 1}. ${this._scoreLabel(score)}</div>`
       ).join('');
+  },
+
+  _scoreLabel(score) {
+    const name = score.playername && score.playername !== 'Anonymous'
+      ? `${score.playername} · `
+      : '';
+    return `${name}${this._fmtTime(Number(score.time))}`;
+  },
+
+  _rankForTime(timeSeconds, scores) {
+    const idx = scores.findIndex(score => Math.abs(Number(score.time) - timeSeconds) < 0.01);
+    return idx >= 0 ? idx : -1;
   },
 
   _fmtTime(s) {

@@ -7,7 +7,7 @@ Dieses Dokument richtet sich an KI-Agenten (z. B. Claude Code), die an diesem Pr
 Minimalistisches 2D-Segel-Regatta-Spiel im Browser. Top-Down-Ansicht (senkrecht von oben), echte Segelphysik (Scheinbarer Wind), Rundkurs mit Bojen. Rendering via **HTML5 Canvas**.
 
 - **Tech-Stack**: HTML5 Canvas, Vanilla JavaScript, Web Audio API – kein Framework, kein Build-Step
-- **Einstieg**: `index.html` direkt im Browser öffnen
+- **Einstieg**: `index.html` direkt im Browser öffnen; für Highscores zusätzlich Flask-Server starten
 - **Welt**: 5000 × 5000 Einheiten, Kamera folgt dem Boot
 
 ## Dateistruktur
@@ -25,9 +25,13 @@ js/
   marksMesh.js        Bojen, Gate, Kurslinien, projizierte Schatten
   audio.js            Web Audio API – Wind, Wellen, Flattern, Pings     ← Phase 5 (unverändert)
   tutorial.js         Interaktives 4-Schritte-Tutorial (HTML-Overlay)   ← Phase 5
+  scoreApi.js         Client-Anbindung an den Highscore-Server
   ui.js               Startmenü, HUD, Finish-Overlay (HTML-Overlay)     ← Phase 5 + 6
   debug.js            Debug-Overlay (Toggle: D-Taste)
   main.js             Game Loop, State-Machine, resize, update/render
+server/
+  app.py              Flask-Server für globale Highscores
+  requirements.txt    Python-Abhängigkeiten
 ```
 
 **Entfernt:**
@@ -36,7 +40,7 @@ js/
 - Three.js-CDN → Rückbau auf Canvas 2D
 
 **Script-Ladereihenfolge** (global, keine Module):
-`input → wind → boat → race → scene → waterMesh → boatMesh → marksMesh → audio → tutorial → ui → debug → main`
+`input → wind → boat → race → scene → waterMesh → boatMesh → marksMesh → audio → tutorial → scoreApi → ui → debug → main`
 
 ## Koordinatensystem & Konventionen
 
@@ -72,6 +76,7 @@ Kein Tilt, keine Rotation um die Y-Achse – Ansicht bleibt immer senkrecht von 
 | `MarksMesh` | marksMesh.js | Bojen, Gate, Kurslinien und projizierte Schatten   |
 | `Sfx`       | audio.js     | Web Audio API – Ambient + One-shots                |
 | `Tutorial`  | tutorial.js  | 4-Schritte-Tutorial                                |
+| `ScoreApi`  | scoreApi.js  | Server-Highscores: Session, Submit, Leaderboard    |
 | `UI`        | ui.js        | Startmenü, HUD-Overlay, Finish-Overlay, Highscores |
 | `Debug`     | debug.js     | Debug-Overlay                                      |
 
@@ -83,7 +88,8 @@ Kein Tilt, keine Rotation um die Y-Achse – Ansicht bleibt immer senkrecht von 
 - `startTutorial()` – Race.reset(), Tutorial.begin(), gameScreen = 'tutorial'
 - `goToMenu()` – gameScreen = 'menu'
 - Tutorial → 'game': automatisch wenn `Tutorial.isDone()`
-- Highscore einmalig gespeichert wenn `Race.phase === 'finished'`
+- Score-Session startet beim Übergang `pre_start` → `racing`
+- Highscore wird einmalig an den Server gesendet wenn `Race.phase === 'finished'`
 
 ## HUD (HTML-Overlay)
 
@@ -92,6 +98,19 @@ Das HUD ist **kein Spiel-Canvas-Zeichnen**, sondern ein `<div id="hud">` über d
 Wind-Kompass: kleines `<canvas>`-Element im HUD für die Pfeil-Animation (2D Canvas, mini).
 Die Kompasspfeile zeigen, woher wahrer und scheinbarer Wind kommen; die Wasserwellen bewegen sich in die Richtung, in die der wahre Wind weht.
 Kursindikatoren werden im Spiel-Canvas gezeichnet: alle Dreiecke liegen ca. 100 px um das Boot und zeigen zum jeweiligen Zielobjekt.
+
+## Highscore-Server
+
+- Server: `server/app.py` (Flask + SQLite)
+- Start: `cd server && python app.py`
+- Default-URL im Client: `http://localhost:5000`
+- Alternative URL: vor dem Spielstart `window.GEOSAIL_SCORE_API = 'http://localhost:5050'` setzen
+- `GET /health` prüft Serverstatus
+- `POST /start-session` erzeugt Session-ID und Secret beim Rennstart
+- `POST /submit-score` validiert Zeit, Session, Browser-Signatur und Hash
+- `GET /leaderboard?limit=5` liefert die Startmenü-/Finish-Bestzeiten
+- Keine localStorage-Highscores mehr; bei Serverfehler zeigt die UI einen Serverstatus statt lokaler Fallback-Liste
+- Zeit-Plausibilität: `180 < time < 3600`, außerdem `time >= session_age`
 
 ## Visueller Stil
 
@@ -116,7 +135,7 @@ Kursindikatoren werden im Spiel-Canvas gezeichnet: alle Dreiecke liegen ca. 100 
 - Phasen werden einzeln abgeschlossen; nach jeder Phase prüft Patrick den Stand
 - Nach jeder Phase: TODO.md, SPEC.md Status-Tabelle, AGENTS.md aktualisieren
 - Keine Phase überspringen oder parallel implementieren
-- Aktueller Stand: Canvas-2D-Stand abgeschlossen
+- Aktueller Stand: Server-Highscores abgeschlossen
 
 ## Steuerung
 
@@ -127,6 +146,7 @@ Kursindikatoren werden im Spiel-Canvas gezeichnet: alle Dreiecke liegen ca. 100 
 | `↓`              | Segel einholen                |
 | `R`              | Reef togglen                  |
 | `T`              | Rennen neu starten            |
+| `H`              | Test-Finish speichern         |
 | `Esc`            | Zurück zum Hauptmenü          |
 | `M`              | Ton stummschalten             |
 | `+` / `−` / Rad  | Zoom                          |

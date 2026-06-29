@@ -52,15 +52,28 @@ Basis-Implementierung (Canvas 2D): Physik, Rennstrecke, Sound, Menü, Tutorial, 
 - [x] Keine Three.js-Runtime-Referenzen in `index.html` und `js/`
 - [x] README, SPEC, TODO, AGENTS auf Canvas-Stand aktualisiert
 
+## Phase 13: Server-Highscores ✓
+- [x] `server/app.py`: Flask-Highscore-Server mit SQLite
+- [x] `GET /health` Healthcheck
+- [x] CORS für lokale Entwicklungs-Origins
+- [x] Browser-Signatur aus normalen Request-Headern
+- [x] Session-Timeout und Cleanup
+- [x] Zeit-Plausibilität: 3 min < Zeit < 60 min
+- [x] Eingereichte Zeit muss mindestens der Session-Laufzeit entsprechen
+- [x] `js/scoreApi.js`: Client-API für Session, Submit und Leaderboard
+- [x] `ui.js`: Startmenü und Finish-Overlay zeigen Server-Bestzeiten
+- [x] localStorage-Highscores entfernt
+
 ---
 
 ## Backlog
 - [ ] Verschiedene Windstärken / Böen
 - [ ] Mehrere Boote / KI-Gegner
 - [ ] Multiplayer
+- [ ] Spielernamen-Eingabe für Server-Highscores
 
 ---
 
-**Aktueller Fokus**: Canvas-2D-Stand abgeschlossen
-**Branch**: `feature/threejs-visual-overhaul`
-**Letztes Update**: 28. Juni 2026
+**Aktueller Fokus**: Server-Highscores abgeschlossen
+**Branch**: `add-highscores`
+**Letztes Update**: 29. Juni 2026
