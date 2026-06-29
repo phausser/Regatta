@@ -4,7 +4,7 @@ Minimalistische 2D-Segel-Regatta-Simulation im Browser. Top-Down, geometrischer 
 
 ## Starten
 
-`index.html` direkt im Browser öffnen – kein Build-Schritt nötig.
+`index.html` direkt im Browser öffnen – kein Build-Schritt nötig. Für Online-Bestzeiten muss der Highscore-Server laufen.
 
 ## Steuerung
 
@@ -25,7 +25,7 @@ Minimalistische 2D-Segel-Regatta-Simulation im Browser. Top-Down, geometrischer 
 1. Im Startmenü **Rennen starten** oder **Tutorial** wählen (Tastatur oder Maus)
 2. Startlinie zwischen roter und grüner Boje von Süd nach Nord kreuzen
 3. Alle 3 Tonnen in Reihenfolge runden
-4. Zurück durchs Zieltor – Zeit wird gestoppt und in den Bestzeiten (Top 5) gespeichert
+4. Zurück durchs Zieltor – Zeit wird gestoppt und an den Highscore-Server gesendet
 
 ## Physik-Grundlagen
 
@@ -37,6 +37,8 @@ Minimalistische 2D-Segel-Regatta-Simulation im Browser. Top-Down, geometrischer 
 
 ## Server
 
+Der Server speichert die globalen Top-5-Bestzeiten in SQLite. Lokale Browser-Highscores werden nicht mehr verwendet.
+
 ### Installation
 
 ```bash
@@ -45,15 +47,30 @@ pip install -r requirements.txt
 python app.py
 ```
 
+Falls Port 5000 belegt ist:
+
+```bash
+PORT=5050 python app.py
+```
+
+Dann im Browser vor dem Spielstart die API-URL setzen:
+
+```js
+window.GEOSAIL_SCORE_API = 'http://localhost:5050'
+```
+
 ### Endpoints
 
-* POST /start-session — Fingerprint senden → Secret bekommen
-* POST /submit-score — Zeit + Hash + Fingerprint validieren & speichern
-* GET /leaderboard?limit=10 — Top Zeiten abrufen (max 100)
+* `GET /health` — Healthcheck
+* `POST /start-session` — Session + Secret fuer ein Rennen erzeugen
+* `POST /submit-score` — Zeit + Hash validieren und speichern
+* `GET /leaderboard?limit=10` — Top-Zeiten abrufen (max. 100)
 
 ### Sicherheit
 
 * One-time Secret pro Rennen
-* Fingerprint-Bindung
+* Browser-Signatur aus normalen Request-Headern
 * Hash-Prüfung (Zeit + Secret + Spielername)
 * Session-Timeout
+* Zeit-Plausibilitaet: 3 min < Zeit < 60 min
+* Eingereichte Zeit darf nicht kuerzer als die Session-Laufzeit sein

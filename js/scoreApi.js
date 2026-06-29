@@ -1,8 +1,6 @@
-// ScoreApi – optionale Server-Anbindung fuer Highscores
+// ScoreApi – Server-Anbindung fuer Highscores
 const ScoreApi = {
-  baseUrl: window.GEOSAIL_SCORE_API
-    || localStorage.getItem('geosail-score-api')
-    || 'http://localhost:5000',
+  baseUrl: window.GEOSAIL_SCORE_API || 'http://localhost:5000',
   _session: null,
   _sessionPromise: null,
 

@@ -104,7 +104,6 @@ function update(dt) {
   }
 
   if (gameScreen === 'game' && Race.phase === 'finished' && !_scoreSaved) {
-    UI.saveScore(Race.raceTime);
     UI.showFinish();
     UI.showScreen('finish');
     UI.submitScore(Race.raceTime);

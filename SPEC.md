@@ -92,10 +92,24 @@
 - Scheinbarer Wind: roter Dreieckspfeil, zeigt woher der scheinbare Wind kommt
 - Klares, minimalistisches Design: dunkler semi-transparenter Hintergrund, heller Text
 
-### 10. Menü & Sound
+### 10. Menü, Sound & Highscores
 - Startmenü, Tutorial, Finish-Overlay: HTML-Overlays (wie bisher)
 - Sound: unverändert (Web Audio API)
-- Highscores: localStorage, Top 5
+- Highscores: Server-basiert, Top 5 im Startmenü und Finish-Overlay
+- Client startet eine Score-Session beim echten Rennstart (`pre_start` → `racing`)
+- Client reicht die Zielzeit mit Session-ID und SHA-256-Hash ein
+- Kein lokaler `localStorage`-Fallback für Bestzeiten
+
+### 10.1 Highscore-Server
+- Flask-Server in `server/app.py`, SQLite-Datenbank neben `app.py`
+- `GET /health` für Healthcheck
+- `POST /start-session` erzeugt Session-ID und Secret
+- `POST /submit-score` validiert Session, Browser-Signatur, Hash und Zeit
+- `GET /leaderboard?limit=...` liefert die schnellsten Zeiten
+- Browser-Signatur basiert nur auf normalen Request-Headern
+- Zeit-Plausibilität: `180 < time < 3600`
+- Eingereichte Zeit darf nicht kürzer als die Session-Laufzeit sein
+- CORS ist für lokale Entwicklungs-Origins freigeschaltet
 
 ### 11. Steuerung
 | Taste | Aktion |
@@ -135,8 +149,9 @@
 | 10 | Arcade-Tuning: Kurs kompakt, Boot schneller, Wind 14 kn | ✓ |
 | 11 | Visueller Polish: Kompass, Schatten, Wasser, HUD | ✓ |
 | 12 | Three.js-Rueckbau abgeschlossen | ✓ |
+| 13 | Server-Highscores: Flask, SQLite, Client-Anbindung, kein localStorage | ✓ |
 
 ---
 
-**Letztes Update**: 28. Juni 2026 - Canvas-2D-Stand mit projizierten Schatten und Kursindikatoren
+**Letztes Update**: 29. Juni 2026 - Server-Highscores mit Flask/SQLite und Client-Anbindung
 **Autor**: Patrick + Claude
