@@ -40,12 +40,9 @@ const MarksMesh = {
 
     ctx.save();
     ctx.fillStyle = color;
-    ctx.strokeStyle = 'rgba(255,255,255,0.32)';
-    ctx.lineWidth = 1 / Scene.zoom;
     ctx.beginPath();
     ctx.arc(x, y, 9, 0, Math.PI * 2);
     ctx.fill();
-    ctx.stroke();
     ctx.restore();
   },
 

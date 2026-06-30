@@ -1,14 +1,16 @@
 // Wind system – true wind direction/speed with slow random drift
 const Wind = {
-  dir:   Math.PI / 2,   // direction wind blows TO (0=north CW+); start: blowing east
+  dir:   Math.random() * Math.PI * 2, // direction wind blows TO (0=north CW+)
   speed: 14,            // world-units / second
 
   vx: 0, vy: 0,         // velocity vector (+x east, +y south / canvas)
 
   _driftTimer:  0,
-  _targetDir:   Math.PI / 2,
+  _targetDir:   null,
 
   update(dt) {
+    if (this._targetDir === null) this._targetDir = this.dir;
+
     this._driftTimer -= dt;
     if (this._driftTimer <= 0) {
       this._driftTimer     = 15 + Math.random() * 25;      // shift every 15–40 s
