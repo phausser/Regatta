@@ -19,8 +19,8 @@ ALLOWED_ORIGINS = {
 }
 
 DB_PATH = Path(__file__).with_name("highscores.db")
-SESSION_TTL_SECONDS = 600
-SUBMIT_GRACE_SECONDS = 120
+SESSION_TTL_SECONDS = 3600
+SUBMIT_GRACE_SECONDS = 600
 
 @app.after_request
 def add_cors_headers(response):
