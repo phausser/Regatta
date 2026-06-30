@@ -141,6 +141,7 @@ const UI = {
     this._el('race-hud').innerHTML = this._raceHudHTML();
     this._el('mute-indicator').classList.toggle('hidden', !Sfx.muted);
     this._drawCompass();
+    this._drawVane();
   },
 
   // ── Finish overlay ─────────────────────────────────────────────────────────
@@ -203,9 +204,9 @@ const UI = {
     const canvas = document.getElementById('compass-canvas');
     if (!canvas) return;
     const ctx = canvas.getContext('2d');
-    const R = 64;
+    const R = 32;
     const cx = canvas.width / 2;
-    const cy = canvas.height / 2 - 14;
+    const cy = canvas.height / 2 - 7;
 
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
@@ -214,7 +215,7 @@ const UI = {
     ctx.fillStyle = 'rgba(5,18,36,0.76)';
     ctx.fill();
 
-    ctx.font = '18überpx "Roboto Mono", monospace';
+    ctx.font = '9px "Roboto Mono", monospace';
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
     ctx.fillStyle = 'rgba(224,238,255,0.2)';
@@ -225,6 +226,33 @@ const UI = {
     this._compassArrow(ctx, cx, cy, R * 0.9, Wind.dir + Math.PI, '#3388ff');
     const awDir = Math.atan2(Boat.awvx, -Boat.awvy);
     this._compassArrow(ctx, cx, cy, R * 0.8, awDir + Math.PI, '#ff0066');
+  },
+
+  _drawVane() {
+    const canvas = document.getElementById('vane-canvas');
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+    const R = 32;
+    const cx = canvas.width / 2;
+    const cy = canvas.height / 2 - 7;
+
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    ctx.beginPath();
+    ctx.arc(cx, cy, R + 5, 0, Math.PI * 2);
+    ctx.fillStyle = 'rgba(5,18,36,0.76)';
+    ctx.fill();
+
+    ctx.save();
+    ctx.globalCompositeOperation = 'destination-out';
+    ctx.beginPath();
+    ctx.moveTo(cx, cy);
+    ctx.arc(cx, cy, R + 6, -Math.PI / 2 - Math.PI / 6, -Math.PI / 2 + Math.PI / 6);
+    ctx.closePath();
+    ctx.fill();
+    ctx.restore();
+
+    this._compassArrow(ctx, cx, cy, R * 0.78, Math.PI - Boat.awa, '#ff0066');
   },
 
   _compassArrow(ctx, cx, cy, len, dir, color) {

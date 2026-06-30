@@ -170,14 +170,18 @@
       inset: 0;
     }
 
-    /* Compass (top-left) */
-    #compass-wrap {
+    /* Wind instruments (top-left) */
+    #wind-instruments {
       position: absolute;
       top: 14px;
       left: 14px;
+      display: flex;
+      gap: 8px;
+      align-items: flex-start;
     }
 
-    #compass-canvas {
+    #compass-canvas,
+    #vane-canvas {
       display: block;
     }
 
@@ -326,8 +330,9 @@
 
     <!-- ── In-game HUD ─────────────────────────────────────────────────────── -->
     <div id="hud-game" class="hidden">
-      <div id="compass-wrap">
-        <canvas id="compass-canvas" width="180" height="210"></canvas>
+      <div id="wind-instruments">
+        <canvas id="compass-canvas" width="90" height="105"></canvas>
+        <canvas id="vane-canvas" width="90" height="105"></canvas>
       </div>
       <div id="race-hud"></div>
       <div id="mute-indicator" class="hidden">MUTE M</div>
