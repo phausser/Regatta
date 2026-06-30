@@ -52,14 +52,57 @@ const ScoreApi = {
   },
 
   async _post(path, body) {
-    const res = await fetch(`${this.baseUrl}${path}`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(body),
-    });
-    const data = await res.json().catch(() => ({}));
-    if (!res.ok) throw new Error(data.error || `Request failed: ${res.status}`);
-    return data;
+    const url = `${this.baseUrl}${path}`;
+    let res;
+    try {
+      res = await fetch(url, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(body),
+      });
+    } catch (err) {
+      throw this._requestError('Network request failed', {
+        cause: err,
+        method: 'POST',
+        url,
+        body,
+      });
+    }
+
+    const data = await res.json().catch(() => null);
+    if (!res.ok) {
+      throw this._requestError((data && data.error) || `Request failed: ${res.status}`, {
+        method: 'POST',
+        url,
+        status: res.status,
+        statusText: res.statusText,
+        body,
+        response: data,
+      });
+    }
+    return data || {};
+  },
+
+  _requestError(message, details) {
+    const err = new Error(message);
+    err.details = details;
+    if (details && details.cause) err.cause = details.cause;
+    return err;
+  },
+
+  _requestDetails(err) {
+    if (!err) return {};
+    const details = err.details || {};
+    return {
+      message: err.message || String(err),
+      method: details.method,
+      url: details.url,
+      status: details.status,
+      statusText: details.statusText,
+      response: details.response,
+      requestBody: details.body,
+      cause: details.cause || err.cause,
+    };
   },
 
   playerName(name) {

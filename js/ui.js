@@ -15,7 +15,8 @@ const UI = {
   // ── Highscores ─────────────────────────────────────────────────────────────
   startScoreSession() {
     this._scoreStatus = '';
-    ScoreApi.startSession().catch(() => {
+    ScoreApi.startSession().catch((err) => {
+      this._logScoreError('Score-Session konnte nicht gestartet werden', err);
       ScoreApi.clearSession();
       this._scoreStatus = 'Server nicht erreichbar';
     });
@@ -29,13 +30,32 @@ const UI = {
     try {
       await ScoreApi.submitScore(timeSeconds, playername);
       this._scoreStatus = 'Online gespeichert';
+    } catch (err) {
+      this._logScoreError('Score konnte nicht gespeichert werden', err, {
+        playername,
+        timeSeconds,
+      });
+      this._scoreStatus = this._scoreErrorLabel(err);
+      this._newRank = -1;
+      this.showFinish();
+      return;
+    }
+
+    try {
       await this.refreshScores();
       this._newRank = this._rankForTime(timeSeconds, this._serverScores);
     } catch (err) {
-      this._scoreStatus = this._scoreErrorLabel(err);
+      console.warn('[GeoSail] Score gespeichert, aber Bestenliste konnte nicht aktualisiert werden', err);
       this._newRank = -1;
     }
     this.showFinish();
+  },
+
+  _logScoreError(label, err, context = {}) {
+    console.error(`[GeoSail] ${label}`, {
+      ...context,
+      ...ScoreApi._requestDetails(err),
+    });
   },
 
   _scoreErrorLabel(err) {
