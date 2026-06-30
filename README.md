@@ -73,4 +73,4 @@ window.GEOSAIL_SCORE_API = 'http://localhost:5050'
 * Hash-Prüfung (Zeit + Secret + Spielername)
 * Session-Timeout
 * Zeit-Plausibilitaet: 3 min < Zeit < 60 min
-* Eingereichte Zeit darf nicht kuerzer als die Session-Laufzeit sein
+* Eingereichte Zeit darf nicht kuerzer als die Session-Laufzeit sein; nach Zieleinlauf gibt es 120 s Toleranz fuer Namenseingabe und Submit-Latenz

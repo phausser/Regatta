@@ -32,10 +32,20 @@ const UI = {
       await this.refreshScores();
       this._newRank = this._rankForTime(timeSeconds, this._serverScores);
     } catch (err) {
-      this._scoreStatus = 'Server nicht erreichbar';
+      this._scoreStatus = this._scoreErrorLabel(err);
       this._newRank = -1;
     }
     this.showFinish();
+  },
+
+  _scoreErrorLabel(err) {
+    const message = err && err.message ? err.message : '';
+    if (message === 'Score time shorter than session age') return 'Speichern zu spaet bestaetigt';
+    if (message === 'Implausible time') return 'Zeit nicht plausibel';
+    if (message === 'Session expired') return 'Score-Session abgelaufen';
+    if (message === 'Invalid session' || message === 'No score session') return 'Keine gueltige Score-Session';
+    if (message === 'Validation failed') return 'Score-Validierung fehlgeschlagen';
+    return 'Server nicht erreichbar';
   },
 
   requestPlayerName() {

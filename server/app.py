@@ -20,6 +20,7 @@ ALLOWED_ORIGINS = {
 
 DB_PATH = Path(__file__).with_name("highscores.db")
 SESSION_TTL_SECONDS = 600
+SUBMIT_GRACE_SECONDS = 120
 
 @app.after_request
 def add_cors_headers(response):
@@ -131,7 +132,7 @@ def submit_score():
         conn.close()
         return jsonify({"error": "Session expired"}), 403
 
-    if score_time < session_age:
+    if score_time + SUBMIT_GRACE_SECONDS < session_age:
         conn.close()
         return jsonify({"error": "Score time shorter than session age"}), 400
 
