@@ -1,4 +1,4 @@
-# GeoSail Regatta
+# Regatta
 
 Minimalistische 2D-Segel-Regatta-Simulation im Browser. Top-Down, geometrischer Look, echter scheinbarer Wind.
 
@@ -37,7 +37,7 @@ Minimalistische 2D-Segel-Regatta-Simulation im Browser. Top-Down, geometrischer 
 
 ## Server
 
-Der Server speichert die globalen Top-5-Bestzeiten in SQLite. Lokale Browser-Highscores werden nicht mehr verwendet.
+Der Server speichert die globalen Top-5-Bestzeiten in SQLite.
 
 ### Installation
 
@@ -58,19 +58,3 @@ Dann im Browser vor dem Spielstart die API-URL setzen:
 ```js
 window.GEOSAIL_SCORE_API = 'http://localhost:5050'
 ```
-
-### Endpoints
-
-* `GET /health` — Healthcheck
-* `POST /start-session` — Session + Secret fuer ein Rennen erzeugen
-* `POST /submit-score` — Zeit + Hash validieren und speichern
-* `GET /leaderboard?limit=10` — Top-Zeiten abrufen (max. 100)
-
-### Sicherheit
-
-* One-time Secret pro Rennen
-* Browser-Signatur aus normalen Request-Headern
-* Hash-Prüfung (Zeit + Secret + Spielername)
-* Session-Timeout
-* Zeit-Plausibilitaet: 3 min < Zeit < 60 min
-* Eingereichte Zeit darf nicht kuerzer als die Session-Laufzeit sein; nach Zieleinlauf gibt es 120 s Toleranz fuer Namenseingabe und Submit-Latenz
